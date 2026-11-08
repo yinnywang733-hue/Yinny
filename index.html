@@ -51,6 +51,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 .lr.sel .cell.cur{background:#ffc2bd}
 .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .trow{display:flex;gap:4px}
+#nw{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:70}#nw[hidden]{display:none}#nwb{background:#2d2d38;color:#fff;border-radius:10px;padding:12px;width:min(480px,92%);max-height:88%;overflow:auto;display:flex;flex-direction:column;gap:6px}#nwb h4{margin:6px 0 2px;color:#ffd23f;font-size:14px}#nwb li{font-size:13px;margin:2px 0}#nwb ul{margin:0;padding-left:18px}
 #np{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;z-index:45}#np[hidden],#cmBar[hidden]{display:none}
 #npb{background:#2d2d38;color:#fff;border-radius:8px;padding:10px;width:min(440px,92%);display:flex;flex-direction:column;gap:6px}#npb button{padding:8px}#npb .trow button{flex:1}
 #cmBar{position:fixed;top:6px;right:8px;z-index:35;background:#7a2fd6;color:#fff;border-radius:8px;padding:5px 8px;display:flex;gap:6px;align-items:center;font-size:13px}
@@ -122,7 +123,6 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="tg">
       <button data-t="brush" class="on"><b>✏️</b>Brush</button>
       <button data-t="eraser"><b>🧽</b>Eraser</button>
-      <button data-t="outline"><b>◎</b>Outline</button>
       <button data-t="line"><b>／</b>Line</button>
       <button data-t="shape"><b>▭</b>Shapes</button>
       <button data-t="lasso"><b>➰</b>Lasso</button>
@@ -142,7 +142,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Colour</label><input type="color" id="col" value="#000000"><input type="text" id="hex" value="#000000" maxlength="7" autocomplete="off" spellcheck="false"></div>
     <div class="sec"><label>Palette (hold to replace)</label><div id="pal"></div><button id="palAdd">＋ Add this colour</button></div>
     <div class="sec"><label>Brush size <b id="sizeN">6</b></label><input type="range" id="size" min="1" max="300" value="6"><div id="sizePre"></div><button id="sizeAdd">＋ Save this size</button></div>
-    <div class="box sec" id="olBox" hidden><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
+    <div class="box sec" id="olBox" hidden><button id="olTog">Outline: off</button><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
     <div class="box sec" id="clipBox" hidden><label>Movieclip = everything on this layer, packed into a loop you can place, move, resize and tween</label><button id="cMake">＋ Make clip from this layer</button><button id="cNew">🎬 New clip (blank drawing)</button><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
 <label>📚 Library: shared by all your projects</label><div id="lList"></div></div>
     <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button></div><button id="shF">Fill: off</button></div>
@@ -160,7 +160,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="objBox" hidden><label>Only vector strokes work here: double-tap Brush to make one, tap it, then go to another frame and move/bend it = keyframe + tween</label>
       <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
     </div>
-    <div class="box sec" id="camBox" hidden><label>Camera zoom</label><input type="range" id="camz" min="50" max="300" value="100"></div>
+    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div></div>
     <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
     <div class="sec"><label>Layer opacity / blend</label><input type="range" id="lop" min="0" max="100" value="100"><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select></div>
     <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
@@ -168,7 +168,8 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Canvas background</label><input type="color" id="bgc" value="#ffffff"></div>
     <div class="sec"><label>Sound</label><button id="sndAdd">♫ Import sound</button><button id="sndDel" hidden>✕ Remove sound</button><input type="file" id="sndF" accept="audio/*" hidden></div>
     <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div id="fxL"></div></div>
-    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
+    <div class="sec"><button id="nwBtn">✨ What's new</button></div>
+    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
   </div>
 
   <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
@@ -186,6 +187,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
 <div id="cmBar" hidden><b>🎬 Making a clip</b><button id="cmDone">✔ Add as clip</button><button id="cmNo">✕ Cancel</button></div>
+<div id="nw" hidden><div id="nwb"><b id="nwT"></b><div id="nwL"></div><button id="nwOk" class="on">Got it</button></div></div>
 <div id="dlg" hidden><div id="dbox">
   <div id="dlabel"></div>
   <input id="dinp" type="text" maxlength="60" autocomplete="off" inputmode="none"><div id="kb"></div>
@@ -209,8 +211,10 @@ const sc = $('tlscroll');
 let clips = [];                                                  // movieclips: { id, name, x, y, w, h, n, u: [unique frame canvases], m: [frame index per clip frame] }
 let bgCol = '#ffffff', xAlpha = false, audio = null; const aEl = new Audio();
 let layers = [{ name: 'Layer 1', vis: true, lock: false, cells: [] }], layerCount = 1, len = 1;     // len = length of the animation in frames
-let cams = [{ x: W / 2, y: H / 2, z: 1 }];                       // one camera per frame column (a new column copies the one before it)
-const cam = t => { while (cams.length <= t) cams.push({ ...cams[cams.length - 1] }); return cams[t]; };
+let cams = [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }];            // the camera only changes where YOU set it (k = keyed); every frame after that holds the same camera
+const cam = t => { while (cams.length <= t) cams.push({ ...cams[cams.length - 1], k: 0 }); let i = t; while (i > 0 && !cams[i].k) i--; return cams[i]; };
+const camKey = t => { const e = cam(t); if (cams[t] === e) return e; cams[t] = { ...e, k: 1 }; return cams[t]; };
+const camMig = a => { if (a.some(c => c.k)) return a; a.forEach((c, i) => { c.k = !i || c.x !== a[i - 1].x || c.y !== a[i - 1].y || c.z !== a[i - 1].z || (c.r || 0) !== (a[i - 1].r || 0) ? 1 : 0; if (c.r == null) c.r = 0; }); return a; };
 let lay = 0, tool = 'brush', color = '#000000', size = 6, onion = true;
 let playing = false, timer = null, fps = 12;
 let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
@@ -221,7 +225,8 @@ const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
 const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
 const fixLen = () => { len = Math.max(1, ...layers.flatMap(L => L.cells.map(c => c.s + c.d))); };
-const cols = () => len + SPARE;
+const refEnd = () => refV && isFinite(refV.v.duration) ? Math.min(1500, refV.start + Math.ceil(refV.v.duration * fps)) : 0;
+const cols = () => Math.max(len, refEnd()) + SPARE;
 const cvOf = c => c.cv || (c.cv = mk());
 function ensureCell(k, t) {                                      // drawing on an empty frame makes a keyframe there
   let c = cellAt(k, t); if (c) return c;
@@ -341,7 +346,7 @@ function cancelDraw() {                            // a 2nd finger landed: undo 
   if (!drag) return; drag = false;
   if ((tool === 'brush' || tool === 'eraser' || tool === 'line' || tool === 'shape') && !isVec() && !vecEr() && !boardMode) { const s = undo.pop(); if (s && s.cv) s.cv.getContext('2d').putImageData(s.d, 0, 0); }
   if (bundle) { applyBundle(bundle); bundle = null; }
-  if (tool === 'cam') Object.assign(cam(ct), camOrig);
+  if (tool === 'cam') Object.assign(camKey(ct), camOrig);
   if (tool === 'vsel' && vst && vst.moved) { const s = undo.pop(); if (s && s.st) restoreStruct(s.st); }
   if (tool === 'vsel') { vst = null; vpoly = []; }
   if ((tool === 'obj' || tool === 'key') && oMoved) { const s = undo.pop(); if (s && s.st) restoreStruct(s.st); selObj = null; }
@@ -377,14 +382,15 @@ function onionDraw(c, col, a) {                    // the coloured ghost of a ne
 let fxs = [];                                       // camera effects: { k: 'shake'|'flash'|'blur'|'punch', t: first frame, d: frames, a: power } (seen when you Play or export)
 const rnd = (t, k) => { const x = Math.sin(t * 127.1 + k * 311.7) * 43758.5453; return (x - Math.floor(x)) * 2 - 1; };
 function camFx(t) {
-  const c = cam(t); let x = c.x, y = c.y, z = c.z, fl = 0, bl = 0;
+  const c = cam(t); let x = c.x, y = c.y, z = c.z, fl = 0, bl = 0; const r = c.r || 0;
   fxs.forEach(e => { if (t < e.t || t >= e.t + e.d) return; const k = 1 - (t - e.t) / e.d;
     if (e.k === 'shake') { x += rnd(t, 1) * e.a * k; y += rnd(t, 2) * e.a * k; } else if (e.k === 'flash') fl = Math.max(fl, e.a / 100 * k); else if (e.k === 'blur') bl = Math.max(bl, e.a * k); else if (e.k === 'punch') z *= 1 + e.a / 100 * k; });
-  return { x, y, z, fl, bl };
+  return { x, y, z, r, fl, bl };
 }
 function drawCam(g, t, w, h) {                       // what the camera sees at frame t, with its effects
-  const c = camFx(t), sw = OW / c.z, sh = OH / c.z; if (c.bl > .5) g.filter = 'blur(' + (c.bl * w / OW).toFixed(1) + 'px)';
-  g.drawImage(comp, c.x - sw / 2, c.y - sh / 2, sw, sh, 0, 0, w, h); g.filter = 'none';
+  const c = camFx(t), k = w * c.z / OW; if (c.bl > .5) g.filter = 'blur(' + (c.bl * w / OW).toFixed(1) + 'px)';
+  if (c.r) { g.fillStyle = bgCol; g.fillRect(0, 0, w, h); }
+  g.save(); g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); g.filter = 'none';
   if (c.fl > .01) { g.save(); g.globalAlpha = Math.min(1, c.fl); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.restore(); }
 }
 let wave = null;                                    // sound picture: peak per 1/100 s
@@ -438,12 +444,14 @@ function dash(on) { ox.setLineDash(on ? [8, 6] : []); }
 function overlay() {
   ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); ox.setTransform(1, 0, 0, 1, MX, MY);
   const c = cam(ct), sw = OW / c.z, sh = OH / c.z;       // camera frame
-  ox.save(); ox.fillStyle = 'rgba(0,0,0,.2)'; ox.beginPath(); ox.rect(0, 0, W, H); ox.rect(c.x - sw / 2, c.y - sh / 2, sw, sh); ox.fill('evenodd'); ox.restore();   // dim everything the camera can't see
+  const cr = c.r || 0, cc = Math.cos(cr), cs = Math.sin(cr), cp = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => ({ x: c.x + a * sw / 2 * cc - b * sh / 2 * cs, y: c.y + a * sw / 2 * cs + b * sh / 2 * cc }));
+  const camPath = () => { ox.moveTo(cp[0].x, cp[0].y); for (let i = 1; i < 4; i++) ox.lineTo(cp[i].x, cp[i].y); ox.closePath(); };
+  ox.save(); ox.fillStyle = 'rgba(0,0,0,.2)'; ox.beginPath(); ox.rect(0, 0, W, H); camPath(); ox.fill('evenodd'); ox.restore();   // dim everything the camera can't see
   if (grid) { const g = +$('gridN').value, u = pxw(1); ox.save(); ox.lineWidth = Math.max(u, 1); ox.strokeStyle = 'rgba(0,120,255,.35)'; ox.beginPath();
     for (let x = 0; x <= W; x += g) { ox.moveTo(x, 0); ox.lineTo(x, H); } for (let y = 0; y <= H; y += g) { ox.moveTo(0, y); ox.lineTo(W, y); } ox.stroke();
     ox.strokeStyle = 'rgba(0,120,255,.7)'; ox.beginPath(); ox.moveTo(W / 2, 0); ox.lineTo(W / 2, H); ox.moveTo(0, H / 2); ox.lineTo(W, H / 2); ox.stroke(); ox.restore(); }
   ox.strokeStyle = '#e8231c'; ox.lineWidth = tool === 'cam' ? 5 : 2; dash(true);
-  ox.strokeRect(c.x - sw / 2, c.y - sh / 2, sw, sh); dash(false);
+  ox.beginPath(); camPath(); ox.stroke(); dash(false);
   if (sel) {
     drawSel(ox);
     const g = selGeo();
@@ -655,10 +663,16 @@ function vecEnd() {
   let a = pts; pts = []; if (!a.length) return;
   a = a.length > 1 ? simplify(a, 5) : a; osnap();
   const pv = { x: a.reduce((n, p) => n + p.x, 0) / a.length, y: a.reduce((n, p) => n + p.y, 0) / a.length };
-  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...(tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
+  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
   build(); save(); render();
 }
-const objUI = () => { $('oMove').classList.toggle('on', !bendMode); $('oBend').classList.toggle('on', bendMode); $('oEase').textContent = 'Ease: ' + (selObj && selObj.ease ? 'on' : 'off'); $('oTw').textContent = 'Tween: ' + (selObj && selObj.tw || 'all'); const ez = (selObj && selObj.ez) || 0; if ($('kEz')) { $('kEz').value = ez; $('kEzN').textContent = ez; } };
+let olOn = false;
+function olUI() { const on = (tool === 'obj' || tool === 'key') ? !!(selObj && selObj.ol) : olOn; $('olTog').textContent = 'Outline: ' + (on ? 'on' : 'off'); $('olTog').classList.toggle('on', on); }
+$('olTog').onclick = () => {
+  if (tool === 'obj' || tool === 'key') { if (!selObj) return toast('Tap a stroke first'); osnap(); if (selObj.ol) { delete selObj.ol; delete selObj.olw; delete selObj.olside; } else { selObj.ol = olColor; selObj.olw = olW * SK; selObj.olside = olSide; } olUI(); render(); save(); }
+  else { olOn = !olOn; olUI(); render(); }
+};
+const objUI = () => { olUI(); $('oMove').classList.toggle('on', !bendMode); $('oBend').classList.toggle('on', bendMode); $('oEase').textContent = 'Ease: ' + (selObj && selObj.ease ? 'on' : 'off'); $('oTw').textContent = 'Tween: ' + (selObj && selObj.tw || 'all'); const ez = (selObj && selObj.ez) || 0; if ($('kEz')) { $('kEz').value = ez; $('kEzN').textContent = ez; } };
 function resample(q, n) {                                          // the same line, redrawn with n evenly spaced points
   if (n === 1 || q.length === 1) return Array.from({ length: n }, () => ({ x: q[0].x, y: q[0].y }));
   const d = [0]; for (let i = 1; i < q.length; i++) d.push(d[i - 1] + Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y));
@@ -751,7 +765,7 @@ function build() {
   if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lbm').value = layers[lay].bm || 'source-over'; $('lmk').value = layers[lay].mk || ''; }
   tlbox.innerHTML = ''; const n = cols();
   const rr = el('lr rr'); rr.append(el('ln corner'));
-  for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
+  for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
   tlbox.append(rr);
   let pg = null;
   for (let k = layers.length - 1; k >= 0; k--) {   // top layer first
@@ -848,7 +862,7 @@ $('add').onclick = () => {                         // a brand-new blank frame af
     }
   });
   layers[lay].cells.push({ s: n, d: 1, cv: null, objs: [] }); layers[lay].cells.sort((a, b) => a.s - b.s);
-  cam(n - 1); cams.splice(n, 0, { ...cams[n - 1] }); fixLen(); ct = n; selObj = null; syncCam(); build(); render(); save();
+  cam(n - 1); cams.splice(n, 0, { ...cams[n - 1], k: 0 }); fixLen(); ct = n; selObj = null; syncCam(); build(); render(); save();
 };
 $('hold').onclick = () => {                         // frame extension: the drawing is simply shown longer
   if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
@@ -1003,6 +1017,7 @@ async function importVideo(f) {
       const cv = mk(); fitDraw(cv.getContext('2d'), v, v.videoWidth, v.videoHeight); frames.push({ cv, d: 1 }); if (i % 6 === 5) toast('Reading video… ' + (i + 1) + '/' + n);
     }
     URL.revokeObjectURL(v.src); addMediaLayer('Video', frames); toast('Imported ' + n + ' frames (' + (n / fps).toFixed(1) + ' s)');
+    if (!audio && await soundFromFile(f)) toast('Imported ' + n + ' frames + the video sound');
   });
 }
 mediaIn.onchange = async () => { const f = mediaIn.files[0]; if (!f) return; try { if (/gif/i.test(f.type)) await importGif(f); else await importVideo(f); } catch (e) { toast('Could not import that file'); } };
@@ -1164,7 +1179,7 @@ function setTool(t, keep) {
   if (t !== 'obj' && t !== 'key') selObj = null;
   if (t === 'vsel' || t === 'lasso' || t === 'cam' || t === 'outline' || t === 'clip' || t === 'shape' || t === 'text' || t === 'obj' || t === 'key' || t === 'eraser' || t === 'brush' || t === 'line' || t === 'bucket') $('app').classList.remove('noopt');   // those tools need the options panel
   document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  $('selBox').hidden = t !== 'lasso'; $('vsBox').hidden = t !== 'vsel'; if (t !== 'vsel') vsel = []; $('bkBox').hidden = t !== 'bucket'; $('olBox').hidden = t !== 'outline' && t !== 'obj' && t !== 'key'; $('clipBox').hidden = t !== 'clip'; if (t === 'clip') buildClips(); $('shpBox').hidden = t !== 'shape'; $('txtBox').hidden = t !== 'text'; $('camBox').hidden = t !== 'cam'; $('objBox').hidden = t !== 'obj' && t !== 'key'; $('keyBox').hidden = t !== 'key'; vecUI(); objUI();
+  $('selBox').hidden = t !== 'lasso'; $('vsBox').hidden = t !== 'vsel'; if (t !== 'vsel') vsel = []; $('bkBox').hidden = t !== 'bucket'; $('olBox').hidden = !['outline', 'obj', 'key', 'brush', 'line', 'shape'].includes(t); $('clipBox').hidden = t !== 'clip'; if (t === 'clip') buildClips(); $('shpBox').hidden = t !== 'shape'; $('txtBox').hidden = t !== 'text'; $('camBox').hidden = t !== 'cam'; $('objBox').hidden = t !== 'obj' && t !== 'key'; $('keyBox').hidden = t !== 'key'; vecUI(); objUI();
   syncCam(); render();
 }
 document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => setTool(b.dataset.t));
@@ -1206,8 +1221,13 @@ function buildSizes() {                                             // tap a sav
 $('sizeAdd').onclick = () => { if (sizes.length < 12 && !sizes.includes(size)) { sizes.push(size); sizes.sort((a, b) => a - b); saveSizes(); buildSizes(); } };
 buildSizes();
 $('onion').onclick = () => { onion = !onion; $('onion').classList.toggle('on', onion); render(); };
-function syncCam() { $('camz').value = Math.round(cam(ct).z * 100); }
-$('camz').oninput = e => { cam(ct).z = e.target.value / 100; render(); save(); };   // only this frame
+function syncCam() { const c = cam(ct); $('camz').value = Math.round(c.z * 100); $('camr').value = Math.round((c.r || 0) * 180 / Math.PI); $('camrN').textContent = $('camr').value + '°'; }
+$('camz').oninput = e => { camKey(ct).z = e.target.value / 100; render(); save(); };   // from this frame on, until you set it again
+$('camr').oninput = e => { camKey(ct).r = e.target.value * Math.PI / 180; $('camrN').textContent = e.target.value + '°'; render(); save(); };
+let camClip = null;
+$('camCopy').onclick = () => { const c = cam(ct); camClip = { x: c.x, y: c.y, z: c.z, r: c.r || 0 }; toast('Camera copied (frame ' + (ct + 1) + ')'); };
+$('camPaste').onclick = () => { if (!camClip) return toast('Copy a camera first'); osnap(); Object.assign(camKey(ct), camClip); syncCam(); render(); save(); toast('Camera pasted on frame ' + (ct + 1)); };
+$('camReset').onclick = () => { osnap(); Object.assign(camKey(ct), { x: W / 2, y: H / 2, z: 1, r: 0 }); syncCam(); render(); save(); };
 
 function snap() {
   dirtyOnion();                                  // remember this keyframe's pixels before drawing on it
@@ -1228,8 +1248,9 @@ function stroke(a, b) {
       if (boardMode) { const m = w + 4; boardDraw(Math.min(a.x, b.x) - m, Math.min(a.y, b.y) - m, Math.max(a.x, b.x) + m, Math.max(a.y, b.y) + m, draw); } else draw(fc());
       return;
     }
-    const draw = x => { x.lineCap = x.lineJoin = 'round'; x.lineWidth = size * SK; x.strokeStyle = color; x.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : dm; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); x.globalCompositeOperation = 'source-over'; };
-    if (boardMode) { const m = size * SK / 2 + 2; boardDraw(Math.min(a.x, b.x) - m, Math.min(a.y, b.y) - m, Math.max(a.x, b.x) + m, Math.max(a.y, b.y) + m, draw); } else draw(fc());
+    const draw = x => { x.lineCap = x.lineJoin = 'round'; x.lineWidth = size * SK; x.strokeStyle = color; x.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : dm; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); if (olOn && tool !== 'eraser') { x.globalCompositeOperation = 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); } x.globalCompositeOperation = 'source-over'; };   // outline goes BEHIND, so strokes mesh
+
+    if (boardMode) { const m = (size / 2 + olW) * SK + 2; boardDraw(Math.min(a.x, b.x) - m, Math.min(a.y, b.y) - m, Math.max(a.x, b.x) + m, Math.max(a.y, b.y) + m, draw); } else draw(fc());
   };
   one(a, b);
   if (sym & 1) one({ x: W - a.x, y: a.y }, { x: W - b.x, y: b.y });
@@ -1247,6 +1268,7 @@ function drawShape(x, a, b) {                       // rectangle / square: corne
     if (shapeKind === 'sphere') { const g = x.createRadialGradient(a.x - r * .35, a.y - r * .35, r * .05, a.x, a.y, r); g.addColorStop(0, mix(color, '#ffffff', .8)); g.addColorStop(.4, color); g.addColorStop(1, mix(color, '#000000', .55)); x.fillStyle = g; x.fill(); }
     else shapeFill ? x.fill() : x.stroke();
   }
+  if (olOn) { x.globalCompositeOperation = 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); }
   x.restore();
 }
 ['R:rect', 'S:square', 'C:circle', 'B:sphere'].forEach(q => { const [i, k] = q.split(':'); $('sh' + i).onclick = () => { shapeKind = k; ['R', 'S', 'C', 'B'].forEach(j => $('sh' + j).classList.toggle('on', j === i)); }; });
@@ -1408,7 +1430,7 @@ ov.onpointermove = e => {
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, S(e.clientX, e.clientY));
   if (ptrs.size >= 2) { if (gest) gMove(); return; }
   hov = P(e); if (!drag) { if (!playing) overlay(); return; } const p = hov;
-  if (tool === 'cam') { const c = cam(ct); c.x = camOrig.x + (p.x - last.x); c.y = camOrig.y + (p.y - last.y); }
+  if (tool === 'cam') { const c = camKey(ct); c.x = camOrig.x + (p.x - last.x); c.y = camOrig.y + (p.y - last.y); }
   else if (tool === 'lasso') {
     if (mode === 'move') { sel.x = p.x - off.x; sel.y = p.y - off.y; }
     else if (mode === 'scale') { const g = selGeo(); sel.s = Math.min(8, Math.max(.1, xf.s * Math.hypot(p.x - g.c.x, p.y - g.c.y) / xf.d)); }
@@ -1466,7 +1488,7 @@ function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAn
 let pcache = null;                                 // play = every frame drawn ONCE up front, then just shown: smooth even on a slow phone
 async function prepare() {
   const n = len, f = Math.min(1, Math.sqrt(140e6 / (n * 4 * OW * OH))), w = Math.round(OW * f), h = Math.round(OH * f), map = new Map(), arr = [];
-  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.fl + ',' + c.bl)(camFx(t));   // frames that look identical share one picture
+  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl)(camFx(t));   // frames that look identical share one picture
   let t0 = performance.now();
   for (let t = 0; t < n; t++) {
     const k = keyOf(t); let cv = map.get(k);
@@ -1482,17 +1504,17 @@ async function prepare() {
 }
 $('play').onclick = async () => {
   if (playing) return stop();
-  if (len < 2) return;
+  const plen = Math.max(len, refEnd()); if (plen < 2) return;     // with a reference video, Play runs for the whole video even if you have no frames
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
   try { pcache = refV ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
   $('toast').classList.remove('on');
-  let t = ct >= len ? 0 : ct;
+  let t = ct >= plen ? 0 : ct;
   if (audio) { aEl.currentTime = t / fps; aEl.play().catch(() => {}); }
   ac(); sfxFrame(t);
   let prev = performance.now(), acc = 0, shown = 0, since = prev; fpsTxt = ''; const fd = () => 1000 / fps;
   const tick = now => {                            // steady frame pacing: skips frames if the phone falls behind instead of slowing down
     if (!playing) return; acc += Math.min(now - prev, 250); prev = now;
-    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = (t + k) % len; if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame((t + j) % len); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
+    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = (t + k) % plen; if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame((t + j) % plen); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
     timer = requestAnimationFrame(tick);
   };
   timer = requestAnimationFrame(tick);
@@ -1625,7 +1647,7 @@ function loadData(d) {
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
-  fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1 }];
+  fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
   layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
@@ -1639,7 +1661,7 @@ function loadData(d) {
   fixLen(); build(); render();
 }
 const lastSize = () => { let a = [1280, 720]; try { a = (localStorage.getItem('easysize') || '').split('x').map(Number); } catch (e) {} return a[0] && a[1] ? a : [1280, 720]; };
-const blank = (o = {}) => loadData({ v: 3, ow: o.ow || lastSize()[0], oh: o.oh || lastSize()[1], fps: o.fps || +(localStorage.getItem('easyfps') || 12), len: 1, oid: 1, cams: [{ x: W / 2, y: H / 2, z: 1 }], layers: [{ name: 'Layer 1', vis: true, lock: false, cells: [] }] });
+const blank = (o = {}) => loadData({ v: 3, ow: o.ow || lastSize()[0], oh: o.oh || lastSize()[1], fps: o.fps || +(localStorage.getItem('easyfps') || 12), len: 1, oid: 1, cams: [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }], layers: [{ name: 'Layer 1', vis: true, lock: false, cells: [] }] });
 const flush = async () => { clearTimeout(st); if (pid || layers.some(L => L.cells.length)) await saveNow(); };
 async function drawProjects() {
   const list = (await allP()).sort((a, b) => b.t - a.t), g = $('pjg'); g.innerHTML = '';
@@ -1697,11 +1719,18 @@ function buildFx() {
 }
 document.querySelectorAll('[data-fx]').forEach(b => b.onclick = () => { if (playing) return; const k = b.dataset.fx; fxs.push({ k, t: ct, d: FXN[k][1], a: FXN[k][2] }); buildFx(); build(); save(); toast(FXN[k][0] + ' added at frame ' + (ct + 1) + ' (press Play to see it)'); });
 buildFx();
-function rvUI() { $('rvBox').hidden = !refV; if (refV) $('rvStart').textContent = 'Video starts at frame ' + (refV.start + 1); }
+function rvUI() { $('rvBox').hidden = !refV; if (refV) { $('rvStart').textContent = 'Video starts at frame ' + (refV.start + 1); $('rvSnd').textContent = refV.v.muted ? '🔇 Video sound: off' : '🔊 Video sound: on'; } build(); }
+async function soundFromFile(f) {                    // take the sound track of a video / audio file into the project's sound (so it shows in the waveform and exports)
+  if (f.size > 30e6) { toast('That file is too big to keep its sound (30 MB max)'); return false; }
+  try { const buf = await f.arrayBuffer(); ac(); await AC.decodeAudioData(buf.slice(0)); } catch (e) { return false; }
+  return await new Promise(res => { const r = new FileReader(); r.onload = () => { audio = { name: f.name, url: r.result }; aEl.src = audio.url; sndUI(); save(); decodeWave(); res(true); }; r.onerror = () => res(false); r.readAsDataURL(f); });
+}
+$('rvSnd').onclick = () => { if (refV) { refV.v.muted = !refV.v.muted; rvUI(); } };
+$('rvToProj').onclick = async () => { if (!refV) return; toast('Reading its sound…'); if (await soundFromFile(refV.file)) { refV.v.muted = true; rvUI(); toast('Video sound added to the project (shows in the waveform, exports too)'); } else toast('This video has no sound I can read'); };
 $('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
 $('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (refV) URL.revokeObjectURL(refV.v.src);
-  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon();
-  v.onerror = () => { refV = null; rvUI(); toast('Could not open that video'); }; refV = { v, op: .6, start: ct }; $('rvOp').value = 60; rvUI(); toast('Reference video starts at frame ' + (ct + 1) + ' (not saved or exported)'); };
+  const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
+  v.onerror = () => { refV = null; rvUI(); toast('Could not open that video'); }; refV = { v, op: .6, start: ct, file: f }; $('rvOp').value = 60; rvUI(); toast('Reference video starts at frame ' + (ct + 1) + ' (not saved or exported)'); };
 $('rvOp').oninput = e => { if (refV) { refV.op = +e.target.value / 100; render(); } };
 $('rvStart').onclick = () => { if (refV) ask('Video starts at frame number', String(refV.start + 1), n => { refV.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rvUI(); render(); }); };
 $('rvDel').onclick = () => { if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); render(); } };
@@ -1726,6 +1755,24 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
+const APPV = 17, NEWS = [
+  { v: 17, t: 'Outline inside every brush', i: ['The separate Outline button is gone: Brush, Line and Shapes each have an Outline switch (colour, thickness, side) in their options', 'Outlines are drawn behind, so touching strokes mesh together', 'Switch it on, draw, switch it off: it only affects what you draw next', 'Keyframe / Objects tool: the same switch turns an outline on or off for the selected stroke'] },
+  { v: 16, t: 'Camera + video update', i: ['Camera HOLDS its place: it only changes where you move it, and stays put on every later frame', 'Camera ROTATE slider', 'Copy / Paste / Reset camera', 'Reference video plays with Play with NO frames needed, and carries its sound', '🎵 "Use its sound in the project" button; imported videos bring their sound', 'This What\'s new screen (✨ button in the left column)'] },
+  { v: 15, t: 'Keyframes + look', i: ['Keyframe tool like Flash: tap a stroke, ◆ Insert keyframe, move / turn / resize', 'Draw behind / inside now work with vector strokes', 'Outlines mesh together like Flash', 'Real airbrush; Line tool is vector by default', 'Full screen + always landscape'] },
+  { v: 14, t: 'Camera effects + sound', i: ['Camera effects: 💥 Shake, ⚡ Flash, 🌫 Blur, 🔍 Punch', 'Sound waveform on the timeline', 'Reference video (trace over it)', 'Custom canvas size and fps for new projects', 'Clips: 🎬 New clip opens a blank drawing, then ✔ Add as clip'] }];
+function showNews(all) {
+  let seen = 0; try { seen = +localStorage.getItem('yinnyVer') || 0; } catch (e) {}
+  const list = all || !seen ? NEWS : NEWS.filter(n => n.v > seen); if (!list.length) return;
+  $('nwT').textContent = '✨ Updated to version ' + APPV + ' - new things:'; const L = $('nwL'); L.innerHTML = '';
+  list.forEach(n => { const h = document.createElement('h4'); h.textContent = n.t + ' (v' + n.v + ')'; const u = document.createElement('ul'); n.i.forEach(x => { const li = document.createElement('li'); li.textContent = x; u.append(li); }); L.append(h, u); });
+  $('nw').hidden = false;
+}
+$('nwOk').onclick = () => { $('nw').hidden = true; try { localStorage.setItem('yinnyVer', APPV); } catch (e) {} };
+$('nwBtn').onclick = () => showNews(true);
+setTimeout(() => showNews(false), 900);
+{ const inApp = () => ['fullscreen', 'standalone'].some(m => matchMedia('(display-mode: ' + m + ')').matches);   // installed app: full screen, always sideways
+  const lockL = () => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (e) {} };
+  if (inApp()) { lockL(); addEventListener('pointerdown', function f() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(lockL, () => {}); removeEventListener('pointerdown', f); }, { once: true }); } }
 (async () => {                                                  // the app always opens on the projects screen
   try {
     const old = JSON.parse(localStorage.getItem('easyanim') || 'null');
