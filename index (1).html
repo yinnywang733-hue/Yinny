@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Yinny Studios</title>
+<meta name="theme-color" content="#1d1d24"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Yinny Studios">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&family=Lobster&family=Pacifico&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#1e1e24;color:#eee;font-family:system-ui,sans-serif}
+:root{--cream:#efe6c9;--ink:#222;--pan:#2b2b2b;--tile:#3c3c3c;--hi:#4f7cff}
+#app{display:grid;height:100%;grid-template-columns:auto 176px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top top top" "tools opts stage" "tl tl tl"}
+#app.noopt{grid-template-columns:auto 0 minmax(0,1fr)}
+#app.noopt #opts,#app.notl #tlw{display:none}
+#top{grid-area:top}#tools{grid-area:tools}#tlw{grid-area:tl}#opts{grid-area:opts}#stage{grid-area:stage}
+button,select{background:var(--tile);color:#fff;border:0;border-radius:3px;padding:9px 11px;font-size:14px;white-space:nowrap;flex:none}
+button.on{background:var(--hi)}
+label{font-size:14px;white-space:nowrap;flex:none}
+.box{display:flex;gap:6px;align-items:center}
+[hidden]{display:none!important}
+#stage{display:grid;place-items:center;padding:6px;min-height:0;min-width:0;overflow:hidden}
+#stage{position:relative}#stage canvas{position:absolute;border-radius:4px;touch-action:none}
+#view{background:transparent}#stage.board{outline:3px solid #4f7cff;outline-offset:-3px}
+#tlw{display:flex;background:#2a2a33;gap:6px;padding:4px 6px;align-items:stretch}
+#tlbtns{display:flex;flex-direction:column;gap:4px;justify-content:center}
+#tlbtns button{padding:5px 8px;font-size:12px}
+#tlmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}#scrub{position:relative;width:100%;height:30px;margin:0;border-radius:15px;background:#1d1d24 repeating-linear-gradient(90deg,transparent 0 11px,rgba(255,255,255,.09) 11px 12px);border:1px solid #555;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ew-resize;overflow:hidden;flex:none}#sfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3558c8,#4f7cff);border-radius:15px 0 0 15px;pointer-events:none}#sth{position:absolute;top:2px;bottom:2px;width:40px;border-radius:13px;background:#fff;color:#222;display:flex;align-items:center;justify-content:center;font-size:13px;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.6)}#sth b{font-weight:700}
+#pj{position:fixed;top:0;right:0;bottom:0;left:0;background:#1e1e1e;z-index:40;display:flex;flex-direction:column}#pj[hidden]{display:none}
+#pjh{display:flex;gap:8px;align-items:center;padding:8px;background:#2b2b2b;color:#eee}#pjh span{flex:1;font-size:12px;opacity:.7}
+#pjg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;padding:10px;overflow:auto;flex:1;align-content:start}
+.pc{background:#333;border-radius:4px;padding:6px;color:#eee}.pc img{width:100%;aspect-ratio:16/9;background:#fff;object-fit:cover;display:block;border-radius:2px}.pn{margin:5px 0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pr{display:flex;gap:4px}.pr button{flex:1;padding:6px 2px;font-size:12px}
+#tlscroll{flex:1;min-width:0;overflow:auto;max-height:112px;background:#cfd2d8;border:1px solid #777}
+#ruler,#row{display:flex;width:max-content;min-width:100%}
+.rn{flex:none;width:26px;height:16px;font-size:10px;line-height:16px;color:#333;background:#e9e9ee;border-right:1px solid #aaa;padding-left:2px;cursor:pointer}
+.rn.cur{background:#e8231c;color:#fff}
+.cell{flex:none;width:26px;height:30px;background:#fff;border-right:1px solid #bbb;border-top:1px solid #bbb;position:relative;cursor:pointer}
+.cell.five{background:#eef1f7}
+.cell.cur{background:#ffd9d6}
+.cell.cur::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:#e8231c}
+.cell i{position:absolute;z-index:1;left:50%;bottom:4px;width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid #222}
+.cell.has i{background:#222}
+#tlbox{width:max-content;min-width:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.lr{display:flex;width:max-content;min-width:100%}
+.rr{position:sticky;top:0;z-index:6}
+.ln{position:sticky;left:0;z-index:5;flex:none;width:92px;height:26px;display:flex;align-items:center;gap:5px;padding:0 6px;background:#3b3b47;color:#fff;font-size:12px;border-top:1px solid #555;border-right:2px solid #222;cursor:pointer;overflow:hidden}
+.ln.corner{height:16px;background:#2a2a33;border:0;cursor:default}
+.ln.gh{background:#2d5a46;height:22px}.eye.dh{cursor:grab;touch-action:none;opacity:.8}.dropt{outline:2px solid #ffd23f;outline-offset:-2px}.lr.sel .ln{background:#4f7cff}
+.lr .cell{height:26px}
+.lr.sel .cell.cur{background:#ffc2bd}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow{display:flex;gap:4px}
+#nw{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:70}#nw[hidden]{display:none}#nwb{background:#2d2d38;color:#fff;border-radius:10px;padding:12px;width:min(480px,92%);max-height:88%;overflow:auto;display:flex;flex-direction:column;gap:6px}#nwb h4{margin:6px 0 2px;color:#ffd23f;font-size:14px}#nwb li{font-size:13px;margin:2px 0}#nwb ul{margin:0;padding-left:18px}
+#np{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;z-index:45}#np[hidden],#cmBar[hidden]{display:none}
+#npb{background:#2d2d38;color:#fff;border-radius:8px;padding:10px;width:min(440px,92%);display:flex;flex-direction:column;gap:6px}#npb button{padding:8px}#npb .trow button{flex:1}
+#cmBar{position:fixed;top:6px;right:8px;z-index:35;background:#7a2fd6;color:#fff;border-radius:8px;padding:5px 8px;display:flex;gap:6px;align-items:center;font-size:13px}
+#dlg{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;z-index:50}
+#dbox{background:#2a2a33;padding:10px;border-radius:12px;width:min(96%,620px);display:flex;flex-direction:column;gap:8px}
+#kb{display:flex;flex-direction:column;gap:3px}#kb .kr{display:flex;gap:3px}#kb button{flex:1;padding:0;height:34px;font-size:15px;background:#3b3b47;color:#fff;border-radius:5px;min-width:0}#kb button.w{flex:2.2}#kb button.sp{flex:6}#kb button.on{background:#4f7cff}
+#dbox input{font-size:16px;padding:10px;border-radius:8px;border:0;background:#3b3b47;color:#fff}
+.drow{display:flex;gap:8px}.drow button{flex:1}
+#row{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.cell.lift{outline:2px solid #4f7cff;z-index:3;transform:translateY(-3px)}
+.cell.drop{box-shadow:inset 4px 0 0 #4f7cff}
+/* ---- flat panels: tools on the left, options in the middle, canvas on the right ---- */
+#tools{display:flex;flex-direction:column;gap:3px;padding:3px;background:var(--pan);width:auto;overflow-x:hidden;overflow-y:auto}
+.tg{display:grid;grid-template-columns:repeat(3,44px);gap:3px}.tg.one{grid-template-columns:1fr}
+#tools button{width:44px;height:34px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:8px;line-height:1.1;background:var(--tile);color:var(--cream);border-radius:3px}
+#tools button b{font-size:14px;font-weight:400;line-height:1}
+#tools button.on,#tools button.cr{background:var(--cream);color:var(--ink)}
+#tools button.cr{height:38px;font-size:12px;font-weight:600}
+#opts{background:#333;padding:6px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.sec{display:flex;flex-direction:column;gap:4px}
+#opts label{font-size:12px;color:#ddd}
+#opts input[type=color]{width:100%;height:32px;border:2px solid #555;border-radius:3px;padding:0;background:none}
+#opts input[type=range]{width:100%}
+#opts button,#opts select{width:100%;border-radius:3px;padding:10px 6px;background:var(--cream);color:var(--ink);font-size:13px}
+#opts .box{flex-direction:column;align-items:stretch}
+#olSides button.on,#shpBox button.on,#objBox button.on{background:#4f7cff}#tools button.bdon{outline:2px solid #4f7cff;background:#4f7cff55}#tools button.v{outline:2px solid #4f7cff}#tools button.v::after{content:"vector";font-size:8px;color:#4f7cff}.rn.ct{box-shadow:inset 0 -3px #4f7cff}.rn.kf{color:#b58900;font-weight:900}
+#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
+#ph{position:absolute;top:0;bottom:0;width:2px;background:#e8231c;pointer-events:none;z-index:4}#ph u{position:absolute;top:0;left:-6px;width:14px;height:12px;background:#e8231c;border-radius:0 0 7px 7px}
+#fi{font-size:11px;color:#ddd;align-self:center;padding:0 4px}.cell.lift{opacity:.85}
+#cList{display:flex;flex-direction:column;gap:4px}.crow{display:flex;gap:4px}.crow button:first-child{flex:1}.crow button+button{width:44px;flex:none}
+#xp{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center}#xp[hidden]{display:none}#xbox{background:#333;color:#eee;padding:14px;border-radius:6px;display:flex;flex-direction:column;gap:8px;min-width:240px}#xst{font-size:12px;opacity:.8}
+#sizePre{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#sizePre button{padding:6px 4px;width:auto;flex:1 0 44px}#sizePre button.on{background:#4f7cff;color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+#tlw{background:#333}
+#tlbtns button{background:var(--cream);color:var(--ink);border-radius:3px;padding:5px 7px;font-size:12px}
+#tlbtns button:disabled{opacity:.4}
+#tlscroll{max-height:100px}
+#stage{background:#1c1c1c}
+#opts input[type=text]{width:100%;padding:8px;border:0;border-radius:3px;background:#444;color:#fff;font-size:13px}
+#pal{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.sw{aspect-ratio:1;border:2px solid #666;border-radius:3px;touch-action:manipulation}
+.sw.on{border-color:#fff;box-shadow:0 0 0 2px #4f7cff}
+.cell i{left:8px;margin-left:0}
+.cell.cur::after{left:13px}
+.cell.hold::before{content:"";position:absolute;left:16px;right:8px;bottom:8px;height:2px;background:#222;opacity:.6}
+.hd{display:none;position:absolute;right:0;top:0;bottom:0;width:16px;background:#4f7cff;touch-action:none;cursor:ew-resize;z-index:4}
+.hd::after{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:3px;border-radius:2px;background:#fff}
+.cell.cur .hd{display:block}
+#top{display:flex;gap:4px;align-items:center;padding:3px 4px;background:var(--pan);overflow-x:auto;overflow-y:hidden}
+#top button{height:34px;padding:0 9px;flex:none;font-size:13px;background:var(--tile);color:var(--cream);border-radius:3px;display:flex;align-items:center;gap:4px}
+#top button.on{background:var(--cream);color:var(--ink)}#top #play{background:#e8231c;color:#fff;font-weight:700;min-width:76px;justify-content:center}
+#top button b{font-weight:400;font-size:15px}#top .qs{display:flex;align-items:center;gap:4px;color:#ddd;font-size:12px;flex:none}#top .qs input[type=range]{width:110px}#top .qs input[type=color]{width:34px;height:30px;padding:0;border:2px solid #666;border-radius:3px;background:none}
+#root{position:fixed;left:0;top:0;width:100%;height:100%}
+html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:translateX(var(--pw)) rotate(90deg)}   /* phone held upright: the whole app is turned sideways so it is ALWAYS horizontal */
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:8px 12px;border-radius:6px;font-size:13px;z-index:30;max-width:80%;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s}#toast.on{opacity:1}
+#cf{position:absolute;right:8px;top:8px;z-index:31;background:#2a2a33;color:#fff;border:2px solid #4f7cff;border-radius:10px;padding:8px 10px;max-width:230px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.5)}#cf button{margin:6px 6px 0 0;padding:6px 12px;border-radius:6px;background:#3b3b47;color:#fff}#cf #cfy{background:#4f7cff}
+#fbadge{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:2px 7px;border-radius:4px;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root">
+<div id="app">
+  <div id="top">
+    <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
+    <button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
+    <span class="qs">Size <input type="range" id="qsz" min="1" max="300" value="6"><b id="qszN">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
+  </div>
+  <div id="tools">
+    <div class="tg">
+      <button data-t="brush" class="on"><b>✏️</b>Brush</button>
+      <button data-t="eraser"><b>🧽</b>Eraser</button>
+      <button data-t="line"><b>／</b>Line</button>
+      <button data-t="shape"><b>▭</b>Shapes</button>
+      <button data-t="lasso"><b>➰</b>Lasso</button>
+      <button data-t="eye"><b>💧</b>Picker</button>
+      <button data-t="bucket"><b>🪣</b>Bucket</button>
+      <button data-t="text"><b>T</b>Text</button>
+      <button data-t="vsel"><b>↖</b>V-Select</button><button data-t="obj"><b>◇</b>Objects</button>
+      <button data-t="key"><b>◆</b>Keyframe</button>
+      <button data-t="cam"><b>🎥</b>Camera</button>
+      <button id="reset"><b>⟲</b>Straighten</button>
+      <button id="imgBtn"><b>🖼</b>Image</button><button id="mediaBtn"><b>🎞</b>GIF/Video</button>
+      <button data-t="clip"><b>🎞</b>Clips</button>
+    </div>
+  </div>
+
+  <div id="opts">
+    <div class="sec"><label>Colour</label><input type="color" id="col" value="#000000"><input type="text" id="hex" value="#000000" maxlength="7" autocomplete="off" spellcheck="false"></div>
+    <div class="sec"><label>Palette (hold to replace)</label><div id="pal"></div><button id="palAdd">＋ Add this colour</button></div>
+    <div class="sec"><label>Brush size <b id="sizeN">6</b></label><input type="range" id="size" min="1" max="300" value="6"><div id="sizePre"></div><button id="sizeAdd">＋ Save this size</button></div>
+    <div class="box sec" id="olBox" hidden><button id="olTog">Outline: off</button><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
+    <div class="box sec" id="clipBox" hidden><label>Movieclip = everything on this layer, packed into a loop you can place, move, resize and tween</label><button id="cMake">＋ Make clip from this layer</button><button id="cNew">🎬 New clip (blank drawing)</button><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
+<label>📚 Library: shared by all your projects</label><div id="lList"></div></div>
+    <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button></div><button id="shF">Fill: off</button></div>
+    <div class="box sec" id="txtBox" hidden><label>Font</label><select id="font"><option value="'Comic Neue', 'Comic Sans MS', cursive">Comic (bold)</option><option value="'Bangers', Impact, fantasy">Bangers</option><option value="'Pacifico', cursive">Pacifico</option><option value="'Permanent Marker', cursive">Marker</option><option value="'Lobster', Georgia, serif">Lobster</option></select></div>
+    <div class="box sec" id="selBox" hidden><label>Selection</label>
+      <div class="two"><button id="copy">Copy</button><button id="paste">Paste</button><button id="del">Delete</button><button id="fH">Flip ↔</button><button id="fV">Flip ↕</button><button id="done">Done</button></div>
+    </div>
+    <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
+    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div id="vsN"></div></div>
+    <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
+    <div class="box sec" id="bsBox" hidden><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
+    <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
+    <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
+    <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
+    <div class="box sec" id="objBox" hidden><label>Only vector strokes work here: double-tap Brush to make one, tap it, then go to another frame and move/bend it = keyframe + tween</label>
+      <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
+    </div>
+    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
+    <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
+    <div class="sec"><label>Layer opacity / blend</label><input type="range" id="lop" min="0" max="100" value="100"><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"></div>
+    <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
+    <div class="sec"><label>Grid size</label><select id="gridN"><option value="40">Small (40)</option><option value="80" selected>Medium (80)</option><option value="160">Large (160)</option><option value="240">Huge (240)</option></select></div>
+    <div class="sec"><label>Canvas background</label><input type="color" id="bgc" value="#ffffff"></div>
+    <div class="sec"><label>Sound</label><button id="sndAdd">♫ Import sound</button><button id="sndDel" hidden>✕ Remove sound</button><input type="file" id="sndF" accept="audio/*" hidden></div>
+    <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div class="trow"><button data-fx="glow">✨ Glow</button></div><div id="fxL"></div></div>
+    <div class="sec"><button id="nwBtn">✨ What's new</button></div>
+    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
+  </div>
+
+  <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
+
+  <div id="tlw">
+    <div id="tlbtns">
+      <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rm" title="Delete this keyframe">🗑</button></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+    </div>
+    <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
+  </div>
+</div>
+
+<div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
+<div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><button id="xNo">Close</button></div></div>
+<div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
+<div id="cmBar" hidden><b>🎬 Making a clip</b><button id="cmDone">✔ Add as clip</button><button id="cmNo">✕ Cancel</button></div>
+<div id="nw" hidden><div id="nwb"><b id="nwT"></b><div id="nwL"></div><button id="nwOk" class="on">Got it</button></div></div>
+<div id="dlg" hidden><div id="dbox">
+  <div id="dlabel"></div>
+  <input id="dinp" type="text" maxlength="60" autocomplete="off" inputmode="none"><div id="kb"></div>
+  <div class="drow"><button id="dok" class="on">OK</button><button id="dno">Cancel</button></div>
+</div></div>
+
+</div>
+<script>
+const $ = id => document.getElementById(id);
+// W x H = the whole drawing area (bigger than the camera, so you can draw outside it)
+// OW x OH = what the camera sees (the size of the video you play / export)
+let W = 1920, H = 1080, OW = 1280, OH = 720, SK = W / OW;   // SK keeps brush sizes looking the same on the bigger area
+let MX = 1280, MY = 720, VW = W + 2 * MX, VH = H + 2 * MY;       // the screen shows the canvas plus a dark border (MX / MY) you can also draw in
+const view = $('view'), ov = $('ov'), vx = view.getContext('2d'), ox = ov.getContext('2d');
+view.width = ov.width = VW; view.height = ov.height = VH;
+const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+const comp = mk(), cx = comp.getContext('2d');   // used to draw the camera view
+const sc = $('tlscroll');
+
+// LAYERS own everything: layer.cells = the keyframes of that layer. cell = { s: first frame, d: how many frames it is shown, cv: bitmap (or null = blank), objs: its vector strokes }
+let clips = [];                                                  // movieclips: { id, name, x, y, w, h, n, u: [unique frame canvases], m: [frame index per clip frame] }
+let bgCol = '#ffffff', xAlpha = false, audio = null; const aEl = new Audio();
+let layers = [{ name: 'Layer 1', vis: true, lock: false, cells: [] }], layerCount = 1, len = 1;     // len = length of the animation in frames
+let cams = [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }];            // the camera only changes where YOU set it (k = keyed); every frame after that holds the same camera
+const cam = t => { while (cams.length <= t) cams.push({ ...cams[cams.length - 1], k: 0 }); let i = t; while (i > 0 && !cams[i].k) i--; return cams[i]; };
+const camKey = t => { const e = cam(t); if (cams[t] === e) return e; cams[t] = { ...e, k: 1 }; return cams[t]; };
+const camMig = a => { if (a.some(c => c.k)) return a; a.forEach((c, i) => { c.k = !i || c.x !== a[i - 1].x || c.y !== a[i - 1].y || c.z !== a[i - 1].z || (c.r || 0) !== (a[i - 1].r || 0) ? 1 : 0; if (c.r == null) c.r = 0; }); return a; };
+let lay = 0, tool = 'brush', color = '#000000', size = 6, onion = true;
+let playing = false, timer = null, fps = 12;
+let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
+let undo = [], redo = [];
+const vecOn = { brush: true, line: true, eraser: true, outline: true }; const isVec = () => !boardMode && !!vecOn[tool] && tool !== 'eraser' && !(tool === 'brush' && $('bStyle').value !== 'n'), vecEr = () => !boardMode && tool === 'eraser' && vecOn.eraser; let boardMode = false, olSide = 'both', olColor = '#ffffff', olW = 6, sizeShow = false, sizeT = 0, prevTool = 'brush', veDone = false, shapeKind = 'rect', shapeFill = false;
+let selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
+const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
+const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
+const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
+const fixLen = () => { len = Math.max(1, ...layers.flatMap(L => L.cells.map(c => c.s + c.d))); };
+const refEnd = () => refV && isFinite(refV.v.duration) ? Math.min(1500, refV.start + Math.ceil(refV.v.duration * fps)) : 0;
+const cols = () => Math.max(len, refEnd()) + SPARE;
+const cvOf = c => c.cv || (c.cv = mk());
+function ensureCell(k, t) {                                      // drawing on an empty frame makes a keyframe there
+  let c = cellAt(k, t); if (c) return c;
+  c = { s: t, d: 1, cv: null, objs: [] }; layers[k].cells.push(c); layers[k].cells.sort((a, b) => a.s - b.s); fixLen(); return c;
+}
+const fc = () => cvOf(ensureCell(lay, ct)).getContext('2d');      // the layer you are drawing on
+let lfTmp = null; const lfT = () => (!lfTmp || lfTmp.width !== W || lfTmp.height !== H) ? (lfTmp = mk()) : lfTmp;
+let dcTmp = null; const dcT = () => (!dcTmp || dcTmp.width !== W || dcTmp.height !== H) ? (dcTmp = mk()) : dcTmp;
+function drawList(g, list, t) {                    // strokes with an outline that follow each other share ONE outline: all outlines first, then all fills, so they mesh like in Flash
+  for (let i = 0; i < list.length;) {
+    const o = list[i]; if (!o.ol || o.clip) { drawObj(g, o, t); i++; continue; }
+    let j = i; while (j < list.length && list[j].ol && !list[j].clip) j++;
+    const grp = list.slice(i, j); grp.forEach(x => drawObj(g, x, t, 'ol')); grp.forEach(x => drawObj(g, x, t, 'fill')); i = j;
+  }
+}
+const drawCell = (ctx, c, t) => {                  // behind-strokes, then the bitmap, then normal strokes, then inside-strokes (only where something is already painted)
+  const bk = c.objs.filter(o => o.bk), ins = c.objs.filter(o => o.ins && !o.bk), mid = c.objs.filter(o => !o.bk && !o.ins);
+  const base = g => { drawList(g, bk, t); if (c.cv) g.drawImage(c.cv, 0, 0); drawList(g, mid, t); };
+  if (!ins.length) { base(ctx); return; }
+  const T = dcT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
+  base(g); g.globalCompositeOperation = 'source-atop'; drawList(g, ins, t); g.globalCompositeOperation = 'source-over'; ctx.drawImage(T, 0, 0);
+};
+const mg = mk(), mgx = mg.getContext('2d'), mm = mk(), mmx = mm.getContext('2d');
+function flat(ctx, t) {                            // every visible layer at time t, bottom to top; a Mask layer cuts the "masked" layers under it (Flash style)
+  const n = layers.length, used = new Uint8Array(n);
+  const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
+    if (L.bl > 0 || L.gl > 0) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
+      const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
+      c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
+      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); c2.filter = 'blur(' + L.gl * 1.5 + 'px) brightness(1.4)'; c2.drawImage(T, 0, 0); c2.filter = 'none'; }
+      c2.restore(); return;
+    }
+    c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
+  for (let k = 0; k < n; k++) {
+    if (used[k]) continue; const L = layers[k];
+    if (L.mk === 'masked') {
+      let m = k; while (m < n && layers[m].mk === 'masked') m++;
+      if (m < n && layers[m].mk === 'mask' && layers[m].vis) {
+        mgx.globalCompositeOperation = 'source-over'; mgx.clearRect(0, 0, W, H);
+        for (let j = k; j < m; j++) { used[j] = 1; if (layers[j].vis) one(mgx, j); }
+        used[m] = 1; mmx.clearRect(0, 0, W, H); const c = cellAt(m, t); if (c) drawCell(mmx, c, t);
+        mgx.globalCompositeOperation = 'destination-in'; mgx.drawImage(mm, 0, 0); mgx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(mg, 0, 0); continue;
+      }
+    }
+    if (L.vis) one(ctx, k);
+  }
+}
+const objsNow = () => { const r = []; layers.forEach((L, k) => { if (!L.vis || L.lock) return; const c = cellAt(k, ct); if (c) c.objs.forEach(o => r.push({ o, k })); }); return r; };
+const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.objs.includes(o)) return c; return null; };
+// undo = a copy of the whole timeline structure (bitmaps are shared, so it is cheap) or one bitmap
+const UBUDGET = 360e6, UMAX = 300;
+function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
+function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
+const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+function restoreStruct(s) {
+  len = s.len; cams = s.cams.map(c => ({ ...c }));
+  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
+}
+function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
+function windowObj(o, a, b, shift) {                             // an independent copy of a stroke, limited to frames a..b-1 (optionally moved in time)
+  const n = JSON.parse(JSON.stringify(o)); ensureKf(n, a); ensureKf(n, b - 1);
+  n.kf = n.kf.filter(k => k.t >= a && k.t <= b - 1); n.kf.forEach(k => k.t += shift || 0); if (n.t0 != null) n.t0 += shift || 0; n.id = oid++; return n;
+}
+const shiftCell = (c, dt) => { c.s += dt; c.objs.forEach(o => { o.kf.forEach(k => k.t += dt); if (o.t0 != null) o.t0 += dt; }); };
+// ---------- board: the dark area around the canvas. Draw, scribble or keep reference pictures there (editor only, never exported) ----------
+const TS = 512, tiles = new Map(); let bundle = null;
+const tileKey = (x, y) => x + ',' + y;
+function getTile(tx, ty, make) { const k = tileKey(tx, ty); let t = tiles.get(k); if (!t && make) { t = document.createElement('canvas'); t.width = t.height = TS; t._dirty = true; tiles.set(k, t); } return t; }
+function drawBoard(ctx) { tiles.forEach((t, k) => { const [tx, ty] = k.split(',').map(Number); ctx.drawImage(t, tx * TS, ty * TS); }); }
+function boardDraw(x0, y0, x1, y1, fn) {            // run fn(ctx) on every board tile the box touches (remembering them for undo)
+  x0 = Math.max(x0, -MX); y0 = Math.max(y0, -MY); x1 = Math.min(x1, W + MX); y1 = Math.min(y1, H + MY);
+  for (let ty = Math.floor(y0 / TS); ty <= Math.floor(y1 / TS); ty++) for (let tx = Math.floor(x0 / TS); tx <= Math.floor(x1 / TS); tx++) {
+    const k = tileKey(tx, ty), had = tiles.get(k), t = getTile(tx, ty, true), g = t.getContext('2d');
+    if (bundle && !bundle.has(k)) bundle.set(k, had ? g.getImageData(0, 0, TS, TS) : null);
+    g.save(); g.translate(-tx * TS, -ty * TS); g.beginPath(); g.rect(-MX - 10, -MY - 10, W + 2 * MX + 20, H + 2 * MY + 20); g.rect(0, 0, W, H); g.clip('evenodd'); fn(g); g.restore(); t._dirty = true;   // the dark area only: nothing lands on the white canvas
+  }
+}
+function applyBundle(m) {                           // put saved tiles back; returns what was there (for redo)
+  const cur = new Map();
+  m.forEach((img, k) => { const [tx, ty] = k.split(',').map(Number), t = getTile(tx, ty, true), g = t.getContext('2d'); cur.set(k, g.getImageData(0, 0, TS, TS)); g.clearRect(0, 0, TS, TS); if (img) g.putImageData(img, 0, 0); t._dirty = true; });
+  return cur;
+}
+function pushBundle() { if (bundle && bundle.size) { undo.push({ bd: bundle }); trimUndo(); redo = []; } bundle = null; }
+// ---------- canvas view: two fingers = move, zoom, turn ----------
+const V = { x: 0, y: 0, s: 1, r: 0 };
+function applyV() { view.style.transform = ov.style.transform = `translate(${V.x}px,${V.y}px) rotate(${V.r}rad) scale(${V.s})`; }
+let viewPlay = false;
+function fit() {                                   // biggest 16:9 canvas that fits the screen
+  const r = { width: $('stage').offsetWidth, height: $('stage').offsetHeight }, w = Math.max(50, Math.min(r.width - 12, (r.height - 12) * OW / OH)), k = viewPlay ? 1 : VW / W;
+  const cw = w * k, ch = w * OH / OW * k;
+  [view, ov].forEach(c => { c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.style.left = 'calc(50% - ' + cw / 2 + 'px)'; c.style.top = 'calc(50% - ' + ch / 2 + 'px)'; });
+}
+new ResizeObserver(fit).observe($('stage'));       // re-fit when the screen turns or the layout changes
+const S = (x, y) => document.documentElement.classList.contains('rot') ? { x: y, y: innerWidth - x } : { x, y };   // screen point -> app point (the app may be turned sideways)
+const LX = e => S(e.clientX, e.clientY).x, LY = e => S(e.clientX, e.clientY).y;
+const ctr = () => { const b = ov.getBoundingClientRect(); return S(b.left + b.width / 2, b.top + b.height / 2); };
+const P = e => {                                   // screen point -> canvas point (undoes the view transform)
+  const c = ctr(), q = S(e.clientX, e.clientY), dx = q.x - c.x, dy = q.y - c.y, cs = Math.cos(-V.r), sn = Math.sin(-V.r);
+  const lx = (dx * cs - dy * sn) / V.s + ov.offsetWidth / 2, ly = (dx * sn + dy * cs) / V.s + ov.offsetHeight / 2;
+  return { x: lx * VW / ov.offsetWidth - MX, y: ly * VH / ov.offsetHeight - MY };
+};
+const ptrs = new Map(); let gest = null;
+function gStart() {
+  const [a, b] = [...ptrs.values()], c = ctr();
+  gest = { mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, d: Math.hypot(a.x - b.x, a.y - b.y) || 1, a: Math.atan2(b.y - a.y, b.x - a.x), V: { ...V }, cx: c.x - V.x, cy: c.y - V.y };
+}
+function gMove() {
+  const [a, b] = [...ptrs.values()], g = gest;
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+  const s = Math.min(6, Math.max(.3, g.V.s * d / g.d)), r = g.V.r + (Math.atan2(b.y - a.y, b.x - a.x) - g.a);
+  const dx = g.mx - g.cx - g.V.x, dy = g.my - g.cy - g.V.y, c0 = Math.cos(-g.V.r), s0 = Math.sin(-g.V.r);
+  const qx = (dx * c0 - dy * s0) / g.V.s, qy = (dx * s0 + dy * c0) / g.V.s;   // canvas point under the fingers at the start
+  V.s = s; V.r = r;
+  V.x = mx - g.cx - s * (qx * Math.cos(r) - qy * Math.sin(r));
+  V.y = my - g.cy - s * (qx * Math.sin(r) + qy * Math.cos(r));
+  applyV();
+}
+function snapV() {                                 // click into place when nearly straight (0, 90, 180, 270)
+  const q = Math.PI / 2, n = Math.round(V.r / q) * q;
+  if (Math.abs(V.r - n) < .07) { V.r = n; applyV(); }
+}
+function cancelDraw() {                            // a 2nd finger landed: undo the stroke the 1st finger started
+  if (!drag) return; drag = false;
+  if ((tool === 'brush' || tool === 'eraser' || tool === 'line' || tool === 'shape') && !isVec() && !vecEr() && !boardMode) { const s = undo.pop(); if (s && s.cv) s.cv.getContext('2d').putImageData(s.d, 0, 0); }
+  if (bundle) { applyBundle(bundle); bundle = null; }
+  if (tool === 'cam') Object.assign(camKey(ct), camOrig);
+  if (tool === 'vsel' && vst && vst.moved) { const s = undo.pop(); if (s && s.st) restoreStruct(s.st); }
+  if (tool === 'vsel') { vst = null; vpoly = []; }
+  if ((tool === 'obj' || tool === 'key') && oMoved) { const s = undo.pop(); if (s && s.st) restoreStruct(s.st); selObj = null; }
+  oMode = ''; pts = []; if (!(sel && sel.board)) boardMode = false; render();
+}
+$('reset').onclick = () => { V.x = V.y = V.r = 0; V.s = 1; applyV(); };
+$('full').onclick = async () => {
+  try { if (document.fullscreenElement) { await document.exitFullscreen(); return; } await document.documentElement.requestFullscreen(); await screen.orientation.lock('landscape'); } catch (e) {}
+};
+
+// ---------- drawing the screen ----------
+const oc = mk(), ocx = oc.getContext('2d');   // coloured onion skin: red = before, green = after, orange/blue = two away
+function clampSize(w, h) {                          // camera size: even numbers, 100..1920, and not more pixels than a phone can carry
+  w = Math.max(100, Math.min(1920, Math.round(+w || 1280))); h = Math.max(100, Math.min(1920, Math.round(+h || 720))); const A = 1100000;
+  if (w * h > A) { const k = Math.sqrt(A / (w * h)); w = Math.round(w * k); h = Math.round(h * k); }
+  return [Math.max(100, w - w % 2), Math.max(100, h - h % 2)];
+}
+function applySize(ow, oh) {
+  if (ow === OW && oh === OH) return; OW = ow; OH = oh; W = Math.round(ow * 1.5); H = Math.round(oh * 1.5); SK = W / OW; MX = OW; MY = OH; VW = W + 2 * MX; VH = H + 2 * MY;
+  view.width = ov.width = VW; view.height = ov.height = VH; [comp, mg, mm, oc, fillCv].forEach(c => { c.width = W; c.height = H; }); onionC.clear(); tiles.clear(); V.x = V.y = 0; V.s = 1; V.r = 0; applyV(); fit();
+}
+const onionC = new Map(); const dirtyOnion = () => onionC.clear();
+function onionDraw(c, col, a) {                    // the coloured ghost of a neighbour frame is drawn once and reused until something is edited
+  let e = onionC.get(c);
+  if (!e || e.col !== col) {
+    if (onionC.size > 6) onionC.clear();
+    e = { col, cv: e ? e.cv : mk() }; const g = e.cv.getContext('2d');
+    g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); drawCell(g, c, c.s);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; onionC.set(c, e);
+  }
+  vx.globalAlpha = a; vx.drawImage(e.cv, 0, 0); vx.globalAlpha = 1;
+}
+let fxs = [];                                       // camera effects: { k: 'shake'|'flash'|'blur'|'punch', t: first frame, d: frames, a: power } (seen when you Play or export)
+const rnd = (t, k) => { const x = Math.sin(t * 127.1 + k * 311.7) * 43758.5453; return (x - Math.floor(x)) * 2 - 1; };
+function camFx(t) {
+  const c = cam(t); let x = c.x, y = c.y, z = c.z, fl = 0, bl = 0, gl = 0; const r = c.r || 0;
+  fxs.forEach(e => { if (t < e.t || t >= e.t + e.d) return; const k = 1 - (t - e.t) / e.d;
+    if (e.k === 'shake') { x += rnd(t, 1) * e.a * k; y += rnd(t, 2) * e.a * k; } else if (e.k === 'flash') fl = Math.max(fl, e.a / 100 * k); else if (e.k === 'blur') bl = Math.max(bl, e.a * k); else if (e.k === 'glow') gl = Math.max(gl, e.a / 100 * k); else if (e.k === 'punch') z *= 1 + e.a / 100 * k; });
+  return { x, y, z, r, fl, bl, gl };
+}
+function drawCam(g, t, w, h) {                       // what the camera sees at frame t, with its effects
+  const c = camFx(t), k = w * c.z / OW; if (c.bl > .5) g.filter = 'blur(' + (c.bl * w / OW).toFixed(1) + 'px)';
+  if (c.r) { g.fillStyle = bgCol; g.fillRect(0, 0, w, h); }
+  g.save(); g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); g.filter = 'none';
+  if (c.gl > .01) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.min(1, c.gl); g.filter = 'blur(' + (16 * w / OW).toFixed(1) + 'px) brightness(1.3)'; g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); }
+  if (c.fl > .01) { g.save(); g.globalAlpha = Math.min(1, c.fl); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.restore(); }
+}
+let wave = null;                                    // sound picture: peak per 1/100 s
+async function decodeWave() {
+  wave = null; if (!audio) { build(); return; }
+  try { const buf = await (await fetch(audio.url)).arrayBuffer(); ac(); const ab = await AC.decodeAudioData(buf), d = ab.getChannelData(0), per = Math.max(1, Math.floor(ab.sampleRate / 100)), pk = new Float32Array(Math.ceil(d.length / per));
+    for (let i = 0; i < pk.length; i++) { let m = 0; const e = Math.min(d.length, (i + 1) * per); for (let j = i * per; j < e; j += 2) { const v = Math.abs(d[j]); if (v > m) m = v; } pk[i] = m; }
+    let mx = 0; pk.forEach(v => { if (v > mx) mx = v; }); if (mx > 0) for (let i = 0; i < pk.length; i++) pk[i] /= mx; wave = { pk }; } catch (e) { wave = null; }
+  build();
+}
+function waveRow(n) {
+  const r = el('lr wv'), l = el('ln', '♫ Sound'), c = document.createElement('canvas'); c.className = 'wvc'; c.width = Math.max(1, Math.round(n * CW)); c.height = 26; c.style.width = c.width + 'px'; c.style.height = '26px';
+  const g = c.getContext('2d'); g.fillStyle = '#e9e9f2'; g.fillRect(0, 0, c.width, 26); g.fillStyle = '#6a5bd6'; const pk = wave.pk;
+  for (let x = 0; x < c.width; x++) { const a = Math.floor(x / CW / fps * 100), b = Math.max(a + 1, Math.floor((x + 1) / CW / fps * 100)); let m = 0; for (let i = a; i < b && i < pk.length; i++) if (pk[i] > m) m = pk[i]; const h = Math.max(m > 0 ? 1 : 0, m * 24); g.fillRect(x, 13 - h / 2, 1, h); }
+  for (let t = 0; t < n; t++) { g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(Math.round(t * CW), 0, 1, 26); }
+  r.append(l, c); return r;
+}
+let refV = null;                                    // reference video: shows under your drawing, follows the playhead, never saved or exported
+function drawRef(g, live) {
+  if (!refV) return; const v = refV.v, tt = (ct - refV.start) / fps;
+  if (tt < 0 || tt > (v.duration || 0)) { if (live && !v.paused) v.pause(); return; }
+  if (live) { if (Math.abs(v.currentTime - tt) > .25) { try { v.currentTime = tt; } catch (e) {} } if (v.paused) v.play().catch(() => {}); }
+  else if (Math.abs(v.currentTime - tt) > .0005) { try { v.currentTime = tt + .0005; } catch (e) {} }
+  if (v.readyState < 2 || !v.videoWidth) return;
+  const k = Math.min(OW / v.videoWidth, OH / v.videoHeight), w = v.videoWidth * k, h = v.videoHeight * k;
+  g.save(); g.globalAlpha = refV.op; g.drawImage(v, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore();
+}
+function render() {
+  vx.setTransform(1, 0, 0, 1, 0, 0); vx.clearRect(0, 0, view.width, view.height);
+  ct = Math.max(0, Math.min(cols() - 1, ct));
+  if (playing && pcache && pcache[ct] && !refV) { vx.drawImage(pcache[ct], 0, 0, OW, OH); ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return; }
+  if (playing) {                                   // play = what the camera sees
+    if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true); flat(cx, ct);
+    drawCam(vx, ct, OW, OH);
+    ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return;
+  }
+  vx.setTransform(1, 0, 0, 1, MX, MY);
+  drawBoard(vx);
+  vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
+  drawRef(vx);
+  if (onion) {                                     // onion skin = the neighbouring drawings of THIS layer (red = before, green = after)
+    const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
+    [[pi - 1, '#ff9500', .22], [ni + 1, '#1e6bff', .22], [pi, '#e8231c', .4], [ni, '#1fa84a', .4]].forEach(([j, c, a]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, c, a); });
+  }
+  flat(vx, ct);
+  { const ML = layers[lay], mc = ML && ML.mk === 'mask' && cellAt(lay, ct); if (mc) { vx.save(); vx.globalAlpha = .35; drawCell(vx, mc, ct); vx.restore(); } }   // while you edit a mask layer, show its shape faintly
+  overlay();
+}
+let rq = 0; const renderSoon = () => { if (!rq) rq = requestAnimationFrame(() => { rq = 0; render(); }); };   // at most one redraw per screen refresh
+function dash(on) { ox.setLineDash(on ? [8, 6] : []); }
+function overlay() {
+  ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); ox.setTransform(1, 0, 0, 1, MX, MY);
+  const c = cam(ct), sw = OW / c.z, sh = OH / c.z;       // camera frame
+  const cr = c.r || 0, cc = Math.cos(cr), cs = Math.sin(cr), cp = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => ({ x: c.x + a * sw / 2 * cc - b * sh / 2 * cs, y: c.y + a * sw / 2 * cs + b * sh / 2 * cc }));
+  const camPath = () => { ox.moveTo(cp[0].x, cp[0].y); for (let i = 1; i < 4; i++) ox.lineTo(cp[i].x, cp[i].y); ox.closePath(); };
+  ox.save(); ox.fillStyle = 'rgba(0,0,0,.2)'; ox.beginPath(); ox.rect(0, 0, W, H); camPath(); ox.fill('evenodd'); ox.restore();   // dim everything the camera can't see
+  if (grid) { const g = +$('gridN').value, u = pxw(1); ox.save(); ox.lineWidth = Math.max(u, 1); ox.strokeStyle = 'rgba(0,120,255,.35)'; ox.beginPath();
+    for (let x = 0; x <= W; x += g) { ox.moveTo(x, 0); ox.lineTo(x, H); } for (let y = 0; y <= H; y += g) { ox.moveTo(0, y); ox.lineTo(W, y); } ox.stroke();
+    ox.strokeStyle = 'rgba(0,120,255,.7)'; ox.beginPath(); ox.moveTo(W / 2, 0); ox.lineTo(W / 2, H); ox.moveTo(0, H / 2); ox.lineTo(W, H / 2); ox.stroke(); ox.restore(); }
+  ox.strokeStyle = '#e8231c'; ox.lineWidth = tool === 'cam' ? 5 : 2; dash(true);
+  ox.beginPath(); camPath(); ox.stroke(); dash(false);
+  if (sel) {
+    drawSel(ox);
+    const g = selGeo();
+    ox.save(); ox.translate(g.c.x, g.c.y); ox.rotate(g.r); ox.strokeStyle = '#4f7cff'; ox.lineWidth = 4; dash(true);
+    ox.strokeRect(-g.w * g.s / 2, -g.h * g.s / 2, g.w * g.s, g.h * g.s); ox.restore(); dash(false);
+    if (tool === 'lasso') {                         // handles: round = turn, square = resize
+      const top = { x: g.c.x + Math.sin(g.r) * g.h * g.s / 2, y: g.c.y - Math.cos(g.r) * g.h * g.s / 2 };
+      ox.strokeStyle = '#4f7cff'; ox.lineWidth = 4;
+      ox.beginPath(); ox.moveTo(top.x, top.y); ox.lineTo(g.ro.x, g.ro.y); ox.stroke();
+      ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
+      ox.fillStyle = '#4f7cff'; ox.fillRect(g.sc.x - g.hr, g.sc.y - g.hr, g.hr * 2, g.hr * 2);
+      ox.strokeStyle = '#fff'; ox.strokeRect(g.sc.x - g.hr, g.sc.y - g.hr, g.hr * 2, g.hr * 2);
+    }
+  }
+  if (drag && tool === 'lasso' && pts.length) {
+    ox.strokeStyle = '#4f7cff'; ox.lineWidth = 3; dash(true);
+    ox.beginPath(); pts.forEach((p, i) => i ? ox.lineTo(p.x, p.y) : ox.moveTo(p.x, p.y)); ox.stroke(); dash(false);
+  }
+  if (selObj && (tool === 'obj' || tool === 'key')) objGizmo(false);
+  if (tool === 'vsel') vsGizmo();
+  if (drag && isVec() && pts.length && tool !== 'line') { ox.lineCap = ox.lineJoin = 'round'; const pp = () => { ox.beginPath(); pts.forEach((p, i) => i ? ox.lineTo(p.x, p.y) : ox.moveTo(p.x, p.y)); ox.stroke(); }; if (tool === 'outline') { const g = olGeo(olSide, olW * SK); ox.save(); ox.translate(g.dx, g.dy); ox.strokeStyle = olColor; ox.lineWidth = size * SK + g.w; pp(); ox.restore(); } ox.strokeStyle = color; ox.lineWidth = size * SK; pp(); }
+  if (hov && /^(brush|eraser|line|vec|outline)$/.test(tool)) {            // brush preview circle + size number
+    const r = size * SK / 2, u = pxw(1);
+    ox.beginPath(); ox.arc(hov.x, hov.y, Math.max(r, u), 0, 7); ox.strokeStyle = '#fff'; ox.lineWidth = 3 * u; ox.stroke(); ox.strokeStyle = '#000'; ox.lineWidth = u; ox.stroke();
+    ox.font = 'bold ' + 16 * u + 'px system-ui'; ox.lineJoin = 'round'; ox.strokeStyle = '#fff'; ox.lineWidth = 4 * u; ox.fillStyle = '#000';
+    const tx = hov.x + r + 8 * u, ty = hov.y - r - 6 * u; ox.strokeText(size, tx, ty); ox.fillText(size, tx, ty);
+  }
+  if (sizeShow) {                                                  // while you change the brush size: a circle in the middle of the screen shows how big it is
+    const sr = $('stage').getBoundingClientRect(), c = P({ clientX: sr.left + sr.width / 2, clientY: sr.top + sr.height / 2 }), r = size * SK / 2, u = pxw(1);
+    ox.beginPath(); ox.arc(c.x, c.y, Math.max(r, u), 0, 7); ox.fillStyle = 'rgba(79,124,255,.25)'; ox.fill(); ox.strokeStyle = '#fff'; ox.lineWidth = 3 * u; ox.stroke(); ox.strokeStyle = '#000'; ox.lineWidth = u; ox.stroke();
+    ox.font = 'bold ' + 22 * u + 'px system-ui'; ox.textAlign = 'center'; ox.textBaseline = 'middle'; ox.strokeStyle = '#fff'; ox.lineWidth = 5 * u; ox.fillStyle = '#000'; ox.strokeText(size, c.x, c.y); ox.fillText(size, c.x, c.y); ox.textAlign = 'start'; ox.textBaseline = 'alphabetic';
+  }
+  if (drag && tool === 'eye' && hov) { const r = pxw(24); ox.beginPath(); ox.arc(hov.x, hov.y - r * 1.8, r, 0, 7); ox.fillStyle = color; ox.fill(); ox.lineWidth = pxw(3); ox.strokeStyle = '#fff'; ox.stroke(); ox.lineWidth = pxw(1); ox.strokeStyle = '#000'; ox.stroke(); }
+  if (drag && tool === 'shape') drawShape(ox, last, p2);
+  if (drag && tool === 'line') {                                   // rubber-band guide while you drag; the real line appears when you lift
+    const A = isVec() ? pts[0] : last, B = isVec() ? pts[pts.length - 1] : p2;
+    if (A && B) { const u = pxw(1); ox.save(); ox.lineCap = 'round'; ox.setLineDash([8 * u, 6 * u]);
+      ox.strokeStyle = '#fff'; ox.lineWidth = 3 * u; ox.beginPath(); ox.moveTo(A.x, A.y); ox.lineTo(B.x, B.y); ox.stroke();
+      ox.strokeStyle = '#000'; ox.lineWidth = 1.2 * u; ox.stroke(); ox.setLineDash([]);
+      [A, B].forEach(q => { ox.beginPath(); ox.arc(q.x, q.y, 5 * u, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.lineWidth = 1.2 * u; ox.stroke(); }); ox.restore(); }
+  }
+  if (sym && /^(brush|eraser|line)$/.test(tool) && !isVec()) { const u = pxw(1); ox.save(); ox.setLineDash([10 * u, 8 * u]); ox.strokeStyle = 'rgba(79,124,255,.8)'; ox.lineWidth = 1.5 * u; ox.beginPath();
+    if (sym & 1) { ox.moveTo(W / 2, -MY); ox.lineTo(W / 2, H + MY); } if (sym & 2) { ox.moveTo(-MX, H / 2); ox.lineTo(W + MX, H / 2); } ox.stroke(); ox.restore(); }
+}
+
+// ---------- vector objects: every stroke is its own object with keyframes ----------
+const pxw = n => n / ((ov.clientWidth / VW) * V.s);                // screen pixels -> canvas units
+const ease = u => u * u * (3 - 2 * u);
+const easeZ = (u, z) => z > 0 ? 1 - Math.pow(1 - u, 1 + z / 40) : Math.pow(u, 1 + -z / 40);      // Flash style: + = fast then slow, - = slow then fast
+function simplify(a, eps) {                                       // fewer anchor points = easier to bend
+  if (a.length < 3) return a;
+  const A = a[0], B = a[a.length - 1], dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy); let m = 0, k = 0;
+  for (let i = 1; i < a.length - 1; i++) { const d = L < 2 ? Math.hypot(a[i].x - A.x, a[i].y - A.y) : Math.abs(dy * (a[i].x - A.x) - dx * (a[i].y - A.y)) / L; if (d > m) { m = d; k = i; } }
+  if (m <= eps) return [A, B];
+  return simplify(a.slice(0, k + 1), eps).slice(0, -1).concat(simplify(a.slice(k), eps));
+}
+function evalObj(o, t) {                                          // the object's shape + position at time t (tweened between keyframes)
+  const k = o.kf; let a = k[0], b = null;
+  for (let i = 0; i < k.length; i++) { if (k[i].t <= t) a = k[i]; if (k[i].t > t) { b = k[i]; break; } }
+  if (!b || t <= a.t) return a;
+  let u = (t - a.t) / (b.t - a.t); if (o.ez) u = easeZ(u, o.ez); else if (o.ease) u = ease(u); const L = (x, y) => x + (y - x) * u, mot = o.tw !== 'shape', shp = o.tw !== 'motion';   // tween type: all / motion only / shape only
+  return { pts: shp ? a.pts.map((p, i) => ({ x: L(p.x, b.pts[i].x), y: L(p.y, b.pts[i].y) })) : a.pts, x: mot ? L(a.x, b.x) : a.x, y: mot ? L(a.y, b.y) : a.y, r: mot ? L(a.r, b.r) : a.r, s: mot ? L(a.s, b.s) : a.s };
+}
+const toW = (o, e, p) => { const dx = (p.x - o.pv.x) * e.s, dy = (p.y - o.pv.y) * e.s, c = Math.cos(e.r), n = Math.sin(e.r); return { x: o.pv.x + e.x + dx * c - dy * n, y: o.pv.y + e.y + dx * n + dy * c }; };
+const toL = (o, e, w) => { const ux = w.x - o.pv.x - e.x, uy = w.y - o.pv.y - e.y, c = Math.cos(-e.r), n = Math.sin(-e.r); return { x: o.pv.x + (ux * c - uy * n) / e.s, y: o.pv.y + (ux * n + uy * c) / e.s }; };
+const alive = o => objsNow().some(x => x.o === o);
+const olGeo = (side, k) => side === 'both' || !side ? { w: 2 * k, dx: 0, dy: 0 } : { w: k, dx: ({ left: -1, right: 1 }[side] || 0) * k / 2, dy: ({ top: -1, bottom: 1 }[side] || 0) * k / 2 };   // outline on both sides, or just one
+function drawObj(ctx, o, t, phase) {
+  if (o.clip) return drawClipObj(ctx, o, t);
+  const e = evalObj(o, t), q = e.pts.map(p => toW(o, e, p));
+  ctx.save(); ctx.lineCap = ctx.lineJoin = 'round';
+  const pass = (col, w, dx, dy) => {
+    ctx.save(); ctx.translate((dx || 0) * e.s, (dy || 0) * e.s); try {
+    ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = w * e.s;
+    if (q.length === 1) { ctx.beginPath(); ctx.arc(q[0].x, q[0].y, w * e.s / 2, 0, 7); ctx.fill(); return; }
+    ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y);
+    for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2);
+    ctx.lineTo(q[q.length - 1].x, q[q.length - 1].y); ctx.stroke();
+    } finally { ctx.restore(); }
+  };
+  if (o.ol && phase !== 'fill') { const g = olGeo(o.olside, o.olw || 0); pass(o.ol, o.w + g.w, g.dx, g.dy); }                     // the outline = the same line, wider, in the outline colour, underneath
+  if (phase !== 'ol') pass(o.col, o.w);
+  ctx.restore();
+}
+function ensureKf(o, t) {
+  let k = o.kf.find(x => x.t === t);
+  if (!k) { const e = evalObj(o, t); k = { t, pts: e.pts.map(p => ({ x: p.x, y: p.y })), x: e.x, y: e.y, r: e.r, s: e.s }; o.kf.push(k); o.kf.sort((a, b) => a.t - b.t); }
+  return k;
+}
+function segD(p, a, b) { const dx = b.x - a.x, dy = b.y - a.y, l = dx * dx + dy * dy, u = l ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l)) : 0; return { d: Math.hypot(p.x - a.x - u * dx, p.y - a.y - u * dy), u }; }
+function drawClipObj(ctx, o, t) {                                 // a movieclip instance loops its own frames
+  const cl = clips.find(c => c.id === o.clip); if (!cl) return; const e = evalObj(o, t);
+  const i = ((Math.floor(t - (o.t0 || 0)) % cl.n) + cl.n) % cl.n, fr = cl.u[cl.m[i]]; if (!fr) return;
+  ctx.save(); ctx.translate(o.pv.x + e.x, o.pv.y + e.y); ctx.rotate(e.r); ctx.scale(e.s, e.s); ctx.drawImage(fr, cl.x - o.pv.x, cl.y - o.pv.y); ctx.restore();
+}
+function hitSeg(o, p, tolMul) {
+  if (o.clip) { const e = evalObj(o, ct), q = toL(o, e, p), xs = e.pts.map(a => a.x), ys = e.pts.map(a => a.y); return q.x >= Math.min(...xs) && q.x <= Math.max(...xs) && q.y >= Math.min(...ys) && q.y <= Math.max(...ys) ? { j: 0, u: 0 } : null; }                                   // {j, u} if p touches the stroke
+  const e = evalObj(o, ct), q = e.pts.map(x => toW(o, e, x)), tol = (o.w / 2 + (o.olw || 0)) * e.s + pxw(18) * (tolMul || 1);
+  for (let j = 0; j < Math.max(1, q.length - 1); j++) { const r = segD(p, q[j], q[Math.min(j + 1, q.length - 1)]); if (r.d <= tol) return { j, u: r.u }; }
+  return null;
+}
+function objGeo() {
+  const o = selObj, e = evalObj(o, ct), q = e.pts.map(p => toW(o, e, p)), hr = pxw(16), m = hr * 1.5;
+  const x0 = Math.min(...q.map(p => p.x)) - m, x1 = Math.max(...q.map(p => p.x)) + m, y0 = Math.min(...q.map(p => p.y)) - m, y1 = Math.max(...q.map(p => p.y)) + m;
+  return { o, e, q, hr, x0, y0, x1, y1, pv: { x: o.pv.x + e.x, y: o.pv.y + e.y }, sc: { x: x1, y: y1 }, ro: { x: (x0 + x1) / 2, y: y0 - hr * 2.5 } };
+}
+function objGizmo(plain) {
+  if (!alive(selObj, ct)) return;
+  const g = objGeo(); ox.lineWidth = pxw(2); ox.strokeStyle = '#4f7cff'; dash(true); ox.strokeRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0); dash(false);
+  if (plain) return;
+  if (bendMode && !selObj.clip) g.q.forEach(p => { ox.beginPath(); ox.arc(p.x, p.y, g.hr * .7, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.stroke(); });
+  else {
+    ox.beginPath(); ox.moveTo(g.ro.x, g.ro.y); ox.lineTo(g.ro.x, g.y0); ox.stroke();
+    ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
+    ox.fillStyle = '#4f7cff'; ox.fillRect(g.sc.x - g.hr, g.sc.y - g.hr, g.hr * 2, g.hr * 2);
+  }
+}
+function objDown(p) {
+  oMoved = false; oMode = ''; oBase = null;
+  if (selObj && alive(selObj, ct)) {
+    const g = objGeo();
+    if (bendMode && !selObj.clip) {
+      let bi = g.q.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.6);
+      if (bi < 0) { const h = hitSeg(selObj, p, .8); if (h) {                       // tap on the line = add a bend point there
+        osnap(); selObj.kf.forEach(k => { const a = k.pts[h.j], b = k.pts[Math.min(h.j + 1, k.pts.length - 1)]; k.pts.splice(h.j + 1, 0, { x: a.x + (b.x - a.x) * h.u, y: a.y + (b.y - a.y) * h.u }); });
+        bi = h.j + 1; oMoved = true; oBase = { k: ensureKf(selObj, ct) }; } }
+      if (bi >= 0) { oMode = 'bend'; bendI = bi; return; }
+    } else {
+      if (Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { oMode = 'scale'; oBase = { d: Math.hypot(p.x - g.pv.x, p.y - g.pv.y) || 1, s: g.e.s }; return; }
+      if (Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2) { oMode = 'rot'; oBase = { a: Math.atan2(p.y - g.pv.y, p.x - g.pv.x), r: g.e.r }; return; }
+    }
+  }
+  let h = null;
+  const nw = objsNow(); for (let i = nw.length - 1; i >= 0 && !h; i--) if (hitSeg(nw[i].o, p)) h = nw[i];
+  if (h) { selObj = h.o; if (lay !== h.k) { lay = h.k; hl(); } const e = evalObj(h.o, ct); oMode = 'move'; oBase = { x: e.x, y: e.y, p }; }
+  else selObj = null;
+  build(); render();
+}
+function objMove(p) {
+  if (!selObj || !oMode) return;
+  if (!oMoved) { oMoved = true; if (!(oBase && oBase.k)) osnap(); }
+  const k = ensureKf(selObj, ct);
+  if (oMode === 'move') { k.x = oBase.x + p.x - oBase.p.x; k.y = oBase.y + p.y - oBase.p.y; }
+  else if (oMode === 'scale') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.s = Math.min(20, Math.max(.05, oBase.s * Math.hypot(p.x - pv.x, p.y - pv.y) / oBase.d)); }
+  else if (oMode === 'rot') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.r = oBase.r + Math.atan2(p.y - pv.y, p.x - pv.x) - oBase.a; }
+  else if (oMode === 'bend') { k.pts[bendI] = toL(selObj, k, p); }
+}
+function objUp() { if (oMoved) { build(); save(); } oMode = ''; render(); }
+let vsel = [], vst = null, vpoly = [];                             // V-Select: many whole strokes at once, moved / resized / turned as a group
+const vsInside = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) c = !c; } return c; };
+const vsWorld = it => { const e = evalObj(it.o, ct); return e.pts.map(p => toW(it.o, e, p)); };
+function vsGeo() {
+  vsel = vsel.filter(it => objsNow().some(x => x.o === it.o)); if (!vsel.length) return null;
+  const hr = pxw(16), m = hr * 1.5; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  vsel.forEach(it => vsWorld(it).forEach(p => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }));
+  x0 -= m; y0 -= m; x1 += m; y1 += m; return { hr, x0, y0, x1, y1, C: { x: (x0 + x1) / 2, y: (y0 + y1) / 2 }, sc: { x: x1, y: y1 }, ro: { x: (x0 + x1) / 2, y: y0 - hr * 2.5 } };
+}
+function vsGizmo() {
+  const g = vsGeo(); $('vsN').textContent = vsel.length ? vsel.length + ' stroke' + (vsel.length > 1 ? 's' : '') + ' selected' : '';
+  if (vst && vst.mode === 'lasso' && vpoly.length > 1) { ox.save(); ox.lineWidth = pxw(2); ox.strokeStyle = '#4f7cff'; ox.fillStyle = 'rgba(79,124,255,.12)'; dash(true); ox.beginPath(); vpoly.forEach((p, i) => i ? ox.lineTo(p.x, p.y) : ox.moveTo(p.x, p.y)); ox.closePath(); ox.fill(); ox.stroke(); dash(false); ox.restore(); }
+  if (!g) return;
+  ox.save(); ox.lineWidth = pxw(1.5); ox.strokeStyle = '#4f7cff'; dash(true);
+  vsel.forEach(it => { const q = vsWorld(it), a = Math.min(...q.map(p => p.x)), b = Math.min(...q.map(p => p.y)), c = Math.max(...q.map(p => p.x)), d = Math.max(...q.map(p => p.y)); ox.strokeRect(a - 6, b - 6, c - a + 12, d - b + 12); });
+  ox.lineWidth = pxw(2); ox.strokeRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0); dash(false);
+  ox.beginPath(); ox.moveTo(g.ro.x, g.ro.y); ox.lineTo(g.ro.x, g.y0); ox.stroke(); ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
+  ox.fillStyle = '#4f7cff'; ox.fillRect(g.sc.x - g.hr, g.sc.y - g.hr, g.hr * 2, g.hr * 2); ox.restore();
+}
+function vsDown(p) {
+  vst = null; const g = vsGeo();
+  if (g) {
+    const mode = Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2 ? 'scale' : Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2 ? 'rot' : (p.x >= g.x0 && p.x <= g.x1 && p.y >= g.y0 && p.y <= g.y1) ? 'move' : '';
+    if (mode) vst = { mode, p0: p, C: g.C, a0: Math.atan2(p.y - g.C.y, p.x - g.C.x), d0: Math.hypot(p.x - g.C.x, p.y - g.C.y) || 1, moved: false, base: vsel.map(it => { const e = evalObj(it.o, ct); return { x: e.x, y: e.y, r: e.r, s: e.s }; }) };
+  }
+  if (!vst) { vsel = []; vpoly = [p]; vst = { mode: 'lasso' }; }
+  render();
+}
+function vsMove(p) {
+  if (!vst) return;
+  if (vst.mode === 'lasso') { const l = vpoly[vpoly.length - 1]; if (Math.hypot(p.x - l.x, p.y - l.y) > pxw(3)) { vpoly.push(p); renderSoon(); } return; }
+  if (!vst.moved) { vst.moved = true; osnap(); }
+  const C = vst.C, th = vst.mode === 'rot' ? Math.atan2(p.y - C.y, p.x - C.x) - vst.a0 : 0, kk = vst.mode === 'scale' ? Math.max(.05, Math.min(20, Math.hypot(p.x - C.x, p.y - C.y) / vst.d0)) : 1, cs = Math.cos(th), sn = Math.sin(th);
+  vsel.forEach((it, i) => {
+    const o = it.o, b = vst.base[i], k = ensureKf(o, ct);
+    if (vst.mode === 'move') { k.x = b.x + p.x - vst.p0.x; k.y = b.y + p.y - vst.p0.y; return; }
+    const vx = o.pv.x + b.x - C.x, vy = o.pv.y + b.y - C.y;       // turn / resize about the middle of the whole group
+    k.x = C.x + kk * (cs * vx - sn * vy) - o.pv.x; k.y = C.y + kk * (sn * vx + cs * vy) - o.pv.y; k.r = b.r + th; k.s = Math.max(.05, Math.min(20, b.s * kk));
+  });
+  renderSoon();
+}
+function vsUp() {
+  if (!vst) return; const m = vst.mode, moved = vst.moved; vst = null;
+  if (m === 'lasso') {
+    const nw = objsNow(), xs = vpoly.map(p => p.x), ys = vpoly.map(p => p.y), small = vpoly.length < 4 || Math.max(...xs) - Math.min(...xs) < pxw(14) && Math.max(...ys) - Math.min(...ys) < pxw(14);
+    if (small) { let h = null; for (let i = nw.length - 1; i >= 0 && !h; i--) if (hitSeg(nw[i].o, vpoly[0])) h = nw[i]; vsel = h ? [h] : []; }
+    else vsel = nw.filter(it => { const q = vsWorld(it); return q.filter(p => vsInside(p, vpoly)).length >= q.length * .5; });
+    vpoly = [];
+  } else if (moved) { build(); save(); }
+  render();
+}
+$('vsAll').onclick = () => { vsel = objsNow(); render(); };
+$('vsDel').onclick = () => { if (!vsel.length) return; osnap(); vsel.forEach(it => { const c = findCell(it.o); if (c) c.objs = c.objs.filter(o => o !== it.o); }); vsel = []; build(); render(); save(); };
+$('vsDup').onclick = () => { if (!vsel.length) return; osnap(); const nv = vsel.map(it => { const n = JSON.parse(JSON.stringify(it.o)); n.id = oid++; n.pv.x += 40; n.pv.y += 40; n.kf.forEach(k => k.pts.forEach(p => { p.x += 40; p.y += 40; })); (findCell(it.o) || ensureCell(it.k, ct)).objs.push(n); return { o: n, k: it.k }; }); vsel = nv; render(); save(); };
+function vecErase(p) {                                           // vector eraser: wipes out any vector stroke it touches (the real data, in this frame's keyframe)
+  const gone = objsNow().filter(x => !x.o.clip && hitSeg(x.o, p, .35)); if (!gone.length) return;
+  if (!veDone) { osnap(); veDone = true; }
+  gone.forEach(x => { const c = cellAt(x.k, ct); c.objs = c.objs.filter(o => o !== x.o); if (x.o === selObj) selObj = null; }); build(); renderSoon(); save();
+}
+function vecEnd() {
+  let a = pts; pts = []; if (!a.length) return;
+  a = a.length > 1 ? simplify(a, 5) : a; osnap();
+  const pv = { x: a.reduce((n, p) => n + p.x, 0) / a.length, y: a.reduce((n, p) => n + p.y, 0) / a.length };
+  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
+  build(); save(); render();
+}
+let olOn = false;
+function olUI() { const on = (tool === 'obj' || tool === 'key') ? !!(selObj && selObj.ol) : olOn; $('olTog').textContent = 'Outline: ' + (on ? 'on' : 'off'); $('olTog').classList.toggle('on', on); }
+$('olTog').onclick = () => {
+  if (tool === 'obj' || tool === 'key') { if (!selObj) return toast('Tap a stroke first'); osnap(); if (selObj.ol) { delete selObj.ol; delete selObj.olw; delete selObj.olside; } else { selObj.ol = olColor; selObj.olw = olW * SK; selObj.olside = olSide; } olUI(); render(); save(); }
+  else { olOn = !olOn; olUI(); render(); }
+};
+const objUI = () => { olUI(); $('oMove').classList.toggle('on', !bendMode); $('oBend').classList.toggle('on', bendMode); $('oEase').textContent = 'Ease: ' + (selObj && selObj.ease ? 'on' : 'off'); $('oTw').textContent = 'Tween: ' + (selObj && selObj.tw || 'all'); const ez = (selObj && selObj.ez) || 0; if ($('kEz')) { $('kEz').value = ez; $('kEzN').textContent = ez; } };
+function resample(q, n) {                                          // the same line, redrawn with n evenly spaced points
+  if (n === 1 || q.length === 1) return Array.from({ length: n }, () => ({ x: q[0].x, y: q[0].y }));
+  const d = [0]; for (let i = 1; i < q.length; i++) d.push(d[i - 1] + Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y));
+  const L = d[d.length - 1] || 1, r = []; let j = 1;
+  for (let i = 0; i < n; i++) { const t = L * i / (n - 1); while (j < q.length - 1 && d[j] < t) j++; const u = Math.min(1, Math.max(0, (t - d[j - 1]) / (d[j] - d[j - 1] || 1))); r.push({ x: q[j - 1].x + (q[j].x - q[j - 1].x) * u, y: q[j - 1].y + (q[j].y - q[j - 1].y) * u }); }
+  return r;
+}
+function tweenPair(L, i, n) {                                      // morph keyframe i into keyframe i+1 using n in-between frames; returns how many strokes were tweened
+  const A = L.cells[i], B = L.cells[i + 1]; if (!B) return 0;
+  const T = B.s, diag = Math.hypot(W, H), hy = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  const feat = (o, t) => { const e = evalObj(o, t), w = e.pts.map(p => toW(o, e, p)); let cx = 0, cy = 0, len = 0; w.forEach((p, k) => { cx += p.x; cy += p.y; if (k) len += hy(p, w[k - 1]); }); return { w, cx: cx / w.length, cy: cy / w.length, len, col: o.col }; };
+  const lastT = o => Math.max(...o.kf.filter(k => k.t < T).map(k => k.t), A.s);
+  const fa = A.objs.map(o => o.clip ? null : feat(o, lastT(o))), fb = B.objs.map(o => o.clip ? null : feat(o, T)), cand = [];
+  fa.forEach((a, ia) => { if (a) fb.forEach((b, ib) => { if (!b) return; const c = hy({ x: a.cx, y: a.cy }, { x: b.cx, y: b.cy }) / (.25 * diag) + Math.abs(a.len - b.len) / Math.max(a.len, b.len, 1) + (a.col !== b.col ? .4 : 0); if (c < 1.3) cand.push([c, ia, ib]); }); });
+  cand.sort((x, y) => x[0] - y[0]); const ua = new Set(), ub = new Set(), pairs = [];     // best matches first; every stroke is used at most once, so no stroke splits into two limbs
+  cand.forEach(([c, ia, ib]) => { if (!ua.has(ia) && !ub.has(ib)) { ua.add(ia); ub.add(ib); pairs.push([ia, ib]); } });
+  if (!pairs.length) return 0;
+  A.d = Math.max(A.d, B.s - A.s); resizeCell(L, A, n + 1);          // exactly n in-between frames (later keyframes move along)
+  pairs.forEach(([ia, ib]) => {
+    const o = A.objs[ia], N = Math.min(120, Math.max(24, fb[ib].w.length, fa[ia].w.length));
+    o.kf = o.kf.filter(k => k.t < T).map(k => ({ t: k.t, pts: resample(k.pts.map(p => toW(o, k, p)), N), x: 0, y: 0, r: 0, s: 1 }));   // bake to world points so the morph can't twist
+    let w = fb[ib].w; const l = o.kf[o.kf.length - 1].pts;
+    if (hy(l[0], w[w.length - 1]) + hy(l[N - 1], w[0]) < hy(l[0], w[0]) + hy(l[N - 1], w[w.length - 1])) w = w.slice().reverse();   // same drawing direction
+    o.kf.push({ t: T, pts: resample(w, N), x: 0, y: 0, r: 0, s: 1 }); o.tw = 'all';
+  });
+  const unA = A.objs.map((o, k) => k).filter(k => !ua.has(k) && !A.objs[k].clip), unB = B.objs.filter((o, k) => !ub.has(k) && !o.clip);
+  if (unA.length || unB.length) {                                   // strokes with no partner swap at the half-way point instead of lingering or morphing into something else
+    const mid = A.s + Math.max(1, Math.round((n + 1) / 2)), r = splitCell(A, mid, false), drop = new Set(unA);
+    r.objs = r.objs.filter((o, k) => !drop.has(k)); unB.forEach(q => r.objs.push(windowObj(q, T, T + 1, mid - T))); L.cells.splice(L.cells.indexOf(A) + 1, 0, r);
+  }
+  return pairs.length;
+}
+const tweenN = () => Math.max(1, Math.min(60, Math.round(+$('kN').value) || 8));
+function runTween(all) {
+  const L = layers[lay], i = cellIdx(L, ct), b = all ? $('kAll') : $('kAuto'); commit();
+  if (i < 0 || L.lock) return flashBtn(b, 'Pick a drawing first');
+  if (!L.cells[i + 1]) return flashBtn(b, 'Add a ◆Key later on this layer first');
+  osnap(); let n = 0; const last = all ? L.cells.length - 2 : i;
+  for (let j = i; j <= last; j++) n += tweenPair(L, j, tweenN());
+  if (!n) { undo.pop(); return flashBtn(b, 'Needs vector strokes in both'); }
+  selObj = null; build(); render(); save(); flashBtn(b, 'Tweened ✓ (' + n + ')');
+}
+const keyTargets = () => selObj ? [selObj] : objsNow().map(x => x.o);
+$('kAdd').onclick = () => { const t = keyTargets(); if (!t.length) return; commit(); osnap();
+  t.forEach(o => { const c = findCell(o), L = c && layers.find(l => l.cells.includes(c)); if (c && ct >= c.s + c.d) resizeCell(L, c, ct - c.s + 1); ensureKf(o, ct); });   // the drawing is held out to this frame, then the key is set
+  build(); render(); save(); };
+$('kEz').oninput = e => { $('kEzN').textContent = e.target.value; if (!selObj) return; if (!e.target.dataset.d) { e.target.dataset.d = 1; osnap(); } selObj.ez = +e.target.value || undefined; render(); save(); };
+$('kEz').onchange = e => { delete e.target.dataset.d; };
+$('kDel').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1 && o.kf.some(k => k.t === ct)); if (!t.length) return; osnap(); t.forEach(o => o.kf.splice(o.kf.findIndex(k => k.t === ct), 1)); build(); render(); save(); };
+$('kDelAll').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1); if (!t.length) return toast('No extra keyframes to delete'); commit(); osnap(); t.forEach(o => { o.kf = [o.kf[0]]; }); build(); render(); save(); toast('All its keyframes deleted'); };
+$('oMove').onclick = () => { bendMode = false; objUI(); render(); };
+$('oBend').onclick = () => { bendMode = true; objUI(); render(); };
+$('oTw').onclick = () => { if (!selObj) return; osnap(); selObj.tw = { all: 'motion', motion: 'shape' }[selObj.tw || 'all'] || 'all'; objUI(); render(); save(); };
+$('oEase').onclick = () => { if (!selObj) return; osnap(); selObj.ease = !selObj.ease; objUI(); render(); save(); };
+$('oDel').onclick = () => { if (!selObj) return; osnap(); const c = findCell(selObj); if (c) c.objs = c.objs.filter(o => o !== selObj); selObj = null; build(); render(); save(); };
+$('olc').oninput = e => { olColor = e.target.value; if (selObj) { if (!selObj.ol) selObj.olw = olW * SK; selObj.ol = olColor; render(); save(); } };
+$('olw').oninput = e => { olW = +e.target.value; if (selObj && selObj.ol) { selObj.olw = olW * SK; render(); save(); } };
+document.querySelectorAll('#olSides button').forEach(b => b.onclick = () => {
+  olSide = b.dataset.s; document.querySelectorAll('#olSides button').forEach(x => x.classList.toggle('on', x === b));
+  if (selObj && selObj.ol) { osnap(); selObj.olside = olSide; render(); save(); }
+});
+$('olOff').onclick = () => { if (!selObj || !selObj.ol) return; osnap(); delete selObj.ol; delete selObj.olw; render(); save(); };
+const flashBtn = (b, txt) => { const o = b.dataset.o || (b.dataset.o = b.textContent); b.textContent = txt; clearTimeout(b._f); b._f = setTimeout(() => { b.textContent = o; }, 1600); };
+let oclip = null;                                                  // copied stroke: paste puts it in the same place on whatever frame / layer you are on
+$('oCopy').onclick = () => { if (!selObj) return flashBtn($('oCopy'), 'Select one'); oclip = { o: JSON.parse(JSON.stringify(selObj)), t: selObj.kf[0].t }; flashBtn($('oCopy'), 'Copied ✓'); };
+$('oPaste').onclick = () => {
+  if (!oclip) return flashBtn($('oPaste'), 'Copy first'); if (playing || layers[lay].lock || !layers[lay].vis) return;
+  commit(); osnap(); const n = JSON.parse(JSON.stringify(oclip.o)), dt = ct - oclip.t; n.id = oid++; n.kf.forEach(k => { k.t += dt; }); if (n.t0 != null) n.t0 += dt;
+  ensureCell(lay, ct).objs.push(n); selObj = n; fixLen(); build(); render(); save();
+};
+$('oDup').onclick = () => { if (!selObj) return; osnap(); const n = JSON.parse(JSON.stringify(selObj)); n.id = oid++; n.pv.x += 40; n.pv.y += 40; n.kf.forEach(k => k.pts.forEach(p => { p.x += 40; p.y += 40; })); (findCell(selObj) || ensureCell(lay, ct)).objs.push(n); selObj = n; render(); save(); };
+function vecUI() {
+  const on = tool === 'brush' || tool === 'line' || tool === 'eraser', v = !!vecOn[tool];
+  $('vecBox').hidden = !on; $('symBox').hidden = !on; $('bsBox').hidden = tool !== 'brush'; $('dmBox').hidden = tool !== 'brush' && tool !== 'line'; $('vToggle').textContent = v ? 'Vector (tap: normal)' : 'Normal (tap: vector)';
+  document.querySelectorAll('[data-t="brush"],[data-t="line"],[data-t="eraser"]').forEach(b => b.classList.toggle('v', !!vecOn[b.dataset.t]));
+}
+$('gridB').onclick = () => { grid = !grid; $('gridB').classList.toggle('on', grid); render(); }; $('gridN').onchange = () => render();
+$('symB').onclick = () => { sym = (sym + 1) % 4; $('symB').textContent = 'Symmetry: ' + ['off', '↔ left/right', '↕ top/bottom', '✛ both'][sym]; render(); };
+$('vToggle').onclick = () => { vecOn[tool] = !vecOn[tool]; vecUI(); render(); };
+document.querySelectorAll('[data-t="brush"],[data-t="line"],[data-t="eraser"]').forEach(b => { let lt = 0; b.addEventListener('click', () => { const n = Date.now(); if (n - lt < 400) { vecOn[b.dataset.t] = !vecOn[b.dataset.t]; vecUI(); render(); lt = 0; } else lt = n; }); });   // double-tap = switch normal / vector
+
+// ---------- timeline: a row per layer, a column per frame, a red playhead ----------
+const tlbox = $('tlbox');
+const el = (cls, txt) => { const d = document.createElement('div'); d.className = cls; if (txt != null) d.textContent = txt; return d; };
+const colAt = x => { const r = tlbox.getBoundingClientRect(); return Math.max(0, Math.min(cols() - 1, Math.floor((x - S(r.left, r.top).x - LNW) / CW))); };
+let scrubbing = false;
+function moveTo(t, soft) {                         // move the playhead (everything follows it)
+  if (playing) return; commit(); $('cf').hidden = true; ct = Math.max(0, Math.min(cols() - 1, t)); syncCam(); hl(); soft ? renderSoon() : render();
+}
+function build() {
+  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
+  tlbox.innerHTML = ''; const n = cols();
+  const rr = el('lr rr'); rr.append(el('ln corner'));
+  for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
+  tlbox.append(rr);
+  let pg = null;
+  for (let k = layers.length - 1; k >= 0; k--) {   // top layer first
+    const L = layers[k];
+    if (L.g && L.g !== pg) {
+      const g = L.g, gr = el('lr grp'), gl = el('ln gh'), mem = layers.filter(x => x.g === g);
+      gl.dataset.gh = g; gl.dataset.top = layers.lastIndexOf(mem[mem.length - 1]);
+      const ar = el('eye', gcol[g] ? '▸' : '▾'), ge = el('eye', mem.every(x => x.vis) ? '👁' : '🚫');
+      ar.onclick = e => { e.stopPropagation(); gcol[g] = !gcol[g]; build(); };
+      ge.onclick = e => { e.stopPropagation(); osnap(); const v = !mem.every(x => x.vis); mem.forEach(x => x.vis = v); build(); render(); save(); };
+      const gn = el('nm', '📁 ' + g); gn.onclick = e => { e.stopPropagation(); ask('Group name', g, n => { osnap(); layers.forEach(x => { if (x.g === g) x.g = n.slice(0, 14); }); build(); save(); }); };
+      gl.append(ar, ge, gn); gr.append(gl); tlbox.append(gr);
+    }
+    pg = L.g || null; if (L.g && gcol[L.g]) continue;
+    const lr = el('lr'), ln = el('ln'), eye = el('eye', L.vis ? '👁' : '🚫'), lk = el('eye', L.lock ? '🔒' : '🔓');
+    lr.dataset.l = k;
+    eye.onclick = e => { e.stopPropagation(); osnap(); L.vis = !L.vis; build(); render(); save(); };
+    lk.onclick = e => { e.stopPropagation(); osnap(); L.lock = !L.lock; build(); render(); save(); };
+    const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); ln.append(dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); ln.onclick = () => { commit(); lay = k; hl(); render(); };
+    lr.append(ln);
+    let t = 0;
+    const gap = (a, b) => { for (let x = a; x < b; x++) { const g = el('cell gap'); g.dataset.l = k; g.dataset.t = x; g.style.width = CW + 'px'; lr.append(g); } };
+    L.cells.forEach((c, ci) => {
+      gap(t, c.s); const d = el('cell' + (c.d > 1 ? ' hold' : '') + ((c.cv && c.cv._has) || c.objs.length ? ' has' : ''));
+      d.dataset.l = k; d.dataset.ci = ci; d.dataset.t = c.s; d.style.width = c.d * CW + 'px'; d.innerHTML = '<i></i><b class="hd"></b>'; lr.append(d); t = c.s + c.d;
+    });
+    gap(t, n); tlbox.append(lr);
+  }
+  if (wave) tlbox.append(waveRow(n));
+  const ph = el('', ''); ph.id = 'ph'; ph.innerHTML = '<u></u>'; tlbox.append(ph);
+  $('addLayer').disabled = layers.length >= LMAX; hl();
+}
+const buildLayers = build;
+let farOK = null; $('cfy').onclick = () => { farOK = { t: ct, l: lay }; $('cf').hidden = true; toast('OK, draw on frame ' + (ct + 1)); }; $('cfn').onclick = () => { $('cf').hidden = true; };
+let toastT = 0; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+$('prevF').onclick = () => moveTo(ct - 1); $('nextF').onclick = () => moveTo(ct + 1);
+let fpsTxt = '';
+function phOnly() {                                // while playing: only move the red line + frame number (cheap)
+  $('scrub').value = ct; $('fbadge').textContent = 'Frame ' + (ct + 1) + ' / ' + len + fpsTxt; $('fi').textContent = 'Frame ' + (ct + 1) + ' / ' + len;
+  const ph = $('ph'), sc = $('tlscroll'); if (ph) ph.style.left = LNW + (ct + .5) * CW - 1 + 'px';
+  const px = LNW + ct * CW; if (sc && (px < sc.scrollLeft + LNW || px + CW > sc.scrollLeft + sc.clientWidth)) sc.scrollLeft = px - sc.clientWidth / 2;
+}
+function hl() {
+  const sb = $('scrub'); sb.max = Math.max(0, cols() - 1); sb.value = ct; $('fbadge').textContent = 'Frame ' + (ct + 1) + ' / ' + len; $('fi').textContent = 'Frame ' + (ct + 1) + ' / ' + len;
+  tlbox.querySelectorAll('.rn.ct').forEach(x => x.classList.remove('ct'));
+  const rn = tlbox.querySelector('.rn[data-t="' + ct + '"]'); if (rn) rn.classList.add('ct');
+  tlbox.querySelectorAll('.cell').forEach(x => {
+    const k = +x.dataset.l; let on = false;
+    if (k === lay) { if (x.classList.contains('gap')) on = +x.dataset.t === ct; else { const c = layers[k].cells[+x.dataset.ci]; on = !!c && ct >= c.s && ct < c.s + c.d; } }
+    x.classList.toggle('cur', on);
+  });
+  tlbox.querySelectorAll('.lr.sel').forEach(x => x.classList.remove('sel'));
+  const r = tlbox.querySelector('.lr[data-l="' + lay + '"]'); if (r) r.classList.add('sel');
+  const ph = $('ph'); if (ph) ph.style.left = LNW + (ct + .5) * CW - 1 + 'px';
+  const px = LNW + ct * CW; if (!scrubbing && (px < sc.scrollLeft + LNW || px + CW > sc.scrollLeft + sc.clientWidth)) sc.scrollLeft = px - sc.clientWidth / 2;
+}
+$('zin').onclick = () => { CW = Math.min(56, CW + 6); build(); };
+$('zout').onclick = () => { CW = Math.max(12, CW - 6); build(); };
+
+// ---- frame operations (always on the selected layer, at the playhead) ----
+function splitCell(c, t, blank) {                  // c keeps frames before t; the returned cell is a new, independent keyframe from t on
+  const e = c.s + c.d;
+  const r = { s: t, d: e - t, cv: !blank && c.cv && c.cv._has ? clone(c.cv) : null, objs: blank ? [] : c.objs.map(o => windowObj(o, t, e)) };
+  c.objs = c.objs.map(o => windowObj(o, c.s, t)); c.d = t - c.s; return r;
+}
+function opKey(blank) {
+  if (playing) return; commit(); const L = layers[lay]; if (L.lock) return;
+  const i = cellIdx(L, ct);
+  if (i >= 0) {
+    const c = L.cells[i];
+    if (ct === c.s) { if (!blank) return; osnap(); c.cv = null; c.objs = []; }
+    else { osnap(); L.cells.splice(i + 1, 0, splitCell(c, ct, blank)); }
+  } else {
+    osnap(); const prev = L.cells.filter(c => c.s + c.d <= ct).pop(), e = prev ? prev.s + prev.d : 0, cp = !blank && prev;   // a new keyframe copies the drawing before it
+    L.cells.push({ s: ct, d: 1, cv: cp && prev.cv && prev.cv._has ? clone(prev.cv) : null, objs: cp ? prev.objs.map(o => windowObj(o, e - 1, e, ct - (e - 1))) : [] });
+    L.cells.sort((a, b) => a.s - b.s);
+  }
+  fixLen(); selObj = null; build(); render(); save();
+}
+$('fKey').onclick = () => opKey(false);
+$('fBlank').onclick = () => opKey(true);
+function resizeCell(L, c, nd) {                    // hold a drawing for more / fewer frames; later keyframes of this layer move along
+  nd = Math.max(1, Math.min(240, nd)); const dl = nd - c.d; if (!dl) return;
+  const i = L.cells.indexOf(c); c.d = nd; for (let j = i + 1; j < L.cells.length; j++) shiftCell(L.cells[j], dl); fixLen();
+}
+$('add').onclick = () => {                         // a brand-new blank frame after this drawing, on THIS layer only (other layers and the camera stay as they are)
+  if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
+  const c0 = cellAt(lay, ct), n = c0 ? c0.s + c0.d : ct + 1;
+  for (let i = 0; i < L.cells.length; i++) {
+    const c = L.cells[i];
+    if (c.s >= n) shiftCell(c, 1);
+    else if (c.s + c.d > n) { const r = splitCell(c, n, false); shiftCell(r, 1); L.cells.splice(i + 1, 0, r); i++; }
+  }
+  L.cells.push({ s: n, d: 1, cv: null, objs: [] }); L.cells.sort((a, b) => a.s - b.s);
+  fixLen(); ct = n; selObj = null; syncCam(); build(); render(); save();
+};
+$('hold').onclick = () => {                         // frame extension: the drawing is simply shown longer
+  if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
+  let c = cellAt(lay, ct);
+  if (c) resizeCell(L, c, c.d + 1);
+  else { c = L.cells.filter(x => x.s < ct).pop(); if (c) c.d = ct + 1 - c.s; else c = ensureCell(lay, ct); fixLen(); }
+  ct = c.s + c.d - 1; selObj = null; build(); render(); save();
+};
+$('rmf').onclick = () => {
+  if (playing) return; commit(); const L = layers[lay], c = cellAt(lay, ct); if (!c || c.d < 2 || L.lock) return; osnap();
+  resizeCell(L, c, c.d - 1); ct = Math.min(ct, c.s + c.d - 1); build(); render(); save();
+};
+$('dup').onclick = () => {                         // copy this keyframe right after itself
+  if (playing) return; commit(); const L = layers[lay], i = cellIdx(L, ct); if (i < 0 || L.lock) return; osnap();
+  const c = L.cells[i], n = { s: c.s + c.d, d: c.d, cv: c.cv && c.cv._has ? clone(c.cv) : null, objs: c.objs.map(o => windowObj(o, c.s, c.s + c.d, c.d)) };
+  for (let j = i + 1; j < L.cells.length; j++) shiftCell(L.cells[j], c.d);
+  L.cells.splice(i + 1, 0, n); fixLen(); ct = n.s; selObj = null; syncCam(); build(); render(); save();
+};
+function cutFrames(L, a, b) {                       // remove frames a..b (0-based, inclusive) from one layer; later frames slide left
+  const n = b - a + 1;
+  for (const t of [b + 1, a]) { const i = L.cells.findIndex(c => c.s < t && c.s + c.d > t); if (i >= 0) L.cells.splice(i + 1, 0, splitCell(L.cells[i], t, false)); }
+  L.cells = L.cells.filter(c => !(c.s >= a && c.s <= b)); L.cells.forEach(c => { if (c.s > b) shiftCell(c, -n); });
+}
+$('rmR').onclick = () => {
+  if (playing) return; commit();
+  ask("Frames to delete, like 3-6 (add 'all' to cut every layer)", (ct + 1) + '-' + (ct + 1), v => {
+    const m = v.match(/(\d+)\s*(?:[-–to]+\s*(\d+))?/i); if (!m) return;
+    let a = +m[1] - 1, b = (m[2] ? +m[2] : +m[1]) - 1; if (a > b) [a, b] = [b, a]; a = Math.max(0, a); b = Math.min(len - 1, b); if (a > b) return toast('Those frames do not exist');
+    const all = /all/i.test(v); osnap();
+    (all ? layers : [layers[lay]]).forEach(L => { if (!L.lock) cutFrames(L, a, b); });
+    if (all) cams.splice(a, b - a + 1);
+    fixLen(); ct = Math.min(a, len - 1); selObj = null; syncCam(); build(); render(); save(); toast('Deleted ' + (b - a + 1) + ' frame' + (b > a ? 's' : '') + (all ? ' on every layer' : ''));
+  });
+};
+$('rm').onclick = () => {                          // delete the keyframe: the drawing before it is shown longer
+  if (playing) return; commit(); const L = layers[lay], i = cellIdx(L, ct); if (i < 0 || L.lock) return; osnap();
+  const c = L.cells[i], p = L.cells[i - 1]; L.cells.splice(i, 1); if (p && p.s + p.d === c.s) p.d += c.d;
+  fixLen(); selObj = null; build(); render(); save();
+};
+function moveCell(k, ci, ns) {                     // drag a keyframe to another frame (it can't overlap its neighbours)
+  const L = layers[k], c = L.cells[ci], p = L.cells[ci - 1], n = L.cells[ci + 1];
+  ns = Math.max(p ? p.s + p.d : 0, ns); if (n) ns = Math.min(ns, n.s - c.d);
+  lay = k; if (ns === c.s) { moveTo(c.s); return; }
+  osnap(); shiftCell(c, ns - c.s); fixLen(); ct = ns; selObj = null; syncCam(); build(); render(); save();
+}
+
+// ---------- layers (max 10): each one has its own keyframes ----------
+const afterLayer = () => { selObj = null; build(); render(); save(); };
+$('addLayer').onclick = () => {
+  if (playing || layers.length >= LMAX) return; commit(); osnap();
+  layers.splice(lay + 1, 0, { name: 'Layer ' + (++layerCount), vis: true, lock: false, cells: [] }); lay++; afterLayer();
+};
+const gcol = {};
+function dragLayer(e, k) {
+  if (playing) return; e.stopPropagation(); e.preventDefault(); const pid = e.pointerId; let tgt = null;
+  const clr = () => tlbox.querySelectorAll('.dropt').forEach(x => x.classList.remove('dropt'));
+  const mv = ev => { if (ev.pointerId !== pid) return; clr(); const r = document.elementsFromPoint(ev.clientX, ev.clientY).map(x => x.closest && x.closest('.ln,.lr')).find(x => x && (x.dataset.l != null || x.dataset.gh != null)); tgt = r; if (r) r.classList.add('dropt'); };
+  const up = ev => {
+    if (ev.pointerId !== pid) return; removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); clr();
+    if (!tgt) return; commit(); osnap(); const L = layers[k], origJ = tgt.dataset.l != null ? +tgt.dataset.l : -1; tgt._T = origJ >= 0 ? layers[origJ] : null; layers.splice(k, 1);
+    if (tgt.dataset.gh != null) { const nm = tgt.dataset.gh; L.g = nm; let top = -1; layers.forEach((x, i) => { if (x.g === nm) top = i; }); layers.splice(top + 1, 0, L); }
+    else { const T = tgt._T; if (T && T !== L) { L.g = T.g; const ti = layers.indexOf(T); layers.splice(origJ > k ? ti + 1 : ti, 0, L); } else layers.splice(k, 0, L); }
+    lay = layers.indexOf(L); afterLayer();
+  };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+}
+$('grpLayer').onclick = () => { if (playing) return; const L = layers[lay]; commit();
+  if (L.g) { osnap(); L.g = undefined; build(); save(); toast('Taken out of group'); } else ask('Group name', 'Group ' + (new Set(layers.map(x => x.g).filter(Boolean)).size + 1), n => { osnap(); L.g = n.slice(0, 14); build(); save(); }); };
+let delArm = 0;
+$('delLayer').onclick = () => {                     // tap ✕, then tap ✔ to confirm
+  const b = $('delLayer'), reset = () => { delArm = 0; b.textContent = '✕'; b.style.background = ''; };
+  if (playing || layers.length === 1) return;
+  if (!delArm) { b.textContent = '✔'; b.style.background = '#d62f2f'; delArm = setTimeout(reset, 2500); return; }
+  clearTimeout(delArm); reset(); commit(); osnap();
+  sel = null; layers.splice(lay, 1); lay = Math.min(lay, layers.length - 1); fixLen(); afterLayer();
+};
+$('renLayer').onclick = () => ask('Layer name', layers[lay].name, n => { osnap(); layers[lay].name = n.slice(0, 16); build(); save(); });
+function moveLayer(d) {
+  const j = lay + d; if (playing || j < 0 || j >= layers.length) return; commit(); osnap();
+  [layers[lay], layers[j]] = [layers[j], layers[lay]]; lay = j; afterLayer();
+}
+$('upLayer').onclick = () => moveLayer(1);
+$('downLayer').onclick = () => moveLayer(-1);
+
+// ---------- timeline touch: ruler = drag the playhead, tap a cell = go there, hold + drag a keyframe = move it, blue handle = hold longer ----------
+let td = null;
+function startExtend(e, c) {
+  if (playing) return; const k = +c.dataset.l, L = layers[k], cell = L.cells[+c.dataset.ci]; if (!cell || L.lock) return;
+  const d0 = cell.d, x0 = LX(e), pid = e.pointerId; let first = true;
+  const mv = ev => {
+    if (ev.pointerId !== pid) return;
+    const d = Math.max(1, Math.min(240, d0 + Math.round((LX(ev) - x0) / CW)));
+    if (d !== cell.d) { if (first) { first = false; commit(); osnap(); } resizeCell(L, cell, d); build(); render(); }
+  };
+  const up = ev => { if (ev.pointerId !== pid) return; removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); save(); };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+}
+tlbox.addEventListener('pointerdown', e => {
+  if (playing) return;
+  const hd = e.target.closest('.hd'); if (hd) { startExtend(e, hd.closest('.cell')); return; }
+  if (e.target.closest('.ln')) return;
+  if (e.target.closest('.rr, .wvc')) { scrubbing = true; try { tlbox.setPointerCapture(e.pointerId); } catch (x) {} moveTo(colAt(LX(e)), true); return; }
+  const c = e.target.closest('.cell'); if (!c) return;
+  td = { k: +c.dataset.l, c, t: colAt(LX(e)), on: false, x0: LX(e), y0: LY(e), pid: e.pointerId, gap: c.classList.contains('gap') };
+  if (!td.gap) {
+    const cell = layers[td.k].cells[+c.dataset.ci]; td.ci = +c.dataset.ci; td.s0 = cell.s; td.grab = td.t - cell.s; td.to = cell.s;
+    td.timer = setTimeout(() => { td.on = true; c.classList.add('lift'); try { tlbox.setPointerCapture(td.pid); } catch (x) {} if (navigator.vibrate) navigator.vibrate(15); }, 280);
+  }
+});
+tlbox.addEventListener('pointermove', e => {
+  if (scrubbing) { moveTo(colAt(LX(e)), true); const r = sc.getBoundingClientRect(), x = LX(e), l = S(r.left, r.top).x, rt = S(r.right, r.bottom).x; if (x < l + LNW + 20) sc.scrollLeft -= 10; else if (x > rt - 24) sc.scrollLeft += 10; return; }
+  if (!td) return;
+  if (!td.on) { if (Math.hypot(LX(e) - td.x0, LY(e) - td.y0) > 8) { clearTimeout(td.timer); td = null; } return; }   // moved too soon = just scrolling
+  td.to = Math.max(0, colAt(LX(e)) - td.grab); td.c.style.transform = 'translateX(' + (td.to - td.s0) * CW + 'px)';
+  const r = sc.getBoundingClientRect(), x = LX(e), l = S(r.left, r.top).x, rt = S(r.right, r.bottom).x; if (x < l + LNW + 20) sc.scrollLeft -= 12; else if (x > rt - 30) sc.scrollLeft += 12;
+});
+function tEnd(e) {
+  if (scrubbing) { scrubbing = false; save(); hl(); render(); return; }
+  if (!td) return; clearTimeout(td.timer); const t = td; td = null;
+  t.c.style.transform = ''; t.c.classList.remove('lift');
+  if (e.type !== 'pointerup') return;
+  if (t.on) { commit(); moveCell(t.k, t.ci, t.to); }
+  else { lay = t.k; moveTo(t.t); }
+}
+tlbox.addEventListener('pointerup', tEnd); tlbox.addEventListener('pointercancel', tEnd);
+tlbox.addEventListener('touchmove', e => { if ((td && td.on) || scrubbing) e.preventDefault(); }, { passive: false });
+tlbox.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---------- import GIF / video: every frame becomes its own drawing on a new layer ----------
+const mediaIn = document.createElement('input'); mediaIn.type = 'file'; mediaIn.accept = 'image/gif,video/*'; const MAXF = 40;   // each frame is a full-size drawing, so the amount is capped to keep the phone alive
+$('mediaBtn').onclick = () => { if (playing) return; mediaIn.value = ''; mediaIn.click(); };
+const fitDraw = (g, src, sw, sh) => { const k = Math.min(W / sw, H / sh); g.drawImage(src, (W - sw * k) / 2, (H - sh * k) / 2, sw * k, sh * k); };
+function addMediaLayer(name, frames) {
+  commit(); osnap(); const L = { name: name.slice(0, 16), vis: true, lock: false, op: 1, bm: 'source-over', cells: [] }; let t = 0;
+  frames.forEach(f => { f.cv._has = true; f.cv._dirty = true; L.cells.push({ s: t, d: f.d, cv: f.cv, objs: [] }); t += f.d; });
+  layers.splice(lay + 1, 0, L); lay++; fixLen(); ct = 0; syncCam(); build(); render(); save();
+}
+async function importGif(f) {
+  if (!('ImageDecoder' in window)) return toast('This browser cannot read GIFs. Try Chrome.');
+  toast('Reading GIF…'); const dec = new ImageDecoder({ data: await f.arrayBuffer(), type: 'image/gif' }); await dec.tracks.ready; const n = dec.tracks.selectedTrack.frameCount, frames = [];
+  for (let i = 0; i < n && frames.length < MAXF; i++) { const r = await dec.decode({ frameIndex: i }), vf = r.image, cv = mk(); fitDraw(cv.getContext('2d'), vf, vf.displayWidth, vf.displayHeight); frames.push({ cv, d: Math.max(1, Math.round((vf.duration || 100000) / 1e6 * fps)) }); vf.close(); }
+  addMediaLayer('GIF', frames); toast('Imported ' + frames.length + ' of ' + n + ' GIF frames');
+}
+async function importVideo(f) {
+  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f);
+  try { await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = rej; }); } catch (e) { return toast('Could not read this video'); }
+  const dur = v.duration || 1, cap = MAXF / fps;
+  ask('Seconds of video to import (up to ' + cap.toFixed(1) + ' at ' + fps + ' fps)', Math.min(dur, cap).toFixed(1), async val => {
+    const sec = Math.max(.1, Math.min(+val || 1, dur)), n = Math.min(MAXF, Math.max(1, Math.floor(sec * fps))), frames = [];
+    for (let i = 0; i < n; i++) {
+      v.currentTime = Math.min(dur - .01, i / fps); await new Promise(r => { v.onseeked = r; });
+      const cv = mk(); fitDraw(cv.getContext('2d'), v, v.videoWidth, v.videoHeight); frames.push({ cv, d: 1 }); if (i % 6 === 5) toast('Reading video… ' + (i + 1) + '/' + n);
+    }
+    URL.revokeObjectURL(v.src); addMediaLayer('Video', frames); toast('Imported ' + n + ' frames (' + (n / fps).toFixed(1) + ' s)');
+    if (!audio && await soundFromFile(f)) toast('Imported ' + n + ' frames + the video sound');
+  });
+}
+mediaIn.onchange = async () => { const f = mediaIn.files[0]; if (!f) return; try { if (/gif/i.test(f.type)) await importGif(f); else await importVideo(f); } catch (e) { toast('Could not import that file'); } };
+
+// ---------- import image: it lands as a floating piece (lasso handles) you can move, resize and turn, then Done ----------
+const fileIn = document.createElement('input'); fileIn.type = 'file'; fileIn.accept = 'image/*';
+$('imgBtn').onclick = () => { if (playing) return; fileIn.value = ''; fileIn.click(); };
+fileIn.onchange = () => {
+  const f = fileIn.files[0]; if (!f) return; const u = URL.createObjectURL(f), im = new Image();
+  im.onerror = () => URL.revokeObjectURL(u);
+  im.onload = () => {
+    URL.revokeObjectURL(u); if (!boardMode && (layers[lay].lock || !layers[lay].vis)) return; commit();
+    const k = Math.min(1, OW * .7 / im.width, OH * .7 / im.height), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); const sr = $('stage').getBoundingClientRect(), m = boardMode ? P({ clientX: sr.left + sr.width / 2, clientY: sr.top + sr.height / 2 }) : cam(ct);
+    if (!boardMode) snap(); sel = { cv: c, x: m.x - c.width / 2, y: m.y - c.height / 2, s: 1, r: 0 }; setTool('lasso', true); render();
+  };
+  im.src = u;
+};
+
+// ---------- clip sounds ----------
+let AC = null, sfxBus = null, aSrc = null, sfxClip = null; const SFX = { punch: 'Punch', kick: 'Kick', hit: 'Slap / hit', slash: 'Sword slash', gun: 'Gunshot', boom: 'Explosion', whoosh: 'Whoosh', laser: 'Laser', boing: 'Boing', ding: 'Ding' };
+function ac() { if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); sfxBus = AC.createGain(); sfxBus.connect(AC.destination); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function playSfx(s) {
+  try {
+    const a = ac(), t = a.currentTime;
+    if (s.k === 'file') { const au = new Audio(s.url); try { a.createMediaElementSource(au).connect(sfxBus); } catch (e) {} au.play().catch(() => {}); return; }
+    const out = a.createGain(); out.gain.value = .9; out.connect(sfxBus);
+    const noise = d => { const b = a.createBuffer(1, Math.max(1, a.sampleRate * d | 0), a.sampleRate), x = b.getChannelData(0); for (let i = 0; i < x.length; i++) x[i] = Math.random() * 2 - 1; const n = a.createBufferSource(); n.buffer = b; return n; };
+    const env = (peak, att, dec) => { const g = a.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + att); g.gain.exponentialRampToValueAtTime(.0001, t + att + dec); g.connect(out); return g; };
+    const tone = (type, f0, f1, dur, peak, att, dec) => { const o = a.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); o.connect(env(peak, att || .005, dec || dur)); o.start(t); o.stop(t + (att || .005) + (dec || dur) + .05); };
+    const hiss = (type, f0, f1, dur, peak, att, dec, q) => { const n = noise(dur + .3), f = a.createBiquadFilter(); f.type = type; f.Q.value = q || .7; f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur); n.connect(f); f.connect(env(peak, att || .003, dec || dur)); n.start(t); n.stop(t + dur + .3); };
+    switch (s.k) {
+      case 'punch': tone('sine', 170, 45, .16, 1, .004, .2); hiss('lowpass', 500, 150, .1, .7, .002, .1); break;
+      case 'kick': tone('sine', 210, 38, .2, 1, .003, .28); hiss('highpass', 3000, 2000, .03, .5, .001, .03); break;
+      case 'hit': hiss('bandpass', 1900, 1200, .08, .9, .002, .09, 1.2); tone('sine', 320, 110, .08, .6, .002, .1); break;
+      case 'slash': hiss('highpass', 2500, 9000, .2, .6, .03, .2); tone('triangle', 2600, 3400, .3, .12, .01, .35); break;
+      case 'gun': hiss('lowpass', 7000, 250, .28, 1, .001, .32); tone('sine', 130, 38, .22, .9, .002, .25); break;
+      case 'boom': hiss('lowpass', 1800, 90, 1, 1, .005, 1.1); tone('sine', 80, 28, .9, 1, .005, 1); break;
+      case 'whoosh': hiss('bandpass', 350, 3200, .38, .7, .14, .28, .9); break;
+      case 'laser': tone('sawtooth', 2200, 140, .26, .45, .004, .28); break;
+      case 'boing': { const o = a.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(520, t + .08); o.frequency.exponentialRampToValueAtTime(230, t + .35); o.connect(env(.8, .01, .4)); o.start(t); o.stop(t + .5); break; }
+      case 'ding': tone('sine', 1318, 1318, .7, .6, .002, .7); tone('sine', 1976, 1976, .5, .25, .002, .5); break;
+    }
+  } catch (e) {}
+}
+function sfxFrame(f) {                              // sounds that belong to a clip, when its own frame number comes round (every loop)
+  layers.forEach((L, k) => { if (!L.vis) return; const c = cellAt(k, f); if (c) c.objs.forEach(o => {
+    if (!o.clip || f < (o.t0 || 0)) return; const cl = clips.find(x => x.id === o.clip); if (!cl || !cl.sfx || !cl.sfx.length) return;
+    const i = ((f - (o.t0 || 0)) % cl.n + cl.n) % cl.n; cl.sfx.forEach(x => { if (x.f === i) playSfx(x); });
+  }); });
+}
+function buildSfx() {
+  const cl = sfxClip; $('sfx').hidden = !cl; if (!cl) return; cl.sfx = cl.sfx || [];
+  $('sfxT').textContent = '🔊 Sounds for ' + cl.name + ' (plays on that frame each time the clip runs)';
+  if (!$('sfxK').options.length) $('sfxK').innerHTML = Object.keys(SFX).map(k => '<option value="' + k + '">' + SFX[k] + '</option>').join('');
+  $('sfxF').innerHTML = Array.from({ length: cl.n }, (_, i) => '<option value="' + i + '">on frame ' + (i + 1) + '</option>').join('');
+  const L = $('sfxL'); L.innerHTML = ''; cl.sfx.slice().sort((a, b) => a.f - b.f).forEach(x => {
+    const r = el('crow'), t = document.createElement('button'), d = document.createElement('button'); t.textContent = '▶ f' + (x.f + 1) + ' · ' + (x.k === 'file' ? x.name || 'my sound' : SFX[x.k]); d.textContent = '✕';
+    t.onclick = () => playSfx(x); d.onclick = () => { cl.sfx = cl.sfx.filter(y => y !== x); buildSfx(); buildClips(); save(); }; r.append(t, d); L.append(r);
+  });
+}
+$('sfxAdd').onclick = () => { if (!sfxClip) return; sfxClip.sfx.push({ f: +$('sfxF').value, k: $('sfxK').value }); playSfx(sfxClip.sfx[sfxClip.sfx.length - 1]); buildSfx(); buildClips(); save(); };
+$('sfxTry').onclick = () => playSfx({ k: $('sfxK').value });
+{ const fi = document.createElement('input'); fi.type = 'file'; fi.accept = 'audio/*';
+  $('sfxMine').onclick = () => { if (sfxClip) { fi.value = ''; fi.click(); } };
+  fi.onchange = () => { const f = fi.files[0]; if (!f || !sfxClip) return; if (f.size > 1.5e6) return toast('Pick a shorter sound (under 1.5 MB)'); const r = new FileReader(); r.onload = () => { sfxClip.sfx.push({ f: +$('sfxF').value, k: 'file', url: r.result, name: f.name.slice(0, 18) }); buildSfx(); buildClips(); save(); }; r.readAsDataURL(f); }; }
+// ---------- movieclips ----------
+function buildClips() {
+  const box = $('cList'); box.innerHTML = '';
+  clips.forEach(cl => {
+    const r = el('crow'), pb = document.createElement('button'), db = document.createElement('button');
+    pb.textContent = '▶ Place: ' + cl.name + ' (' + cl.n + ' fr)'; db.textContent = '✕';
+    pb.onclick = () => placeClip(cl);
+    const sb = document.createElement('button'); sb.textContent = '📚'; sb.title = 'Save to the library so any project can use it';
+    sb.onclick = () => ask('Library name', cl.name, async n => { cl.name = n.slice(0, 30); const rec = { sfx: cl.sfx || [], id: 'l' + Date.now(), name: cl.name, x: cl.x, y: cl.y, w: cl.w, h: cl.h, n: cl.n, m: cl.m, u: cl.u.map(cv => cv._url || (cv._url = cv.toDataURL())) }; try { await libPut(rec); toast('Saved "' + cl.name + '" to the library'); } catch (e) { toast('Could not save to the library'); } buildClips(); save(); });
+    db.onclick = () => { osnap(); clips = clips.filter(c => c !== cl); layers.forEach(L => L.cells.forEach(c => { c.objs = c.objs.filter(o => o.clip !== cl.id); })); selObj = null; buildClips(); build(); render(); save(); };
+    const xb = document.createElement('button'); xb.textContent = '🔊' + ((cl.sfx || []).length || ''); xb.title = 'Sounds for this clip'; xb.onclick = () => { sfxClip = cl; buildSfx(); };
+    r.append(pb, xb, sb, db); box.append(r);
+  });
+  buildLib();
+}
+const libOpen = () => new Promise((res, rej) => { const r = indexedDB.open('yinnylib', 1); r.onupgradeneeded = () => r.result.createObjectStore('clips', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const libAll = async () => { const d = await libOpen(); return new Promise(res => { const q = d.transaction('clips').objectStore('clips').getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => res([]); }); };
+const libPut = async rec => { const d = await libOpen(); return new Promise((res, rej) => { const t = d.transaction('clips', 'readwrite'); t.objectStore('clips').put(rec); t.oncomplete = res; t.onerror = () => rej(t.error); }); };
+const libDel = async id => { const d = await libOpen(); return new Promise(res => { const t = d.transaction('clips', 'readwrite'); t.objectStore('clips').delete(id); t.oncomplete = res; }); };
+async function buildLib() {
+  const box = $('lList'); let all = []; try { all = await libAll(); } catch (e) {}
+  box.innerHTML = ''; if (!all.length) { box.textContent = 'Empty. Tap 📚 next to a clip to keep it here.'; box.style.cssText = 'font-size:11px;color:#aaa'; return; } box.style.cssText = '';
+  all.forEach(rec => {
+    const r = el('crow'), ub = document.createElement('button'), db = document.createElement('button');
+    ub.textContent = '＋ Use: ' + rec.name + ' (' + rec.n + ' fr)'; db.textContent = '✕';
+    ub.onclick = () => { osnap(); const cl = adaptClip({ sfx: JSON.parse(JSON.stringify(rec.sfx || [])), id: 'c' + Date.now(), name: rec.name, x: rec.x, y: rec.y, w: rec.w, h: rec.h, n: rec.n, m: rec.m, u: rec.u.map(src => { const cv = document.createElement('canvas'); cv.width = rec.w; cv.height = rec.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }, rec.fps, fps); clips.push(cl); buildClips(); placeClip(cl); save(); };
+    db.onclick = async () => { await libDel(rec.id); buildLib(); };
+    r.append(ub, db); box.append(r);
+  });
+}
+const _cid = new WeakMap(); let _cn = 0; const cellId = c => _cid.get(c) || (_cid.set(c, ++_cn), _cn);
+function buildClipObj(s0, e1, key, render1) {                      // pack frames s0..e1-1 into { x, y, w, h, n, u, m }
+  const tmp = mk(), tx = tmp.getContext('2d'), SW = 480, SH = Math.max(1, Math.round(480 * H / W)), small = document.createElement('canvas'); small.width = SW; small.height = SH; const sx = small.getContext('2d');
+  let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; const seen = new Set();
+  for (let t = s0; t < e1; t++) {
+    const k = key(t); if (!k || seen.has(k)) continue; seen.add(k); tx.clearRect(0, 0, W, H); render1(tx, t);
+    sx.clearRect(0, 0, SW, SH); sx.drawImage(tmp, 0, 0, SW, SH); const d = sx.getImageData(0, 0, SW, SH).data;
+    for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) if (d[(y * SW + x) * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 < 0) return null;
+  const kx = W / SW, ky = H / SH, bx = Math.max(0, Math.floor(x0 * kx) - 6), by = Math.max(0, Math.floor(y0 * ky) - 6), bw = Math.min(W, Math.ceil((x1 + 1) * kx) + 6) - bx, bh = Math.min(H, Math.ceil((y1 + 1) * ky) + 6) - by;
+  const u = [], idx = new Map(), m = [];
+  for (let t = s0; t < e1; t++) {
+    const k = key(t); if (!k) { m.push(-1); continue; }
+    if (!idx.has(k)) { tx.clearRect(0, 0, W, H); render1(tx, t); const cv = document.createElement('canvas'); cv.width = bw; cv.height = bh; cv.getContext('2d').drawImage(tmp, bx, by, bw, bh, 0, 0, bw, bh); idx.set(k, u.length); u.push(cv); }
+    m.push(idx.get(k));
+  }
+  return { id: 'c' + Date.now(), x: bx, y: by, w: bw, h: bh, n: m.length, u, m, sfx: [] };
+}
+$('cMake').onclick = () => {
+  const L = layers[lay]; if (playing || !L.cells.length) return; commit();
+  const s0 = Math.min(...L.cells.map(c => c.s)), e1 = Math.min(Math.max(...L.cells.map(c => c.s + c.d)), s0 + 240);
+  const cl = buildClipObj(s0, e1, t => { const c = cellAt(lay, t); return !c ? null : c.objs.length ? 't' + t : c; }, (g, t) => { const c = cellAt(lay, t); if (c) drawCell(g, c, t); });
+  if (!cl) return; cl.name = 'Clip ' + (clips.length + 1); clips.push(cl); buildClips(); save();
+};
+function adaptClip(cl, from, to) {                                  // a clip drawn at another fps keeps its real speed in this project
+  if (!from || from === to) return cl; const n2 = Math.max(1, Math.round(cl.n * to / from)), m2 = [];
+  for (let i = 0; i < n2; i++) m2.push(cl.m[Math.min(cl.n - 1, Math.floor(i * from / to))]);
+  cl.m = m2; cl.n = n2; cl.sfx = (cl.sfx || []).map(x => ({ ...x, f: Math.round(x.f * to / from) })); return cl;
+}
+const clipRec = (cl, f) => ({ sfx: cl.sfx || [], id: 'l' + Date.now(), name: cl.name, fps: f, x: cl.x, y: cl.y, w: cl.w, h: cl.h, n: cl.n, m: cl.m, u: cl.u.map(cv => cv._url || (cv._url = cv.toDataURL())) });
+let clipRet = null;
+$('cNew').onclick = async () => {
+  if (playing || clipRet) return; commit(); await flush();
+  clipRet = { pid, pname, fps, ow: OW, oh: OH }; blank({ fps, ow: OW, oh: OH }); $('cmBar').hidden = false; setTool('brush'); toast('New blank drawing: animate your clip, then tap ✔ Add as clip');
+};
+async function leaveClip() {
+  const r = clipRet; $('cmBar').hidden = true; if (r.pid) { const q = await getP(r.pid); pid = r.pid; pname = r.pname; clipRet = null; loadData(q.data); } else { clipRet = null; pid = null; blank({ fps: r.fps, ow: r.ow, oh: r.oh }); }
+  return r;
+}
+$('cmNo').onclick = () => { if (!clipRet) return; if (playing) stop(); leaveClip().then(() => setTool('clip')); };
+$('cmDone').onclick = () => {
+  if (!clipRet) return; if (playing) stop(); commit();
+  if (!layers.some(L => L.cells.some(c => (c.cv && c.cv._has) || c.objs.length))) return toast('Draw something first');
+  ask('Clip name', 'My clip', n => ask('Clip frames per second (1-24)', String(fps), async f => {
+    const cf = Math.max(1, Math.min(24, +f.replace(/\D/g, '') || fps)), cl = buildClipObj(0, Math.min(len, 240), t => layers.map((L, k) => { const c = cellAt(k, t); return !c ? '-' : c.objs.length ? 't' + t + 'k' + k : cellId(c); }).join('|'), (g, t) => flat(g, t));
+    if (!cl) return toast('Nothing to pack');
+    cl.name = n.slice(0, 30); let saved = true; try { await libPut(clipRec(cl, cf)); } catch (e) { saved = false; }
+    const r = await leaveClip(); adaptClip(cl, cf, fps); clips.push(cl); setTool('clip'); buildClips(); save(); toast(saved ? 'Saved "' + cl.name + '" (library + this project)' : 'Added "' + cl.name + '" to this project');
+  }));
+};
+function placeClip(cl) {
+  const L = layers[lay]; if (playing || L.lock || !L.vis) return; commit(); osnap();
+  const c = ensureCell(lay, ct), need = ct - c.s + cl.n; if (need > c.d) resizeCell(L, c, need);
+  const X = cl.x, Y = cl.y, o = { id: oid++, clip: cl.id, t0: ct, col: '#000', w: 1, pv: { x: X + cl.w / 2, y: Y + cl.h / 2 }, ease: false, tw: 'motion', kf: [{ t: ct, pts: [{ x: X, y: Y }, { x: X + cl.w, y: Y }, { x: X + cl.w, y: Y + cl.h }, { x: X, y: Y + cl.h }, { x: X, y: Y }], x: 0, y: 0, r: 0, s: 1 }] };
+  c.objs.push(o); fixLen(); setTool('obj'); selObj = o; build(); render(); save();
+}
+
+// ---------- tools ----------
+function setTool(t, keep) {
+  if (t !== 'eye') prevTool = t;
+  if (!keep) commit(); tool = t;
+  if (t !== 'obj' && t !== 'key') selObj = null;
+  if (t === 'vsel' || t === 'lasso' || t === 'cam' || t === 'outline' || t === 'clip' || t === 'shape' || t === 'text' || t === 'obj' || t === 'key' || t === 'eraser' || t === 'brush' || t === 'line' || t === 'bucket') $('app').classList.remove('noopt');   // those tools need the options panel
+  document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('selBox').hidden = t !== 'lasso'; $('vsBox').hidden = t !== 'vsel'; if (t !== 'vsel') vsel = []; $('bkBox').hidden = t !== 'bucket'; $('olBox').hidden = !['outline', 'obj', 'key', 'brush', 'line', 'shape'].includes(t); $('clipBox').hidden = t !== 'clip'; if (t === 'clip') buildClips(); $('shpBox').hidden = t !== 'shape'; $('txtBox').hidden = t !== 'text'; $('camBox').hidden = t !== 'cam'; $('objBox').hidden = t !== 'obj' && t !== 'key'; $('keyBox').hidden = t !== 'key'; vecUI(); objUI();
+  syncCam(); render();
+}
+document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => setTool(b.dataset.t));
+$('col').oninput = e => setColor(e.target.value);
+const PAL0 = ['#000000', '#ffffff', '#e8231c', '#f28c28', '#f5d300', '#3cb44b', '#1fb5ad', '#2f6fed', '#7b3fe4', '#e83e8c', '#7a4a21', '#8a8a8a', '#f1c9a5', '#a0522d', '#1d3557'];
+let pal = PAL0.slice();
+try { const a = JSON.parse(localStorage.getItem('easypal')); if (Array.isArray(a) && a.length) pal = a; } catch (e) {}
+const savePal = () => { try { localStorage.setItem('easypal', JSON.stringify(pal)); } catch (e) {} };
+$('qcol').oninput = e => setColor(e.target.value);
+function setColor(c) { color = c; if (selObj) { selObj.col = c; render(); save(); } if (tool === 'vsel' && vsel.length) { osnap(); vsel.forEach(it => { it.o.col = c; }); render(); save(); } $('col').value = c; $('qcol').value = c; $('hex').value = c; buildPal(); }
+function buildPal() {
+  const box = $('pal'); box.innerHTML = '';
+  pal.forEach((c, i) => {
+    const d = document.createElement('div'); d.className = 'sw' + (c === color ? ' on' : ''); d.style.background = c;
+    let t = 0, long = false;
+    d.onpointerdown = () => { long = false; t = setTimeout(() => { long = true; pal[i] = color; savePal(); buildPal(); }, 550); };   // hold = put the current colour here
+    d.onpointerup = d.onpointerleave = d.onpointercancel = () => clearTimeout(t);
+    d.onclick = () => { if (!long) setColor(c); };
+    box.appendChild(d);
+  });
+}
+$('palAdd').onclick = () => { if (pal.length < 30 && !pal.includes(color)) { pal.push(color); savePal(); buildPal(); } };
+$('hex').onchange = e => { let v = e.target.value.trim().toLowerCase(); if (v[0] !== '#') v = '#' + v; if (/^#[0-9a-f]{6}$/.test(v)) setColor(v); else e.target.value = color; };
+buildPal();
+$('qsz').oninput = e => { $('size').value = e.target.value; $('size').oninput({ target: $('size') }); };
+$('size').oninput = e => { $('qsz').value = e.target.value; $('qszN').textContent = e.target.value; size = +e.target.value; $('sizeN').textContent = size; if (selObj) { selObj.w = size * SK; } sizeShow = true; clearTimeout(sizeT); sizeT = setTimeout(() => { sizeShow = false; if (!playing) overlay(); }, 800); buildSizes(); render(); };
+let sizes = [6, 20, 90]; try { const a = JSON.parse(localStorage.getItem('easysizes')); if (Array.isArray(a) && a.length) sizes = a; } catch (e) {}
+const saveSizes = () => { try { localStorage.setItem('easysizes', JSON.stringify(sizes)); } catch (e) {} };
+function buildSizes() {                                             // tap a saved size = use it · hold = delete it
+  const box = $('sizePre'); box.innerHTML = '';
+  sizes.forEach((n, i) => {
+    const b = document.createElement('button'); b.textContent = n; b.className = n === size ? 'on' : ''; let t = 0, long = false;
+    b.onpointerdown = () => { long = false; t = setTimeout(() => { long = true; sizes.splice(i, 1); saveSizes(); buildSizes(); }, 700); };
+    b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(t);
+    b.onclick = () => { if (long) return; $('size').value = n; $('size').oninput({ target: $('size') }); };
+    box.append(b);
+  });
+}
+$('sizeAdd').onclick = () => { if (sizes.length < 12 && !sizes.includes(size)) { sizes.push(size); sizes.sort((a, b) => a - b); saveSizes(); buildSizes(); } };
+buildSizes();
+$('onion').onclick = () => { onion = !onion; $('onion').classList.toggle('on', onion); render(); };
+function syncCam() { const c = cam(ct); $('camz').value = Math.round(c.z * 100); $('camr').value = Math.round((c.r || 0) * 180 / Math.PI); $('camrN').textContent = $('camr').value + '°'; }
+$('camz').oninput = e => { camKey(ct).z = e.target.value / 100; render(); save(); };   // from this frame on, until you set it again
+$('camr').oninput = e => { camKey(ct).r = e.target.value * Math.PI / 180; $('camrN').textContent = e.target.value + '°'; render(); save(); };
+$('camAddK').onclick = () => { osnap(); const c = cam(ct); if (cams[ct] && cams[ct].k) return toast('This frame already has a camera key'); camKey(ct); build(); render(); save(); toast('Camera key added on frame ' + (ct + 1)); };
+$('camDelK').onclick = () => { if (ct === 0) return toast('The first camera key stays. Use Reset to change it'); cam(ct); if (!cams[ct] || !cams[ct].k) return toast('No camera key on this frame'); osnap(); cams[ct].k = 0; syncCam(); build(); render(); save(); toast('Camera key deleted. The camera now holds the one before it'); };
+let camClip = null;
+$('camCopy').onclick = () => { const c = cam(ct); camClip = { x: c.x, y: c.y, z: c.z, r: c.r || 0 }; toast('Camera copied (frame ' + (ct + 1) + ')'); };
+$('camPaste').onclick = () => { if (!camClip) return toast('Copy a camera first'); osnap(); Object.assign(camKey(ct), camClip); syncCam(); render(); save(); toast('Camera pasted on frame ' + (ct + 1)); };
+$('camReset').onclick = () => { osnap(); Object.assign(camKey(ct), { x: W / 2, y: H / 2, z: 1, r: 0 }); syncCam(); render(); save(); };
+
+function snap() {
+  dirtyOnion();                                  // remember this keyframe's pixels before drawing on it
+  const cv = cvOf(ensureCell(lay, ct));
+  undo.push({ cv, t: ct, l: lay, d: cv.getContext('2d').getImageData(0, 0, W, H) }); trimUndo(); redo = []; cv._has = true; cv._dirty = true;
+}
+function stroke(a, b) {
+  const one = (a, b) => {
+    const bs = tool === 'brush' ? $('bStyle').value : 'n', dm = tool === 'brush' || tool === 'line' ? $('dMode').value : 'source-over';   // in front / behind / inside what is already drawn
+    if (bs !== 'n') {                                             // airbrush = soft dabs · sketch = a few thin, wobbly pencil lines
+      const w = size * SK, d = Math.hypot(b.x - a.x, b.y - a.y), draw = x => {
+        x.save(); x.lineCap = 'round'; x.globalCompositeOperation = dm;
+        if (bs === 'a') { const st = Math.max(1, w * .12), n = Math.max(1, Math.ceil(d / st)), r = w / 2 * 1.1, n1 = parseInt(color.slice(1), 16), rgb = (n1 >> 16) + ',' + ((n1 >> 8) & 255) + ',' + (n1 & 255);
+          for (let i = 0; i <= n; i++) { const px = a.x + (b.x - a.x) * i / n, py = a.y + (b.y - a.y) * i / n, g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, 'rgba(' + rgb + ',.16)'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, 7); x.fill(); } }
+        else { x.strokeStyle = color; for (let k = 0; k < 3; k++) { const j = w * .3, o = () => (Math.random() - .5) * j; x.globalAlpha = .5; x.lineWidth = Math.max(1, w * .28); x.beginPath(); x.moveTo(a.x + o(), a.y + o()); x.lineTo(b.x + o(), b.y + o()); x.stroke(); } }
+        x.restore();
+      };
+      if (boardMode) { const m = w + 4; boardDraw(Math.min(a.x, b.x) - m, Math.min(a.y, b.y) - m, Math.max(a.x, b.x) + m, Math.max(a.y, b.y) + m, draw); } else draw(fc());
+      return;
+    }
+    const draw = x => { x.lineCap = x.lineJoin = 'round'; x.lineWidth = size * SK; x.strokeStyle = color; x.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : dm; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); if (olOn && tool !== 'eraser') { x.globalCompositeOperation = 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); } x.globalCompositeOperation = 'source-over'; };   // outline goes BEHIND, so strokes mesh
+
+    if (boardMode) { const m = (size / 2 + olW) * SK + 2; boardDraw(Math.min(a.x, b.x) - m, Math.min(a.y, b.y) - m, Math.max(a.x, b.x) + m, Math.max(a.y, b.y) + m, draw); } else draw(fc());
+  };
+  one(a, b);
+  if (sym & 1) one({ x: W - a.x, y: a.y }, { x: W - b.x, y: b.y });
+  if (sym & 2) one({ x: a.x, y: H - a.y }, { x: b.x, y: H - b.y });
+  if (sym === 3) one({ x: W - a.x, y: H - a.y }, { x: W - b.x, y: H - b.y });
+}
+const mix = (c, t, f) => { const n = parseInt(c.slice(1), 16), m = parseInt(t.slice(1), 16), g = (sh) => Math.round(((n >> sh) & 255) * (1 - f) + ((m >> sh) & 255) * f); return `rgb(${g(16)},${g(8)},${g(0)})`; };
+function drawShape(x, a, b) {                       // rectangle / square: corner to corner · circle / sphere: from the centre out
+  let w = b.x - a.x, h = b.y - a.y; x.save(); x.lineWidth = size * SK; x.lineJoin = 'round'; x.strokeStyle = x.fillStyle = color;
+  if (shapeKind === 'square') { const m = Math.max(Math.abs(w), Math.abs(h)); w = (w < 0 ? -1 : 1) * m; h = (h < 0 ? -1 : 1) * m; }
+  x.beginPath();
+  if (shapeKind === 'rect' || shapeKind === 'square') { x.rect(a.x, a.y, w, h); shapeFill ? x.fill() : x.stroke(); }
+  else {
+    const r = Math.hypot(w, h); x.arc(a.x, a.y, r, 0, 7);
+    if (shapeKind === 'sphere') { const g = x.createRadialGradient(a.x - r * .35, a.y - r * .35, r * .05, a.x, a.y, r); g.addColorStop(0, mix(color, '#ffffff', .8)); g.addColorStop(.4, color); g.addColorStop(1, mix(color, '#000000', .55)); x.fillStyle = g; x.fill(); }
+    else shapeFill ? x.fill() : x.stroke();
+  }
+  if (olOn) { x.globalCompositeOperation = 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); }
+  x.restore();
+}
+['R:rect', 'S:square', 'C:circle', 'B:sphere'].forEach(q => { const [i, k] = q.split(':'); $('sh' + i).onclick = () => { shapeKind = k; ['R', 'S', 'C', 'B'].forEach(j => $('sh' + j).classList.toggle('on', j === i)); }; });
+$('shF').onclick = () => { shapeFill = !shapeFill; $('shF').textContent = 'Fill: ' + (shapeFill ? 'on' : 'off'); };
+const fillCv = mk(), fillX = fillCv.getContext('2d');
+function pickColor(p) {                                           // eyedropper: the colour you see on the canvas at that spot
+  if (boardMode || p.x < 0 || p.y < 0 || p.x >= W || p.y >= H) { const q = vx.getImageData(Math.max(0, Math.min(VW - 1, Math.floor(p.x + MX))), Math.max(0, Math.min(VH - 1, Math.floor(p.y + MY))), 1, 1).data; if (q[3] > 10) setColor('#' + [q[0], q[1], q[2]].map(v => v.toString(16).padStart(2, '0')).join('')); return; }
+  cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); flat(cx, ct);
+  const x = Math.max(0, Math.min(W - 1, Math.floor(p.x))), y = Math.max(0, Math.min(H - 1, Math.floor(p.y))), d = cx.getImageData(x, y, 1, 1).data;
+  setColor('#' + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, '0')).join(''));
+}
+function dil(m, g) {                                // grow a mask by g pixels (box, two passes)
+  const t = new Uint8Array(W * H), o = new Uint8Array(W * H);
+  for (let y = 0; y < W * H; y += W) { let c = 0; for (let x = -g; x < W; x++) { if (x + g < W) c += m[y + x + g]; if (x - g - 1 >= 0) c -= m[y + x - g - 1]; if (x >= 0 && c > 0) t[y + x] = 1; } }
+  for (let x = 0; x < W; x++) { let c = 0; for (let y = -g; y < H; y++) { if (y + g < H) c += t[(y + g) * W + x]; if (y - g - 1 >= 0) c -= t[(y - g - 1) * W + x]; if (y >= 0 && c > 0) o[y * W + x] = 1; } }
+  return o;
+}
+function bucket(p) {                                // fills the area you tap, using every visible layer's lines as walls; an open shape leaks like any normal bucket
+  const x0 = Math.floor(p.x), y0 = Math.floor(p.y); if (x0 < 0 || y0 < 0 || x0 >= W || y0 >= H) return;
+  fillX.clearRect(0, 0, W, H); flat(fillX, ct); const wd = fillX.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H), N = W * H;
+  for (let i = 0; i < N; i++) wall[i] = wd[i * 4 + 3] >= 64 ? 1 : 0;
+  if (wall[y0 * W + x0]) return toast('Tap inside a shape, not on its line');
+  let g = +$('bkG').value, blk = wall; if (g) { blk = dil(wall, g); if (blk[y0 * W + x0]) { g = 0; blk = wall; } }   // "Close gaps": lines closer than this count as joined (tapping right beside a line uses the plain lines)
+  const R = new Uint8Array(N), st = [y0 * W + x0]; R[st[0]] = 1;
+  while (st.length) { const q = st.pop(), x = q % W;
+    if (x < W - 1 && !R[q + 1] && !blk[q + 1]) { R[q + 1] = 1; st.push(q + 1); } if (x > 0 && !R[q - 1] && !blk[q - 1]) { R[q - 1] = 1; st.push(q - 1); }
+    if (q + W < N && !R[q + W] && !blk[q + W]) { R[q + W] = 1; st.push(q + W); } if (q >= W && !R[q - W] && !blk[q - W]) { R[q - W] = 1; st.push(q - W); } }
+  const F = dil(R, Math.max(g, 2)), f = fc(), id = f.getImageData(0, 0, W, H), d = id.data;     // grow a little so no pale rim is left next to the line
+  let mnx = W, mxx = 0, mny = H, mxy = 0;
+  for (let i = 0; i < N; i++) if (F[i] && !wall[i]) { const x = i % W, y = (i / W) | 0; if (x < mnx) mnx = x; if (x > mxx) mxx = x; if (y < mny) mny = y; if (y > mxy) mxy = y; }
+  const gm = $('bkM').value, n1 = parseInt(color.slice(1), 16), n2 = parseInt($('col2').value.slice(1), 16), cxm = (mnx + mxx) / 2, cym = (mny + mxy) / 2, rad = Math.hypot(mxx - cxm, mxy - cym) || 1;
+  for (let i = 0; i < N; i++) if (F[i] && !wall[i]) {
+    let t = 0; const x = i % W, y = (i / W) | 0;
+    if (gm === 'h') t = (x - mnx) / ((mxx - mnx) || 1); else if (gm === 'v') t = (y - mny) / ((mxy - mny) || 1); else if (gm === 'r') t = Math.hypot(x - cxm, y - cym) / rad;
+    const j = i * 4; for (let c = 0, sh = 16; c < 3; c++, sh -= 8) d[j + c] = Math.round(((n1 >> sh) & 255) * (1 - t) + ((n2 >> sh) & 255) * t); d[j + 3] = 255;
+  }
+  f.putImageData(id, 0, 0);
+}
+
+// ---------- lasso: select, move, copy, paste ----------
+function liftBoard() {                              // lasso in the dark area: cut that part of the board out into a floating piece
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y), x0 = Math.max(-MX, Math.floor(Math.min(...xs))), y0 = Math.max(-MY, Math.floor(Math.min(...ys))), x1 = Math.min(W + MX, Math.ceil(Math.max(...xs))), y1 = Math.min(H + MY, Math.ceil(Math.max(...ys))), w = x1 - x0, h = y1 - y0;
+  if (w < 2 || h < 2) return; const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  const path = (ctx, dx, dy) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x - dx, p.y - dy) : ctx.moveTo(p.x - dx, p.y - dy)); ctx.closePath(); };
+  x.save(); path(x, x0, y0); x.clip(); tiles.forEach((t, k) => { const [tx, ty] = k.split(',').map(Number); x.drawImage(t, tx * TS - x0, ty * TS - y0); }); x.restore();
+  bundle = new Map(); boardDraw(x0, y0, x1, y1, g => { g.save(); path(g, 0, 0); g.clip(); g.clearRect(x0 - 2, y0 - 2, w + 4, h + 4); g.restore(); }); pushBundle();
+  sel = { cv: c, x: x0, y: y0, s: 1, r: 0, board: true };
+}
+function lift() {                                   // cut the lassoed pixels out into a floating piece
+  if (pts.length < 3) return; if (boardMode) return liftBoard();
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  const x0 = Math.max(0, Math.floor(Math.min(...xs))), y0 = Math.max(0, Math.floor(Math.min(...ys)));
+  const x1 = Math.min(W, Math.ceil(Math.max(...xs))), y1 = Math.min(H, Math.ceil(Math.max(...ys)));
+  const w = x1 - x0, h = y1 - y0; if (w < 2 || h < 2) return;
+  snap();
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  const path = (ctx, dx, dy) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x - dx, p.y - dy) : ctx.moveTo(p.x - dx, p.y - dy)); ctx.closePath(); };
+  path(x, x0, y0); x.clip(); x.drawImage(cvOf(cellAt(lay, ct)), -x0, -y0);
+  const f = fc(); f.save(); path(f, 0, 0); f.clip(); f.clearRect(0, 0, W, H); f.restore();
+  sel = { cv: c, x: x0, y: y0, s: 1, r: 0 };
+}
+function drawSel(c) {                               // the piece, scaled and turned around its centre
+  const w = sel.cv.width, h = sel.cv.height, k = sel.s || 1;
+  c.save(); c.translate(sel.x + w / 2, sel.y + h / 2); c.rotate(sel.r || 0); c.scale(k, k); c.drawImage(sel.cv, -w / 2, -h / 2); c.restore();
+}
+function selGeo() {                                 // centre + the two handles (kept inside the canvas so you can always reach them)
+  const w = sel.cv.width, h = sel.cv.height, s = sel.s || 1, r = sel.r || 0, cx0 = sel.x + w / 2, cy0 = sel.y + h / 2;
+  const hr = 14 * (VW / ov.offsetWidth) / V.s, co = Math.cos(r), si = Math.sin(r);
+  const at = (lx, ly) => ({ x: Math.min(W + MX - hr, Math.max(hr - MX, cx0 + lx * co - ly * si)), y: Math.min(H + MY - hr, Math.max(hr - MY, cy0 + lx * si + ly * co)) });
+  return { w, h, s, r, c: { x: cx0, y: cy0 }, hr, sc: at(w * s / 2, h * s / 2), ro: at(0, -h * s / 2 - 5 * hr) };
+}
+function inSel(p) {
+  const g = selGeo(), dx = p.x - g.c.x, dy = p.y - g.c.y, co = Math.cos(-g.r), si = Math.sin(-g.r);
+  return Math.abs((dx * co - dy * si) / g.s) <= g.w / 2 && Math.abs((dx * si + dy * co) / g.s) <= g.h / 2;
+}
+function commit() { if (!sel) return; if (sel.board || sel.x + sel.cv.width / 2 < 0 || sel.y + sel.cv.height / 2 < 0 || sel.x + sel.cv.width / 2 >= W || sel.y + sel.cv.height / 2 >= H) { bundle = new Map(); boardDraw(-MX, -MY, W + MX, H + MY, g => drawSel(g)); pushBundle(); } else drawSel(fc()); sel = null; build(); save(); render(); }
+const clone = c => { const n = document.createElement('canvas'); n.width = c.width; n.height = c.height; n.getContext('2d').drawImage(c, 0, 0); n._has = c._has; return n; };
+$('copy').onclick = () => { if (!sel) return; clip = { cv: clone(sel.cv), s: sel.s || 1, r: sel.r || 0, x: sel.x, y: sel.y }; commit(); };
+$('paste').onclick = () => {
+  if (!clip || playing) return; commit(); snap();
+  sel = { cv: clone(clip.cv), x: clip.x, y: clip.y, s: clip.s, r: clip.r }; render();
+};
+const flipSel = h => { if (!sel) return; const c = document.createElement('canvas'); c.width = sel.cv.width; c.height = sel.cv.height; const x = c.getContext('2d'); if (h) { x.translate(c.width, 0); x.scale(-1, 1); } else { x.translate(0, c.height); x.scale(1, -1); } x.drawImage(sel.cv, 0, 0); sel.cv = c; sel.r = -(sel.r || 0); render(); };
+$('fH').onclick = () => flipSel(true); $('fV').onclick = () => flipSel(false);
+$('del').onclick = () => { sel = null; build(); render(); };
+$('done').onclick = commit;
+let askCb = null;                                   // small in-page text box (pop-up boxes don't work in every app)
+let caps = false;   // in-app keyboard: it lives inside the sideways app, so it is always horizontal
+function kbBuild() {
+  const kb = $('kb'); kb.innerHTML = '';
+  ['1234567890', 'qwertyuiop', 'asdfghjkl', '⇧zxcvbnm⌫', ' ,.-!?\'"'].forEach(row => {
+    const r = document.createElement('div'); r.className = 'kr';
+    [...row].forEach(ch => {
+      const b = document.createElement('button'); b.textContent = ch === ' ' ? 'space' : (caps && /[a-z]/.test(ch) ? ch.toUpperCase() : ch);
+      if (ch === ' ') b.className = 'sp'; if (ch === '⇧' || ch === '⌫') b.classList.add('w'); if (ch === '⇧' && caps) b.classList.add('on');
+      b.onpointerdown = e => { e.preventDefault(); const i = $('dinp'); if (ch === '⌫') i.value = i.value.slice(0, -1); else if (ch === '⇧') { caps = !caps; kbBuild(); } else if (i.value.length < 60) { i.value += caps && /[a-z]/.test(ch) ? ch.toUpperCase() : ch; if (caps) { caps = false; kbBuild(); } } };
+      r.append(b);
+    }); kb.append(r);
+  });
+}
+kbBuild();
+function ask(label, val, cb) {
+  askCb = cb; $('dlabel').textContent = label; $('dinp').value = val || ''; $('dlg').hidden = false;
+  setTimeout(() => $('dinp').focus(), 60);
+}
+function askEnd(ok) { const v = $('dinp').value.trim(), cb = askCb; askCb = null; $('dlg').hidden = true; if (ok && v && cb) cb(v); }
+$('dok').onclick = () => askEnd(true);
+$('dno').onclick = () => askEnd(false);
+$('dinp').onkeydown = e => { if (e.key === 'Enter') askEnd(true); };
+function addText(p) {                               // type text, drag it into place, then tap Done
+  ask('Type your text', '', async t => {
+    try { await document.fonts.load('bold 40px ' + $('font').value, t); } catch (e) {}   // make sure the chosen font is ready before drawing
+    const fs = (size * 2 + 16) * SK, c = document.createElement('canvas'), x = c.getContext('2d'), font = `bold ${fs}px ${$('font').value}`;
+    x.font = font; c.width = Math.ceil(x.measureText(t).width) + 8; c.height = Math.ceil(fs * 1.3);
+    x.font = font; x.fillStyle = color; x.textBaseline = 'top'; x.fillText(t, 4, fs * .1);
+    snap(); sel = { cv: c, x: p.x, y: p.y, s: 1, r: 0 }; setTool('lasso', true);
+  });
+}
+
+// ---------- touch / mouse ----------
+ov.onpointerdown = e => {
+  e.preventDefault(); ov.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, S(e.clientX, e.clientY));
+  if (ptrs.size >= 2) { cancelDraw(); gStart(); return; }
+  if (playing) return;
+  { const q0 = P(e), out = q0.x < 0 || q0.y < 0 || q0.x >= W || q0.y >= H;   // touching the dark area around the canvas draws on the board (shows on every frame, never exported)
+    boardMode = tool === 'lasso' ? (sel ? !!sel.board : out) : (out && /^(brush|eraser|line|shape)$/.test(tool)); }
+  const lEnd = Math.max(0, ...layers[lay].cells.map(c => c.s + c.d));    // where THIS layer's drawings stop
+  if (ct > lEnd && !cellAt(lay, ct) && /^(brush|eraser|outline|line|shape|bucket|text)$/.test(tool) && !boardMode && !(farOK && farOK.t === ct && farOK.l === lay)) {   // far past this layer's last drawing: ask first
+    $('cft').textContent = 'Draw on frame ' + (ct + 1) + '? ' + (lEnd ? 'This layer\'s last drawing is frame ' + lEnd + ', so frames ' + (lEnd + 1) + '–' + ct : 'This layer has no drawings yet, so frames 1–' + ct) + ' would stay empty on it.'; $('cf').hidden = false; return; }
+  const p = P(e); drag = true; last = p; p2 = p; hov = p;
+  if (tool === 'cam') { camOrig = { ...cam(ct) }; return; }
+  if (tool === 'clip') { drag = false; return; }
+  if (tool === 'eye') { pickColor(p); render(); return; }
+  if (boardMode) {                                  // board: brush, eraser, line, shapes, and the lasso for moving pictures
+    if (/^(brush|eraser|line|shape)$/.test(tool)) { bundle = new Map(); if (tool === 'brush' || tool === 'eraser') stroke(p, { x: p.x + .01, y: p.y }); render(); return; }
+    if (tool !== 'lasso') { drag = false; return; }
+  }
+  if (!layers[lay].vis || layers[lay].lock) { if (!boardMode) { drag = false; return; } }   // can't draw on a hidden or locked layer
+  if (isVec()) { pts = [p]; return; }
+  if (tool === 'obj' || tool === 'key') { objDown(p); objUI(); return; }
+  if (tool === 'vsel') { vsDown(p); return; }
+  if (vecEr()) { veDone = false; vecErase(p); return; }
+  if (tool === 'lasso') {
+    const g = sel && selGeo();
+    if (g && Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { mode = 'scale'; xf = { d: Math.hypot(p.x - g.c.x, p.y - g.c.y) || 1, s: g.s }; }
+    else if (g && Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2) { mode = 'rot'; xf = { a: Math.atan2(p.y - g.c.y, p.x - g.c.x), r: g.r }; }
+    else if (g && inSel(p)) { mode = 'move'; off = { x: p.x - sel.x, y: p.y - sel.y }; }
+    else { commit(); boardMode = p.x < 0 || p.y < 0 || p.x >= W || p.y >= H; mode = 'draw'; pts = [p]; }
+    return;
+  }
+  if (tool === 'text') return;                    // text is placed when you lift your finger
+  snap();
+  if (tool === 'bucket') { bucket(p); drag = false; build(); save(); render(); return; }
+  if (tool === 'brush' || tool === 'eraser') stroke(p, { x: p.x + .01, y: p.y });
+  render();
+};
+ov.onpointermove = e => {
+  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, S(e.clientX, e.clientY));
+  if (ptrs.size >= 2) { if (gest) gMove(); return; }
+  hov = P(e); if (!drag) { if (!playing) overlay(); return; } const p = hov;
+  if (tool === 'cam') { const c = camKey(ct); c.x = camOrig.x + (p.x - last.x); c.y = camOrig.y + (p.y - last.y); }
+  else if (tool === 'lasso') {
+    if (mode === 'move') { sel.x = p.x - off.x; sel.y = p.y - off.y; }
+    else if (mode === 'scale') { const g = selGeo(); sel.s = Math.min(8, Math.max(.1, xf.s * Math.hypot(p.x - g.c.x, p.y - g.c.y) / xf.d)); }
+    else if (mode === 'rot') {
+      const g = selGeo(), q = Math.PI / 12; let r = xf.r + Math.atan2(p.y - g.c.y, p.x - g.c.x) - xf.a;
+      const n = Math.round(r / q) * q; if (Math.abs(r - n) < .05) r = n;   // clicks into place every 15 degrees
+      sel.r = r;
+    } else pts.push(p);
+  }
+  else if (vecEr()) vecErase(p);
+  else if (isVec()) { if (tool === 'line') pts = [pts[0], p]; else pts.push(p); }
+  else if (tool === 'line' || tool === 'shape') p2 = p;
+  else if (tool === 'vsel') vsMove(p);
+  else if (tool === 'obj' || tool === 'key') objMove(p);
+  else if (tool === 'eye') { pickColor(p); }
+  else { stroke(last, p); last = p; }
+  renderSoon();
+};
+function up(e) { try { up0(e); } finally { if (!(sel && sel.board)) boardMode = false; } }
+function up0(e) {
+  ptrs.delete(e.pointerId); if (e.pointerType === 'touch') hov = null;
+  if (gest) { if (!ptrs.size) { gest = null; snapV(); } return; }
+  if (!drag) return; drag = false; const p = P(e);
+  if (boardMode && /^(brush|eraser|line|shape)$/.test(tool)) {
+    if (tool === 'line') stroke(last, p); else if (tool === 'shape') boardDraw(-MX, -MY, W + MX, H + MY, g => drawShape(g, last, p));
+    pushBundle(); save(); render(); return;
+  }
+  if (tool === 'text') { addText(last); return; }
+  if (tool === 'eye') { setTool(prevTool); return; }
+  if (isVec()) { vecEnd(); return; }
+  if (tool === 'vsel') { vsUp(); return; }
+  if (tool === 'obj' || tool === 'key') { objUp(); return; }
+  if (tool === 'lasso' && mode === 'draw') lift();
+  else if (tool === 'line') stroke(last, p);
+  else if (tool === 'shape') drawShape(fc(), last, p);
+  pts = []; build(); save(); render();
+}
+ov.onpointerup = up; ov.onpointercancel = up; ov.onpointerleave = () => { hov = null; if (!drag && !playing) overlay(); };
+
+// ---------- undo / redo ----------
+function swap(a, b) {
+  if (playing) return; dirtyOnion(); sel = null;
+  const s = a.pop(); if (!s) { render(); return; }
+  if (s.st) { b.push({ st: structNow() }); restoreStruct(s.st); }
+  else if (s.bd) { b.push({ bd: applyBundle(s.bd) }); }
+  else { const g = s.cv.getContext('2d'); b.push({ cv: s.cv, t: s.t, l: s.l, d: g.getImageData(0, 0, W, H) }); g.putImageData(s.d, 0, 0); s.cv._dirty = true; ct = s.t; lay = Math.min(s.l, layers.length - 1); }
+  selObj = null; syncCam(); build(); render(); save();
+}
+$('undo').onclick = () => swap(undo, redo);
+$('redo').onclick = () => swap(redo, undo);
+
+// ---------- play + export ----------
+function setPlay(on) { viewPlay = on; view.width = on ? OW : VW; view.height = on ? OH : VH; fit(); }   // playing shows only what the camera sees
+function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAnimationFrame(timer); clearInterval(timer); playing = false; setPlay(false); $('play').innerHTML = '<b>▶</b>Play'; render(); hl(); fpsTxt = ''; $('fbadge').style.color = ''; }
+let pcache = null;                                 // play = every frame drawn ONCE up front, then just shown: smooth even on a slow phone
+async function prepare() {
+  const n = len, f = Math.min(1, Math.sqrt(140e6 / (n * 4 * OW * OH))), w = Math.round(OW * f), h = Math.round(OH * f), map = new Map(), arr = [];
+  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl + ',' + c.gl)(camFx(t));   // frames that look identical share one picture
+  let t0 = performance.now();
+  for (let t = 0; t < n; t++) {
+    const k = keyOf(t); let cv = map.get(k);
+    if (!cv) {
+      cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t);
+      drawCam(cv.getContext('2d'), t, w, h); map.set(k, cv);
+    }
+    arr.push(cv);
+    if (performance.now() - t0 > 40) { t0 = performance.now(); toast('Getting ready… ' + Math.round(t / n * 100) + '%'); await new Promise(r => setTimeout(r)); if (!playing) return null; }
+  }
+  return arr;
+}
+$('play').onclick = async () => {
+  if (playing) return stop();
+  const plen = Math.max(len, refEnd()); if (plen < 2) return;     // with a reference video, Play runs for the whole video even if you have no frames
+  commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
+  try { pcache = refV ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
+  $('toast').classList.remove('on');
+  let t = ct >= plen ? 0 : ct;
+  if (audio) { aEl.currentTime = t / fps; aEl.play().catch(() => {}); }
+  ac(); sfxFrame(t);
+  let prev = performance.now(), acc = 0, shown = 0, since = prev; fpsTxt = ''; const fd = () => 1000 / fps;
+  const tick = now => {                            // steady frame pacing: skips frames if the phone falls behind instead of slowing down
+    if (!playing) return; acc += Math.min(now - prev, 250); prev = now;
+    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = (t + k) % plen; if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame((t + j) % plen); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
+    timer = requestAnimationFrame(tick);
+  };
+  timer = requestAnimationFrame(tick);
+};
+$('fps').onchange = e => { fps = +e.target.value; try { localStorage.setItem('easyfps', fps); } catch (x) {} save(); if (playing) { stop(); $('play').click(); } };
+// ---------- export: GIF, MP4, WebM ----------
+function lzw(ix) {                                                 // GIF compression
+  const out = []; let cur = 0, nb = 0, size = 9, next = 258; const dict = new Map();
+  const put = c => { cur |= c << nb; nb += size; while (nb >= 8) { out.push(cur & 255); cur >>= 8; nb -= 8; } };
+  put(256); let pre = ix[0];
+  for (let i = 1; i < ix.length; i++) {
+    const k = (pre << 8) | ix[i], v = dict.get(k);
+    if (v !== undefined) pre = v;
+    else { put(pre); if (next < 4096) { dict.set(k, next++); if (next > (1 << size) && size < 12) size++; } else { put(256); dict.clear(); size = 9; next = 258; } pre = ix[i]; }
+  }
+  put(pre); put(257); if (nb > 0) out.push(cur & 255); return out;
+}
+function gifEncode(fr, w, h, delay) {
+  const o = [], w16 = v => o.push(v & 255, (v >> 8) & 255), str = t => { for (const ch of t) o.push(ch.charCodeAt(0)); };
+  str('GIF89a'); w16(w); w16(h); o.push(0xF7, 0, 0);
+  for (let i = 0; i < 256; i++) o.push(Math.round((i >> 5) * 255 / 7), Math.round(((i >> 2) & 7) * 255 / 7), Math.round((i & 3) * 255 / 3));
+  o.push(0x21, 0xFF, 11); str('NETSCAPE2.0'); o.push(3, 1, 0, 0, 0);
+  fr.forEach(ix => {
+    o.push(0x21, 0xF9, 4, 4, delay & 255, delay >> 8, 0, 0, 0x2C); w16(0); w16(0); w16(w); w16(h); o.push(0, 8);
+    const d = lzw(ix); for (let i = 0; i < d.length; i += 255) { const n = Math.min(255, d.length - i); o.push(n); for (let j = 0; j < n; j++) o.push(d[i + j]); } o.push(0);
+  });
+  o.push(0x3B); return new Uint8Array(o);
+}
+let _dl; if (window.claude && claude.use) claude.use('downloads').then(d => { _dl = d; }, () => {});
+const download = (blob, name) => { if (_dl) { _dl.save({ filename: name, data: blob }).then(() => toast('Saved ' + name), e => { if (!e || e.code !== 'declined') toast('Save blocked: ' + ((e && e.message) || 'try again')); }); return; }
+   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); };
+let exporting = false;
+const xStatus = t => { $('xst').textContent = t; };
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function exportGif() {
+  const gw = Math.min(640, OW), gh = Math.round(gw * OH / OW), c = document.createElement('canvas'); c.width = gw; c.height = gh; const g = c.getContext('2d', { willReadFrequently: true }), fr = [], back = ct;
+  setPlay(true); playing = true;
+  for (let t = 0; t < len; t++) {
+    ct = t; render(); g.drawImage(view, 0, 0, gw, gh); const d = g.getImageData(0, 0, gw, gh).data, ix = new Uint8Array(gw * gh);
+    for (let i = 0, j = 0; j < ix.length; i += 4, j++) ix[j] = ((d[i] >> 5) << 5) | ((d[i + 1] >> 5) << 2) | (d[i + 2] >> 6);
+    fr.push(ix); xStatus('Drawing frame ' + (t + 1) + ' / ' + len); await tick();
+  }
+  playing = false; setPlay(false); ct = back; render(); hl();
+  xStatus('Packing the GIF…'); await tick();
+  download(new Blob([gifEncode(fr, gw, gh, Math.max(2, Math.round(100 / fps)))], { type: 'image/gif' }), 'animation.gif');
+}
+const crcT = (() => { const t = []; for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = d => { let c = -1; for (let i = 0; i < d.length; i++) c = crcT[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ -1) >>> 0; };
+function zipStore(files) {                                       // a plain "stored" zip, no compression
+  const out = [], cd = []; let off = 0; const enc = new TextEncoder();
+  files.forEach(f => {
+    const n = enc.encode(f.n), crc = crc32(f.d), h = new DataView(new ArrayBuffer(30)), c = new DataView(new ArrayBuffer(46));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint32(14, crc, true); h.setUint32(18, f.d.length, true); h.setUint32(22, f.d.length, true); h.setUint16(26, n.length, true); h.setUint16(12, 33, true);
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(14, 33, true); c.setUint32(16, crc, true); c.setUint32(20, f.d.length, true); c.setUint32(24, f.d.length, true); c.setUint16(28, n.length, true); c.setUint32(42, off, true);
+    out.push(new Uint8Array(h.buffer), n, f.d); cd.push(new Uint8Array(c.buffer), n); off += 30 + n.length + f.d.length;
+  });
+  const cs = cd.reduce((a, b) => a + b.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cs, true); e.setUint32(16, off, true);
+  return new Blob([...out, ...cd, new Uint8Array(e.buffer)], { type: 'application/zip' });
+}
+async function exportPng() {
+  const [ow, oh] = $('xRes').value.split('x').map(Number), a = $('xA').checked, o = document.createElement('canvas'); o.width = ow; o.height = oh; const g = o.getContext('2d'), files = [];
+  for (let t = 0; t < len; t++) {
+    if (a) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t);
+    g.clearRect(0, 0, ow, oh); drawCam(g, t, ow, oh);
+    const b = await new Promise(r => o.toBlob(r, 'image/png')); files.push({ n: 'frame_' + String(t + 1).padStart(3, '0') + '.png', d: new Uint8Array(await b.arrayBuffer()) });
+    xStatus('Frame ' + (t + 1) + ' / ' + len); await tick();
+  }
+  download(zipStore(files), 'frames.zip');
+}
+function exportVideo(mp4) {
+  return new Promise(res => {
+    const types = mp4 ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm'];
+    const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
+    if (!mt) { xStatus(mp4 ? 'This browser cannot make MP4. Try WebM or GIF.' : 'Video export is not supported here. Try GIF.'); return res(false); }
+    const back = ct, chunks = []; setPlay(true); playing = true;
+    const stream = view.captureStream(fps); let rd = null;
+    try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
+    const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), 'animation.' + (mp4 ? 'mp4' : 'webm')); res(true); };
+    let i = 0; rec.start(); if (audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); }
+    const iv = setInterval(() => {
+      if (i >= len) { clearInterval(iv); rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }
+      ct = i++; sfxFrame(ct); render(); hl(); xStatus('Recording frame ' + i + ' / ' + len);
+    }, 1000 / fps);
+  });
+}
+async function runExport(kind) {
+  if (exporting) return; exporting = true;
+  try { const ok = kind === 'png' ? (await exportPng(), true) : kind === 'gif' ? (await exportGif(), true) : await exportVideo(kind === 'mp4'); if (ok) xStatus('Done! Check your downloads.'); }
+  catch (e) { playing = false; setPlay(false); render(); xStatus('Export failed: ' + e.message); }
+  exporting = false;
+}
+$('exp').onclick = () => { if (playing) stop(); commit(); $('xRes').innerHTML = [1, .75, .5, 1.5].map(k => { const a = Math.round(OW * k / 2) * 2, b = Math.round(OH * k / 2) * 2; return '<option value="' + a + 'x' + b + '">PNG size ' + a + '×' + b + '</option>'; }).join(''); xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
+$('xPng').onclick = () => runExport('png'); $('xGif').onclick = () => runExport('gif'); $('xMp4').onclick = () => runExport('mp4'); $('xWebm').onclick = () => runExport('webm');
+$('xNo').onclick = () => { if (!exporting) $('xp').hidden = true; };
+
+$('tlToggle').onclick = () => $('app').classList.toggle('notl');       // show / hide the timeline
+$('optToggle').onclick = () => $('app').classList.toggle('noopt');    // show / hide tool options
+
+// ---------- autosave ----------
+// ---------- projects: saved in the browser's IndexedDB, up to 100 ----------
+let pid = null, pname = 'Untitled', pdb = null, st;
+const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
+const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
+const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+function thumbURL() {                                             // what the camera sees on the first frame
+  const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
+  cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
+  return c.toDataURL('image/jpeg', .7);
+}
+async function saveNow() {
+  if (clipRet) return;
+  try { if (!pid) pid = 'p' + Date.now(); await putP({ id: pid, name: pname, t: Date.now(), thumb: thumbURL(), data: dataNow() }); localStorage.setItem('easylast', pid); localStorage.removeItem('easyanim'); } catch (e) {}
+}
+function save() { dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500); }   // never saves in the middle of a stroke or playback
+function migrate(d) {                                            // projects saved before layers owned their keyframes
+  const L = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: false, cells: [] })), cm = []; let t = 0;
+  d.frames.forEach(f => {
+    const du = f.dur || 1; [].concat(f.d).forEach((src, j) => { if (L[j]) L[j].cells.push({ s: t, d: du, png: (f.h ? f.h[j] : src) ? src : null, objs: [] }); });
+    for (let k = 0; k < du; k++) cm.push({ ...f.cam }); t += du;
+  });
+  (d.objs || []).forEach(o => { const l = L[o.l]; if (!l) return; const c = l.cells.find(c => o.a >= c.s && o.a < c.s + c.d) || l.cells[0]; if (c) c.objs.push({ id: o.id, col: o.col, w: o.w, pv: o.pv, ease: o.ease, tw: 'all', kf: o.kf }); });
+  return { v: 3, fps: d.fps, len: t, cams: cm, oid: d.oid, layers: L };
+}
+function loadData(d) {
+  if (!d.v || d.v < 3) d = migrate(d);
+  if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); }
+  applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
+  fxs = d.fx || []; buildFx();
+  undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
+  fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
+  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
+  layers.forEach(L => L.cells.forEach(c => {
+    const src = c.png; delete c.png; if (!src) return; pend++;
+    const cv = mk(); cv._has = true; cv._url = src; c.cv = cv; const im = new Image();
+    im.onload = () => { cv.getContext('2d').drawImage(im, (W - im.width) / 2, (H - im.height) / 2); done(); }; im.onerror = done; im.src = src;
+  }));
+  tiles.clear(); boardMode = false;
+  (d.board || []).forEach(q => { const [tx, ty] = q.k.split(',').map(Number), t = getTile(tx, ty, true), im = new Image(); t._dirty = false; t._url = q.png; im.onload = () => { t.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = q.png; });
+  clips = (d.clips || []).map(c => ({ sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(src => { const cv = document.createElement('canvas'); cv.width = c.w; cv.height = c.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }));
+  fixLen(); build(); render();
+}
+const lastSize = () => { let a = [1280, 720]; try { a = (localStorage.getItem('easysize') || '').split('x').map(Number); } catch (e) {} return a[0] && a[1] ? a : [1280, 720]; };
+const blank = (o = {}) => loadData({ v: 3, ow: o.ow || lastSize()[0], oh: o.oh || lastSize()[1], fps: o.fps || +(localStorage.getItem('easyfps') || 12), len: 1, oid: 1, cams: [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }], layers: [{ name: 'Layer 1', vis: true, lock: false, cells: [] }] });
+const flush = async () => { clearTimeout(st); if (pid || layers.some(L => L.cells.length)) await saveNow(); };
+async function drawProjects() {
+  const list = (await allP()).sort((a, b) => b.t - a.t), g = $('pjg'); g.innerHTML = '';
+  $('pjn').textContent = (pid ? 'Open: ' + pname + '   ·   ' : '') + list.length + ' / 100 projects';
+  if (!list.length) g.append(el('', 'No projects yet. Tap ＋ New project to start.'));
+  list.forEach(p => {
+    const c = el('pc'), im = new Image(); im.src = p.thumb || ''; c.append(im);
+    im.onclick = async () => { await flush(); const q = await getP(p.id); pid = q.id; pname = q.name; localStorage.setItem('easylast', pid); loadData(q.data); $('pj').hidden = true; };
+    c.append(el('pn', p.name + (p.id === pid ? '  (open)' : '') + ' · ' + new Date(p.t).toLocaleDateString()));
+    const row = el('pr'), rn = el('', 'Rename'), cp = document.createElement('button'), dl = document.createElement('button'), rb = document.createElement('button');
+    rb.textContent = 'Rename'; cp.textContent = 'Copy'; dl.textContent = '🗑';
+    rb.onclick = () => ask('Project name', p.name, async n => { const q = await getP(p.id); q.name = n.slice(0, 40); await putP(q); if (p.id === pid) pname = q.name; drawProjects(); });
+    cp.onclick = async () => { if (list.length >= 100) return; await flush(); const q = await getP(p.id); q.id = 'p' + Date.now() + Math.random().toString(36).slice(2, 5); q.name = (q.name + ' copy').slice(0, 40); q.t = Date.now(); await putP(q); drawProjects(); };
+    let arm = 0; dl.onclick = async () => {                       // tap 🗑 then ✔ to confirm
+      if (!arm) { dl.textContent = '✔'; dl.style.background = '#d62f2f'; arm = setTimeout(() => { arm = 0; dl.textContent = '🗑'; dl.style.background = ''; }, 2500); return; }
+      await delP(p.id); if (p.id === pid) { pid = null; pname = 'Untitled'; localStorage.removeItem('easylast'); blank(); } drawProjects();
+    };
+    const sv = document.createElement('button'); sv.textContent = '⬇ File'; sv.onclick = async () => { await flush(); const q = await getP(p.id); download(new Blob([JSON.stringify({ yinny: 1, name: q.name, thumb: q.thumb, data: q.data })], { type: 'application/json' }), q.name.replace(/[^\w\- ]/g, '_') + '.yinny.json'); };
+    row.append(rb, cp, sv, dl); c.append(row); g.append(c);
+  });
+}
+$('projBtn').onclick = async () => { if (clipRet) return toast('Finish or cancel the clip first'); if (playing) stop(); commit(); await flush(); $('pjClose').hidden = !pid; $('pj').hidden = false; drawProjects(); };
+$('pjClose').onclick = () => { $('pj').hidden = true; };
+let npv = {};
+function npDraw() { const [lw, lh] = lastSize(), lf = localStorage.getItem('easyfps') || 12; $('npName').textContent = 'Name: ' + npv.name; $('npW').textContent = 'Width: ' + (npv.w || lw + ' (last)'); $('npH').textContent = 'Height: ' + (npv.h || lh + ' (last)'); $('npF').textContent = 'FPS: ' + (npv.fps || 'auto (' + lf + ', same as last)'); }
+$('pjNew').onclick = async () => { if ((await allP()).length >= 100) return; npv = { name: 'Untitled' }; npDraw(); $('np').hidden = false; };
+$('npName').onclick = () => ask('Project name', npv.name, n => { npv.name = n.slice(0, 40); npDraw(); });
+$('npW').onclick = () => ask('Width in pixels (100-1920)', String(npv.w || lastSize()[0]), n => { npv.w = +n.replace(/\D/g, '') || null; npDraw(); });
+$('npH').onclick = () => ask('Height in pixels (100-1920)', String(npv.h || lastSize()[1]), n => { npv.h = +n.replace(/\D/g, '') || null; npDraw(); });
+$('npF').onclick = () => ask('Frames per second (1-24)', String(npv.fps || localStorage.getItem('easyfps') || 12), n => { npv.fps = Math.max(1, Math.min(24, +n.replace(/\D/g, '') || 12)); npDraw(); });
+$('npFa').onclick = () => { npv.fps = null; npDraw(); };
+document.querySelectorAll('#npb [data-p]').forEach(b => b.onclick = () => { const [w, h] = b.dataset.p.split('x').map(Number); npv.w = w; npv.h = h; npDraw(); });
+$('npNo').onclick = () => { $('np').hidden = true; };
+$('npOk').onclick = async () => {
+  const [w, h] = clampSize(npv.w || lastSize()[0], npv.h || lastSize()[1]); if ((npv.w && npv.w !== w) || (npv.h && npv.h !== h)) toast('Size set to ' + w + '×' + h + ' (the most a phone can hold)');
+  $('np').hidden = true; await flush(); pid = 'p' + Date.now(); pname = npv.name; blank({ fps: npv.fps, ow: w, oh: h }); await saveNow(); drawProjects(); $('pj').hidden = true;
+};
+$('lop').onpointerdown = () => osnap(); $('lop').oninput = e => { layers[lay].op = +e.target.value / 100; render(); save(); };
+$('lmk').onchange = e => { osnap(); const L = layers[lay]; L.mk = e.target.value || undefined; if (L.mk === 'mask' && lay > 0 && !layers[lay - 1].mk) layers[lay - 1].mk = 'masked'; build(); render(); save(); };
+['bl', 'gl'].forEach(k => { const e = $(k === 'bl' ? 'lbl' : 'lgl'); e.onpointerdown = () => osnap(); e.oninput = () => { layers[lay][k] = +e.value || undefined; $(k === 'bl' ? 'lblN' : 'lglN').textContent = e.value; render(); save(); }; });
+$('lbm').onchange = e => { osnap(); layers[lay].bm = e.target.value; render(); save(); };
+$('bgc').oninput = e => { bgCol = e.target.value; render(); save(); };
+function sndUI() { $('sndAdd').textContent = audio ? '♫ ' + audio.name.slice(0, 18) + ' (replace)' : '♫ Import sound'; $('sndDel').hidden = !audio; }
+$('sndAdd').onclick = () => $('sndF').click(); $('sndF').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (f.size > 20e6) { alert('Sound is too big (max 20 MB).'); return; }
+  const r = new FileReader(); r.onload = () => { audio = { name: f.name, url: r.result }; aEl.src = audio.url; sndUI(); save(); decodeWave(); }; r.readAsDataURL(f);
+};
+const FXN = { shake: ['💥 Shake', 8, 30], glow: ['✨ Glow', 8, 60], flash: ['⚡ Flash', 4, 90], blur: ['🌫 Blur', 8, 12], punch: ['🔍 Punch', 6, 15] };
+function buildFx() {
+  const L = $('fxL'); if (!L) return; L.innerHTML = '';
+  fxs.slice().sort((a, b) => a.t - b.t).forEach(e => {
+    const r = el('crow'), b = document.createElement('button'), x = document.createElement('button'); b.textContent = FXN[e.k][0] + ' · frame ' + (e.t + 1) + ' · ' + e.d + ' fr · ' + e.a; x.textContent = '✕';
+    b.onclick = () => ask('Frames and power (like "8 30")', e.d + ' ' + e.a, v => { const n = v.split(/\D+/).filter(Boolean).map(Number); if (n[0]) e.d = Math.max(1, Math.min(120, n[0])); if (n[1] != null) e.a = Math.max(1, Math.min(400, n[1])); buildFx(); save(); });
+    x.onclick = () => { fxs = fxs.filter(y => y !== e); buildFx(); build(); save(); }; r.append(b, x); L.append(r);
+  });
+}
+document.querySelectorAll('[data-fx]').forEach(b => b.onclick = () => { if (playing) return; const k = b.dataset.fx; fxs.push({ k, t: ct, d: FXN[k][1], a: FXN[k][2] }); buildFx(); build(); save(); toast(FXN[k][0] + ' added at frame ' + (ct + 1) + ' (press Play to see it)'); });
+buildFx();
+function rvUI() { $('rvBox').hidden = !refV; if (refV) { $('rvStart').textContent = 'Video starts at frame ' + (refV.start + 1); $('rvSnd').textContent = refV.v.muted ? '🔇 Video sound: off' : '🔊 Video sound: on'; } build(); }
+async function soundFromFile(f) {                    // take the sound track of a video / audio file into the project's sound (so it shows in the waveform and exports)
+  if (f.size > 30e6) { toast('That file is too big to keep its sound (30 MB max)'); return false; }
+  try { const buf = await f.arrayBuffer(); ac(); await AC.decodeAudioData(buf.slice(0)); } catch (e) { return false; }
+  return await new Promise(res => { const r = new FileReader(); r.onload = () => { audio = { name: f.name, url: r.result }; aEl.src = audio.url; sndUI(); save(); decodeWave(); res(true); }; r.onerror = () => res(false); r.readAsDataURL(f); });
+}
+$('rvSnd').onclick = () => { if (refV) { refV.v.muted = !refV.v.muted; rvUI(); } };
+$('rvToProj').onclick = async () => { if (!refV) return; toast('Reading its sound…'); if (await soundFromFile(refV.file)) { refV.v.muted = true; rvUI(); toast('Video sound added to the project (shows in the waveform, exports too)'); } else toast('This video has no sound I can read'); };
+$('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
+$('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (refV) URL.revokeObjectURL(refV.v.src);
+  const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
+  v.onerror = () => { refV = null; rvUI(); toast('Could not open that video'); }; refV = { v, op: .6, start: ct, file: f }; $('rvOp').value = 60; rvUI(); toast('Reference video starts at frame ' + (ct + 1) + ' (not saved or exported)'); };
+$('rvOp').oninput = e => { if (refV) { refV.op = +e.target.value / 100; render(); } };
+$('rvStart').onclick = () => { if (refV) ask('Video starts at frame number', String(refV.start + 1), n => { refV.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rvUI(); render(); }); };
+$('rvDel').onclick = () => { if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); render(); } };
+$('sndDel').onclick = () => { wave = null; build(); audio = null; aEl.pause(); aEl.src = ''; sndUI(); save(); };
+$('pjImp').onclick = () => $('pjF').click(); $('pjF').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text()); if (!j.data || !(j.data.layers || j.data.frames)) throw 0;
+    if ((await allP()).length >= 100) return; await putP({ id: 'p' + Date.now() + Math.random().toString(36).slice(2, 5), name: (j.name || 'Imported').slice(0, 40), t: Date.now(), thumb: j.thumb || '', data: j.data }); drawProjects();
+  } catch (x) { $('pjn').textContent = 'That is not a Yinny Studios project file.'; }
+};
+$('xA').onchange = e => { xAlpha = false; };
+{ const sc = $('scrub'), th = $('sth'), fl = $('sfill'); let mx = 0, vl = 0;
+  const draw = () => { const f = mx ? vl / mx : 0, w = sc.clientWidth || 1; fl.style.width = (f * (w - 40) + 40) + 'px'; th.style.left = f * (w - 40) + 'px'; th.firstChild.textContent = vl + 1; };
+  Object.defineProperty(sc, 'max', { get: () => mx, set: v => { mx = +v; draw(); } }); Object.defineProperty(sc, 'value', { get: () => vl, set: v => { vl = +v; draw(); } });
+  const at = e => { const r = sc.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x; return Math.max(0, Math.min(mx, Math.round((x - 20) / Math.max(1, w - 40) * mx))); };
+  let on = false; const go = e => { const v = at(e); if (v !== vl) { vl = v; draw(); moveTo(v, true); } };
+  sc.onpointerdown = e => { e.preventDefault(); on = true; sc.setPointerCapture(e.pointerId); go(e); }; sc.onpointermove = e => { if (on) go(e); }; sc.onpointerup = sc.onpointercancel = () => { on = false; };
+  new ResizeObserver(draw).observe(sc); }
+// every other slider also works by touch even when the app is turned sideways
+document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAction = 'none'; let on = false;
+  const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
+    let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
+  el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
+const APPV = 18, NEWS = [
+  { v: 18, t: 'Layer effects + camera keys', i: ['Layer Blur and Layer Glow (left column): they only affect the layer you pick, never the others', '✨ Glow added to the camera effects', 'Camera: ◆ Add camera key and ✕ Delete camera key buttons', '⛔ Delete ALL keyframes of a stroke (Keyframe tool)', '+ Frame now adds a frame on the current layer only; other layers and the camera stay put'] },
+  { v: 17, t: 'Outline inside every brush', i: ['The separate Outline button is gone: Brush, Line and Shapes each have an Outline switch (colour, thickness, side) in their options', 'Outlines are drawn behind, so touching strokes mesh together', 'Switch it on, draw, switch it off: it only affects what you draw next', 'Keyframe / Objects tool: the same switch turns an outline on or off for the selected stroke'] },
+  { v: 16, t: 'Camera + video update', i: ['Camera HOLDS its place: it only changes where you move it, and stays put on every later frame', 'Camera ROTATE slider', 'Copy / Paste / Reset camera', 'Reference video plays with Play with NO frames needed, and carries its sound', '🎵 "Use its sound in the project" button; imported videos bring their sound', 'This What\'s new screen (✨ button in the left column)'] },
+  { v: 15, t: 'Keyframes + look', i: ['Keyframe tool like Flash: tap a stroke, ◆ Insert keyframe, move / turn / resize', 'Draw behind / inside now work with vector strokes', 'Outlines mesh together like Flash', 'Real airbrush; Line tool is vector by default', 'Full screen + always landscape'] },
+  { v: 14, t: 'Camera effects + sound', i: ['Camera effects: 💥 Shake, ⚡ Flash, 🌫 Blur, 🔍 Punch', 'Sound waveform on the timeline', 'Reference video (trace over it)', 'Custom canvas size and fps for new projects', 'Clips: 🎬 New clip opens a blank drawing, then ✔ Add as clip'] }];
+function showNews(all) {
+  let seen = 0; try { seen = +localStorage.getItem('yinnyVer') || 0; } catch (e) {}
+  const list = all || !seen ? NEWS : NEWS.filter(n => n.v > seen); if (!list.length) return;
+  $('nwT').textContent = '✨ Updated to version ' + APPV + ' - new things:'; const L = $('nwL'); L.innerHTML = '';
+  list.forEach(n => { const h = document.createElement('h4'); h.textContent = n.t + ' (v' + n.v + ')'; const u = document.createElement('ul'); n.i.forEach(x => { const li = document.createElement('li'); li.textContent = x; u.append(li); }); L.append(h, u); });
+  $('nw').hidden = false;
+}
+$('nwOk').onclick = () => { $('nw').hidden = true; try { localStorage.setItem('yinnyVer', APPV); } catch (e) {} };
+$('nwBtn').onclick = () => showNews(true);
+setTimeout(() => showNews(false), 900);
+{ const inApp = () => ['fullscreen', 'standalone'].some(m => matchMedia('(display-mode: ' + m + ')').matches);   // installed app: full screen, always sideways
+  const lockL = () => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (e) {} };
+  if (inApp()) { lockL(); addEventListener('pointerdown', function f() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(lockL, () => {}); removeEventListener('pointerdown', f); }, { once: true }); } }
+(async () => {                                                  // the app always opens on the projects screen
+  try {
+    const old = JSON.parse(localStorage.getItem('easyanim') || 'null');
+    if (old && old.frames && old.frames.length && !(await allP()).length) { await putP({ id: 'p' + Date.now(), name: 'My first project', t: Date.now(), thumb: '', data: old }); localStorage.removeItem('easyanim'); }
+  } catch (e) {}
+  $('pjClose').hidden = true; $('pj').hidden = false; drawProjects();
+})();
+function orient() { const h = document.documentElement; h.classList.toggle('rot', innerHeight > innerWidth); h.style.setProperty('--pw', innerWidth + 'px'); h.style.setProperty('--ph', innerHeight + 'px'); fit(); if (!playing) render(); }
+addEventListener('resize', orient); addEventListener('orientationchange', () => setTimeout(orient, 200));
+orient(); build(); render();
+</script>
+<script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script>
+</body>
+</html>
