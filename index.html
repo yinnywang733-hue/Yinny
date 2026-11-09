@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<head><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Yinny Studios</title>
@@ -134,7 +133,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <button data-t="cam"><b>🎥</b>Camera</button>
       <button id="reset"><b>⟲</b>Straighten</button>
       <button id="imgBtn"><b>🖼</b>Image</button><button id="mediaBtn"><b>🎞</b>GIF/Video</button>
-      <button data-t="clip"><b>🎞</b>Clips</button>
+      <button data-t="clip"><b>🎞</b>Symbol</button>
     </div>
   </div>
 
@@ -143,8 +142,8 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Palette (hold to replace)</label><div id="pal"></div><button id="palAdd">＋ Add this colour</button></div>
     <div class="sec"><label>Brush size <b id="sizeN">6</b></label><input type="range" id="size" min="1" max="300" value="6"><div id="sizePre"></div><button id="sizeAdd">＋ Save this size</button></div>
     <div class="box sec" id="olBox" hidden><button id="olTog">Outline: off</button><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
-    <div class="box sec" id="clipBox" hidden><label>Movieclip = everything on this layer, packed into a loop you can place, move, resize and tween</label><button id="cMake">＋ Make clip from this layer</button><button id="cNew">🎬 New clip (blank drawing)</button><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
-<label>📚 Library: shared by all your projects</label><div id="lList"></div></div>
+    <div class="box sec" id="clipBox" hidden><label>🎞 Symbols: animate something once (explosion, fire, a walk…), then reuse it anywhere. It plays by itself like a movieclip.</label><button id="cNew">＋ Create new symbol</button><label>Your symbols · tap one to place it</label><div id="lList"></div><button id="cMake" hidden>＋ Make clip from this layer</button><label>Used in this project (🔊 = add sounds)</label><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
+</div>
     <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button></div><button id="shF">Fill: off</button></div>
     <div class="box sec" id="txtBox" hidden><label>Font</label><select id="font"><option value="'Comic Neue', 'Comic Sans MS', cursive">Comic (bold)</option><option value="'Bangers', Impact, fantasy">Bangers</option><option value="'Pacifico', cursive">Pacifico</option><option value="'Permanent Marker', cursive">Marker</option><option value="'Lobster', Georgia, serif">Lobster</option></select></div>
     <div class="box sec" id="selBox" hidden><label>Selection</label>
@@ -156,18 +155,18 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="bsBox" hidden><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
     <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
-    <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
+    <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
     <div class="box sec" id="objBox" hidden><label>Only vector strokes work here: double-tap Brush to make one, tap it, then go to another frame and move/bend it = keyframe + tween</label>
       <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
     </div>
-    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div></div>
+    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
     <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
-    <div class="sec"><label>Layer opacity / blend</label><input type="range" id="lop" min="0" max="100" value="100"><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select></div>
+    <div class="sec"><label>Layer opacity / blend</label><input type="range" id="lop" min="0" max="100" value="100"><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"></div>
     <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
     <div class="sec"><label>Grid size</label><select id="gridN"><option value="40">Small (40)</option><option value="80" selected>Medium (80)</option><option value="160">Large (160)</option><option value="240">Huge (240)</option></select></div>
     <div class="sec"><label>Canvas background</label><input type="color" id="bgc" value="#ffffff"></div>
     <div class="sec"><label>Sound</label><button id="sndAdd">♫ Import sound</button><button id="sndDel" hidden>✕ Remove sound</button><input type="file" id="sndF" accept="audio/*" hidden></div>
-    <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div id="fxL"></div></div>
+    <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div class="trow"><button data-fx="glow">✨ Glow</button></div><div id="fxL"></div></div>
     <div class="sec"><button id="nwBtn">✨ What's new</button></div>
     <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
   </div>
@@ -186,7 +185,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
 <div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
-<div id="cmBar" hidden><b>🎬 Making a clip</b><button id="cmDone">✔ Add as clip</button><button id="cmNo">✕ Cancel</button></div>
+<div id="cmBar" hidden><b>🎞 Making a symbol</b><button id="cmDone">💾 Save symbol</button><button id="cmNo">✕ Cancel</button></div>
 <div id="nw" hidden><div id="nwb"><b id="nwT"></b><div id="nwL"></div><button id="nwOk" class="on">Got it</button></div></div>
 <div id="dlg" hidden><div id="dbox">
   <div id="dlabel"></div>
@@ -233,6 +232,7 @@ function ensureCell(k, t) {                                      // drawing on a
   c = { s: t, d: 1, cv: null, objs: [] }; layers[k].cells.push(c); layers[k].cells.sort((a, b) => a.s - b.s); fixLen(); return c;
 }
 const fc = () => cvOf(ensureCell(lay, ct)).getContext('2d');      // the layer you are drawing on
+let lfTmp = null; const lfT = () => (!lfTmp || lfTmp.width !== W || lfTmp.height !== H) ? (lfTmp = mk()) : lfTmp;
 let dcTmp = null; const dcT = () => (!dcTmp || dcTmp.width !== W || dcTmp.height !== H) ? (dcTmp = mk()) : dcTmp;
 function drawList(g, list, t) {                    // strokes with an outline that follow each other share ONE outline: all outlines first, then all fills, so they mesh like in Flash
   for (let i = 0; i < list.length;) {
@@ -251,7 +251,14 @@ const drawCell = (ctx, c, t) => {                  // behind-strokes, then the b
 const mg = mk(), mgx = mg.getContext('2d'), mm = mk(), mmx = mm.getContext('2d');
 function flat(ctx, t) {                            // every visible layer at time t, bottom to top; a Mask layer cuts the "masked" layers under it (Flash style)
   const n = layers.length, used = new Uint8Array(n);
-  const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (c) { c2.save(); c2.globalAlpha = L.op == null ? 1 : L.op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); } };
+  const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
+    if (L.bl > 0 || L.gl > 0) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
+      const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
+      c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
+      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); c2.filter = 'blur(' + L.gl * 1.5 + 'px) brightness(1.4)'; c2.drawImage(T, 0, 0); c2.filter = 'none'; }
+      c2.restore(); return;
+    }
+    c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
   for (let k = 0; k < n; k++) {
     if (used[k]) continue; const L = layers[k];
     if (L.mk === 'masked') {
@@ -273,10 +280,10 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -382,15 +389,16 @@ function onionDraw(c, col, a) {                    // the coloured ghost of a ne
 let fxs = [];                                       // camera effects: { k: 'shake'|'flash'|'blur'|'punch', t: first frame, d: frames, a: power } (seen when you Play or export)
 const rnd = (t, k) => { const x = Math.sin(t * 127.1 + k * 311.7) * 43758.5453; return (x - Math.floor(x)) * 2 - 1; };
 function camFx(t) {
-  const c = cam(t); let x = c.x, y = c.y, z = c.z, fl = 0, bl = 0; const r = c.r || 0;
+  const c = cam(t); let x = c.x, y = c.y, z = c.z, fl = 0, bl = 0, gl = 0; const r = c.r || 0;
   fxs.forEach(e => { if (t < e.t || t >= e.t + e.d) return; const k = 1 - (t - e.t) / e.d;
-    if (e.k === 'shake') { x += rnd(t, 1) * e.a * k; y += rnd(t, 2) * e.a * k; } else if (e.k === 'flash') fl = Math.max(fl, e.a / 100 * k); else if (e.k === 'blur') bl = Math.max(bl, e.a * k); else if (e.k === 'punch') z *= 1 + e.a / 100 * k; });
-  return { x, y, z, r, fl, bl };
+    if (e.k === 'shake') { x += rnd(t, 1) * e.a * k; y += rnd(t, 2) * e.a * k; } else if (e.k === 'flash') fl = Math.max(fl, e.a / 100 * k); else if (e.k === 'blur') bl = Math.max(bl, e.a * k); else if (e.k === 'glow') gl = Math.max(gl, e.a / 100 * k); else if (e.k === 'punch') z *= 1 + e.a / 100 * k; });
+  return { x, y, z, r, fl, bl, gl };
 }
 function drawCam(g, t, w, h) {                       // what the camera sees at frame t, with its effects
   const c = camFx(t), k = w * c.z / OW; if (c.bl > .5) g.filter = 'blur(' + (c.bl * w / OW).toFixed(1) + 'px)';
   if (c.r) { g.fillStyle = bgCol; g.fillRect(0, 0, w, h); }
   g.save(); g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); g.filter = 'none';
+  if (c.gl > .01) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.min(1, c.gl); g.filter = 'blur(' + (16 * w / OW).toFixed(1) + 'px) brightness(1.3)'; g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); }
   if (c.fl > .01) { g.save(); g.globalAlpha = Math.min(1, c.fl); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.restore(); }
 }
 let wave = null;                                    // sound picture: peak per 1/100 s
@@ -722,6 +730,7 @@ $('kAdd').onclick = () => { const t = keyTargets(); if (!t.length) return; commi
 $('kEz').oninput = e => { $('kEzN').textContent = e.target.value; if (!selObj) return; if (!e.target.dataset.d) { e.target.dataset.d = 1; osnap(); } selObj.ez = +e.target.value || undefined; render(); save(); };
 $('kEz').onchange = e => { delete e.target.dataset.d; };
 $('kDel').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1 && o.kf.some(k => k.t === ct)); if (!t.length) return; osnap(); t.forEach(o => o.kf.splice(o.kf.findIndex(k => k.t === ct), 1)); build(); render(); save(); };
+$('kDelAll').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1); if (!t.length) return toast('No extra keyframes to delete'); commit(); osnap(); t.forEach(o => { o.kf = [o.kf[0]]; }); build(); render(); save(); toast('All its keyframes deleted'); };
 $('oMove').onclick = () => { bendMode = false; objUI(); render(); };
 $('oBend').onclick = () => { bendMode = true; objUI(); render(); };
 $('oTw').onclick = () => { if (!selObj) return; osnap(); selObj.tw = { all: 'motion', motion: 'shape' }[selObj.tw || 'all'] || 'all'; objUI(); render(); save(); };
@@ -762,7 +771,7 @@ function moveTo(t, soft) {                         // move the playhead (everyth
   if (playing) return; commit(); $('cf').hidden = true; ct = Math.max(0, Math.min(cols() - 1, t)); syncCam(); hl(); soft ? renderSoon() : render();
 }
 function build() {
-  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lbm').value = layers[lay].bm || 'source-over'; $('lmk').value = layers[lay].mk || ''; }
+  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
   tlbox.innerHTML = ''; const n = cols();
   const rr = el('lr rr'); rr.append(el('ln corner'));
   for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
@@ -851,18 +860,16 @@ function resizeCell(L, c, nd) {                    // hold a drawing for more / 
   nd = Math.max(1, Math.min(240, nd)); const dl = nd - c.d; if (!dl) return;
   const i = L.cells.indexOf(c); c.d = nd; for (let j = i + 1; j < L.cells.length; j++) shiftCell(L.cells[j], dl); fixLen();
 }
-$('add').onclick = () => {                         // a brand-new blank frame after this drawing, on every layer (old drawings only show as onion skin)
-  if (playing) return; commit(); osnap();
+$('add').onclick = () => {                         // a brand-new blank frame after this drawing, on THIS layer only (other layers and the camera stay as they are)
+  if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
   const c0 = cellAt(lay, ct), n = c0 ? c0.s + c0.d : ct + 1;
-  layers.forEach(L => {
-    for (let i = 0; i < L.cells.length; i++) {
-      const c = L.cells[i];
-      if (c.s >= n) shiftCell(c, 1);
-      else if (c.s + c.d > n) { const r = splitCell(c, n, false); shiftCell(r, 1); L.cells.splice(i + 1, 0, r); i++; }
-    }
-  });
-  layers[lay].cells.push({ s: n, d: 1, cv: null, objs: [] }); layers[lay].cells.sort((a, b) => a.s - b.s);
-  cam(n - 1); cams.splice(n, 0, { ...cams[n - 1], k: 0 }); fixLen(); ct = n; selObj = null; syncCam(); build(); render(); save();
+  for (let i = 0; i < L.cells.length; i++) {
+    const c = L.cells[i];
+    if (c.s >= n) shiftCell(c, 1);
+    else if (c.s + c.d > n) { const r = splitCell(c, n, false); shiftCell(r, 1); L.cells.splice(i + 1, 0, r); i++; }
+  }
+  L.cells.push({ s: n, d: 1, cv: null, objs: [] }); L.cells.sort((a, b) => a.s - b.s);
+  fixLen(); ct = n; selObj = null; syncCam(); build(); render(); save();
 };
 $('hold').onclick = () => {                         // frame extension: the drawing is simply shown longer
   if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
@@ -1105,11 +1112,11 @@ const libPut = async rec => { const d = await libOpen(); return new Promise((res
 const libDel = async id => { const d = await libOpen(); return new Promise(res => { const t = d.transaction('clips', 'readwrite'); t.objectStore('clips').delete(id); t.oncomplete = res; }); };
 async function buildLib() {
   const box = $('lList'); let all = []; try { all = await libAll(); } catch (e) {}
-  box.innerHTML = ''; if (!all.length) { box.textContent = 'Empty. Tap 📚 next to a clip to keep it here.'; box.style.cssText = 'font-size:11px;color:#aaa'; return; } box.style.cssText = '';
+  box.innerHTML = ''; if (!all.length) { box.textContent = 'No symbols yet. Tap “Create new symbol”.'; box.style.cssText = 'font-size:11px;color:#aaa'; return; } box.style.cssText = '';
   all.forEach(rec => {
     const r = el('crow'), ub = document.createElement('button'), db = document.createElement('button');
-    ub.textContent = '＋ Use: ' + rec.name + ' (' + rec.n + ' fr)'; db.textContent = '✕';
-    ub.onclick = () => { osnap(); const cl = adaptClip({ sfx: JSON.parse(JSON.stringify(rec.sfx || [])), id: 'c' + Date.now(), name: rec.name, x: rec.x, y: rec.y, w: rec.w, h: rec.h, n: rec.n, m: rec.m, u: rec.u.map(src => { const cv = document.createElement('canvas'); cv.width = rec.w; cv.height = rec.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }, rec.fps, fps); clips.push(cl); buildClips(); placeClip(cl); save(); };
+    ub.textContent = '▶ ' + rec.name + ' (' + rec.n + ' fr)'; db.textContent = '✕';
+    ub.onclick = () => { const ex = clips.find(c => c.lib === rec.id); if (ex) { placeClip(ex); return; } osnap(); const cl = adaptClip({ lib: rec.id, sfx: JSON.parse(JSON.stringify(rec.sfx || [])), id: 'c' + Date.now(), name: rec.name, x: rec.x, y: rec.y, w: rec.w, h: rec.h, n: rec.n, m: rec.m, u: rec.u.map(src => { const cv = document.createElement('canvas'); cv.width = rec.w; cv.height = rec.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }, rec.fps, fps); clips.push(cl); buildClips(); placeClip(cl); save(); };
     db.onclick = async () => { await libDel(rec.id); buildLib(); };
     r.append(ub, db); box.append(r);
   });
@@ -1148,22 +1155,23 @@ const clipRec = (cl, f) => ({ sfx: cl.sfx || [], id: 'l' + Date.now(), name: cl.
 let clipRet = null;
 $('cNew').onclick = async () => {
   if (playing || clipRet) return; commit(); await flush();
-  clipRet = { pid, pname, fps, ow: OW, oh: OH }; blank({ fps, ow: OW, oh: OH }); $('cmBar').hidden = false; setTool('brush'); toast('New blank drawing: animate your clip, then tap ✔ Add as clip');
+  clipRet = { pid, pname, fps, ow: OW, oh: OH }; blank({ fps, ow: OW, oh: OH }); $('cmBar').hidden = false; setTool('brush'); toast('Brand new canvas. Animate your symbol, then tap 💾 Save symbol');
 };
 async function leaveClip() {
   const r = clipRet; $('cmBar').hidden = true; if (r.pid) { const q = await getP(r.pid); pid = r.pid; pname = r.pname; clipRet = null; loadData(q.data); } else { clipRet = null; pid = null; blank({ fps: r.fps, ow: r.ow, oh: r.oh }); }
   return r;
 }
 $('cmNo').onclick = () => { if (!clipRet) return; if (playing) stop(); leaveClip().then(() => setTool('clip')); };
-$('cmDone').onclick = () => {
+$('cmDone').onclick = async () => {
   if (!clipRet) return; if (playing) stop(); commit();
   if (!layers.some(L => L.cells.some(c => (c.cv && c.cv._has) || c.objs.length))) return toast('Draw something first');
-  ask('Clip name', 'My clip', n => ask('Clip frames per second (1-24)', String(fps), async f => {
-    const cf = Math.max(1, Math.min(24, +f.replace(/\D/g, '') || fps)), cl = buildClipObj(0, Math.min(len, 240), t => layers.map((L, k) => { const c = cellAt(k, t); return !c ? '-' : c.objs.length ? 't' + t + 'k' + k : cellId(c); }).join('|'), (g, t) => flat(g, t));
+  let all = []; try { all = await libAll(); } catch (e) {}
+  ask('Name your symbol', 'Symbol ' + (all.length + 1), async n => {
+    const cl = buildClipObj(0, Math.min(len, 240), t => layers.map((L, k) => { const c = cellAt(k, t); return !c ? '-' : c.objs.length ? 't' + t + 'k' + k : cellId(c); }).join('|'), (g, t) => flat(g, t));
     if (!cl) return toast('Nothing to pack');
-    cl.name = n.slice(0, 30); let saved = true; try { await libPut(clipRec(cl, cf)); } catch (e) { saved = false; }
-    const r = await leaveClip(); adaptClip(cl, cf, fps); clips.push(cl); setTool('clip'); buildClips(); save(); toast(saved ? 'Saved "' + cl.name + '" (library + this project)' : 'Added "' + cl.name + '" to this project');
-  }));
+    cl.name = n.slice(0, 30); let saved = true; try { await libPut(clipRec(cl, fps)); } catch (e) { saved = false; }
+    await leaveClip(); setTool('clip'); buildClips(); toast(saved ? '"' + cl.name + '" saved. Tap it in the list to place it' : 'Could not save the symbol (storage full?)');
+  });
 };
 function placeClip(cl) {
   const L = layers[lay]; if (playing || L.lock || !L.vis) return; commit(); osnap();
@@ -1224,6 +1232,8 @@ $('onion').onclick = () => { onion = !onion; $('onion').classList.toggle('on', o
 function syncCam() { const c = cam(ct); $('camz').value = Math.round(c.z * 100); $('camr').value = Math.round((c.r || 0) * 180 / Math.PI); $('camrN').textContent = $('camr').value + '°'; }
 $('camz').oninput = e => { camKey(ct).z = e.target.value / 100; render(); save(); };   // from this frame on, until you set it again
 $('camr').oninput = e => { camKey(ct).r = e.target.value * Math.PI / 180; $('camrN').textContent = e.target.value + '°'; render(); save(); };
+$('camAddK').onclick = () => { osnap(); const c = cam(ct); if (cams[ct] && cams[ct].k) return toast('This frame already has a camera key'); camKey(ct); build(); render(); save(); toast('Camera key added on frame ' + (ct + 1)); };
+$('camDelK').onclick = () => { if (ct === 0) return toast('The first camera key stays. Use Reset to change it'); cam(ct); if (!cams[ct] || !cams[ct].k) return toast('No camera key on this frame'); osnap(); cams[ct].k = 0; syncCam(); build(); render(); save(); toast('Camera key deleted. The camera now holds the one before it'); };
 let camClip = null;
 $('camCopy').onclick = () => { const c = cam(ct); camClip = { x: c.x, y: c.y, z: c.z, r: c.r || 0 }; toast('Camera copied (frame ' + (ct + 1) + ')'); };
 $('camPaste').onclick = () => { if (!camClip) return toast('Copy a camera first'); osnap(); Object.assign(camKey(ct), camClip); syncCam(); render(); save(); toast('Camera pasted on frame ' + (ct + 1)); };
@@ -1488,7 +1498,7 @@ function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAn
 let pcache = null;                                 // play = every frame drawn ONCE up front, then just shown: smooth even on a slow phone
 async function prepare() {
   const n = len, f = Math.min(1, Math.sqrt(140e6 / (n * 4 * OW * OH))), w = Math.round(OW * f), h = Math.round(OH * f), map = new Map(), arr = [];
-  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl)(camFx(t));   // frames that look identical share one picture
+  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl + ',' + c.gl)(camFx(t));   // frames that look identical share one picture
   let t0 = performance.now();
   for (let t = 0; t < n; t++) {
     const k = keyOf(t); let cv = map.get(k);
@@ -1559,7 +1569,7 @@ async function exportGif() {
   }
   playing = false; setPlay(false); ct = back; render(); hl();
   xStatus('Packing the GIF…'); await tick();
-  download(new Blob([gifEncode(fr, gw, gh, Math.max(2, Math.round(100 / fps)))], { type: 'image/gif' }), 'animation.gif');
+  download(new Blob([gifEncode(fr, gw, gh, Math.max(2, Math.round(100 / fps)))], { type: 'image/gif' }), pfile('.gif'));
 }
 const crcT = (() => { const t = []; for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 const crc32 = d => { let c = -1; for (let i = 0; i < d.length; i++) c = crcT[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ -1) >>> 0; };
@@ -1583,7 +1593,7 @@ async function exportPng() {
     const b = await new Promise(r => o.toBlob(r, 'image/png')); files.push({ n: 'frame_' + String(t + 1).padStart(3, '0') + '.png', d: new Uint8Array(await b.arrayBuffer()) });
     xStatus('Frame ' + (t + 1) + ' / ' + len); await tick();
   }
-  download(zipStore(files), 'frames.zip');
+  download(zipStore(files), pfile(' frames.zip'));
 }
 function exportVideo(mp4) {
   return new Promise(res => {
@@ -1594,7 +1604,7 @@ function exportVideo(mp4) {
     const stream = view.captureStream(fps); let rd = null;
     try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
     const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-    rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), 'animation.' + (mp4 ? 'mp4' : 'webm')); res(true); };
+    rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
     let i = 0; rec.start(); if (audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); }
     const iv = setInterval(() => {
       if (i >= len) { clearInterval(iv); rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }
@@ -1618,10 +1628,11 @@ $('optToggle').onclick = () => $('app').classList.toggle('noopt');    // show / 
 // ---------- autosave ----------
 // ---------- projects: saved in the browser's IndexedDB, up to 100 ----------
 let pid = null, pname = 'Untitled', pdb = null, st;
+const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ext;
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1648,7 +1659,7 @@ function loadData(d) {
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
-  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
     const src = c.png; delete c.png; if (!src) return; pend++;
@@ -1657,7 +1668,7 @@ function loadData(d) {
   }));
   tiles.clear(); boardMode = false;
   (d.board || []).forEach(q => { const [tx, ty] = q.k.split(',').map(Number), t = getTile(tx, ty, true), im = new Image(); t._dirty = false; t._url = q.png; im.onload = () => { t.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = q.png; });
-  clips = (d.clips || []).map(c => ({ sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(src => { const cv = document.createElement('canvas'); cv.width = c.w; cv.height = c.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }));
+  clips = (d.clips || []).map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(src => { const cv = document.createElement('canvas'); cv.width = c.w; cv.height = c.h; cv._url = src; const im = new Image(); im.onload = () => { cv.getContext('2d').drawImage(im, 0, 0); render(); }; im.src = src; return cv; }) }));
   fixLen(); build(); render();
 }
 const lastSize = () => { let a = [1280, 720]; try { a = (localStorage.getItem('easysize') || '').split('x').map(Number); } catch (e) {} return a[0] && a[1] ? a : [1280, 720]; };
@@ -1687,7 +1698,8 @@ $('projBtn').onclick = async () => { if (clipRet) return toast('Finish or cancel
 $('pjClose').onclick = () => { $('pj').hidden = true; };
 let npv = {};
 function npDraw() { const [lw, lh] = lastSize(), lf = localStorage.getItem('easyfps') || 12; $('npName').textContent = 'Name: ' + npv.name; $('npW').textContent = 'Width: ' + (npv.w || lw + ' (last)'); $('npH').textContent = 'Height: ' + (npv.h || lh + ' (last)'); $('npF').textContent = 'FPS: ' + (npv.fps || 'auto (' + lf + ', same as last)'); }
-$('pjNew').onclick = async () => { if ((await allP()).length >= 100) return; npv = { name: 'Untitled' }; npDraw(); $('np').hidden = false; };
+const freeName = (base, taken) => { const t = new Set(taken.map(x => x.toLowerCase())); if (!t.has(base.toLowerCase())) return base; let i = 2; while (t.has((base + ' ' + i).toLowerCase())) i++; return base + ' ' + i; };
+$('pjNew').onclick = async () => { const ps = await allP(); if (ps.length >= 100) return; let i = 1; const nm = ps.map(x => x.name); while (nm.some(x => x.toLowerCase() === 'untitled ' + i)) i++; npv = { name: 'Untitled ' + i }; npDraw(); $('np').hidden = false; };
 $('npName').onclick = () => ask('Project name', npv.name, n => { npv.name = n.slice(0, 40); npDraw(); });
 $('npW').onclick = () => ask('Width in pixels (100-1920)', String(npv.w || lastSize()[0]), n => { npv.w = +n.replace(/\D/g, '') || null; npDraw(); });
 $('npH').onclick = () => ask('Height in pixels (100-1920)', String(npv.h || lastSize()[1]), n => { npv.h = +n.replace(/\D/g, '') || null; npDraw(); });
@@ -1697,10 +1709,11 @@ document.querySelectorAll('#npb [data-p]').forEach(b => b.onclick = () => { cons
 $('npNo').onclick = () => { $('np').hidden = true; };
 $('npOk').onclick = async () => {
   const [w, h] = clampSize(npv.w || lastSize()[0], npv.h || lastSize()[1]); if ((npv.w && npv.w !== w) || (npv.h && npv.h !== h)) toast('Size set to ' + w + '×' + h + ' (the most a phone can hold)');
-  $('np').hidden = true; await flush(); pid = 'p' + Date.now(); pname = npv.name; blank({ fps: npv.fps, ow: w, oh: h }); await saveNow(); drawProjects(); $('pj').hidden = true;
+  $('np').hidden = true; await flush(); pid = 'p' + Date.now(); pname = freeName(npv.name, (await allP()).map(x => x.name)); blank({ fps: npv.fps, ow: w, oh: h }); await saveNow(); drawProjects(); $('pj').hidden = true;
 };
 $('lop').onpointerdown = () => osnap(); $('lop').oninput = e => { layers[lay].op = +e.target.value / 100; render(); save(); };
 $('lmk').onchange = e => { osnap(); const L = layers[lay]; L.mk = e.target.value || undefined; if (L.mk === 'mask' && lay > 0 && !layers[lay - 1].mk) layers[lay - 1].mk = 'masked'; build(); render(); save(); };
+['bl', 'gl'].forEach(k => { const e = $(k === 'bl' ? 'lbl' : 'lgl'); e.onpointerdown = () => osnap(); e.oninput = () => { layers[lay][k] = +e.value || undefined; $(k === 'bl' ? 'lblN' : 'lglN').textContent = e.value; render(); save(); }; });
 $('lbm').onchange = e => { osnap(); layers[lay].bm = e.target.value; render(); save(); };
 $('bgc').oninput = e => { bgCol = e.target.value; render(); save(); };
 function sndUI() { $('sndAdd').textContent = audio ? '♫ ' + audio.name.slice(0, 18) + ' (replace)' : '♫ Import sound'; $('sndDel').hidden = !audio; }
@@ -1708,7 +1721,7 @@ $('sndAdd').onclick = () => $('sndF').click(); $('sndF').onchange = e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (f.size > 20e6) { alert('Sound is too big (max 20 MB).'); return; }
   const r = new FileReader(); r.onload = () => { audio = { name: f.name, url: r.result }; aEl.src = audio.url; sndUI(); save(); decodeWave(); }; r.readAsDataURL(f);
 };
-const FXN = { shake: ['💥 Shake', 8, 30], flash: ['⚡ Flash', 4, 90], blur: ['🌫 Blur', 8, 12], punch: ['🔍 Punch', 6, 15] };
+const FXN = { shake: ['💥 Shake', 8, 30], glow: ['✨ Glow', 8, 60], flash: ['⚡ Flash', 4, 90], blur: ['🌫 Blur', 8, 12], punch: ['🔍 Punch', 6, 15] };
 function buildFx() {
   const L = $('fxL'); if (!L) return; L.innerHTML = '';
   fxs.slice().sort((a, b) => a.t - b.t).forEach(e => {
@@ -1755,7 +1768,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 17, NEWS = [
+const APPV = 19, NEWS = [
+  { v: 19, t: 'Symbols (movieclips)', i: ['Symbol button: ＋ Create new symbol opens a brand-new canvas, animate it, tap 💾 Save symbol and give it a name', 'Your saved symbols are listed in the Symbol panel for every project: tap one to place it and it animates by itself', 'Saved GIFs, videos, PNG zips and project files are named after your project, so nothing gets replaced', 'New projects are named Untitled 1, Untitled 2, ...'] },
+  { v: 18, t: 'Layer effects + camera keys', i: ['Layer Blur and Layer Glow (left column): they only affect the layer you pick, never the others', '✨ Glow added to the camera effects', 'Camera: ◆ Add camera key and ✕ Delete camera key buttons', '⛔ Delete ALL keyframes of a stroke (Keyframe tool)', '+ Frame now adds a frame on the current layer only; other layers and the camera stay put'] },
   { v: 17, t: 'Outline inside every brush', i: ['The separate Outline button is gone: Brush, Line and Shapes each have an Outline switch (colour, thickness, side) in their options', 'Outlines are drawn behind, so touching strokes mesh together', 'Switch it on, draw, switch it off: it only affects what you draw next', 'Keyframe / Objects tool: the same switch turns an outline on or off for the selected stroke'] },
   { v: 16, t: 'Camera + video update', i: ['Camera HOLDS its place: it only changes where you move it, and stays put on every later frame', 'Camera ROTATE slider', 'Copy / Paste / Reset camera', 'Reference video plays with Play with NO frames needed, and carries its sound', '🎵 "Use its sound in the project" button; imported videos bring their sound', 'This What\'s new screen (✨ button in the left column)'] },
   { v: 15, t: 'Keyframes + look', i: ['Keyframe tool like Flash: tap a stroke, ◆ Insert keyframe, move / turn / resize', 'Draw behind / inside now work with vector strokes', 'Outlines mesh together like Flash', 'Real airbrush; Line tool is vector by default', 'Full screen + always landscape'] },
@@ -1784,6 +1799,5 @@ function orient() { const h = document.documentElement; h.classList.toggle('rot'
 addEventListener('resize', orient); addEventListener('orientationchange', () => setTimeout(orient, 200));
 orient(); build(); render();
 </script>
-<script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script>
-</body>
+<script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script></body>
 </html>
