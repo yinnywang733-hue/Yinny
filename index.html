@@ -150,7 +150,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <div class="two"><button id="copy">Copy</button><button id="paste">Paste</button><button id="del">Delete</button><button id="fH">Flip ↔</button><button id="fV">Flip ↕</button><button id="done">Done</button></div>
     </div>
     <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
-    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div id="vsN"></div></div>
+    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
     <div class="box sec" id="bsBox" hidden><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
@@ -572,6 +572,8 @@ function hitSeg(o, p, tolMul) {
   for (let j = 0; j < Math.max(1, q.length - 1); j++) { const r = segD(p, q[j], q[Math.min(j + 1, q.length - 1)]); if (r.d <= tol) return { j, u: r.u }; }
   return null;
 }
+const arcU = q => { const d = [0]; for (let i = 1; i < q.length; i++) d.push(d[i - 1] + Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y)); const L = d[d.length - 1] || 1; return d.map(x => x / L); };
+const arcAt = (q, t) => { const u = arcU(q); for (let i = 1; i < q.length; i++) if (u[i] >= t) { const f = (t - u[i - 1]) / ((u[i] - u[i - 1]) || 1); return { x: q[i - 1].x + (q[i].x - q[i - 1].x) * f, y: q[i - 1].y + (q[i].y - q[i - 1].y) * f }; } return q[q.length - 1]; };
 function objGeo() {
   const o = selObj, e = evalObj(o, ct), q = e.pts.map(p => toW(o, e, p)), hr = pxw(16), m = hr * 1.5;
   const x0 = Math.min(...q.map(p => p.x)) - m, x1 = Math.max(...q.map(p => p.x)) + m, y0 = Math.min(...q.map(p => p.y)) - m, y1 = Math.max(...q.map(p => p.y)) + m;
@@ -597,7 +599,10 @@ function objGizmo(plain) {
   if (warpMode && !selObj.clip) { const b = wpCtrl(g); ox.strokeStyle = '#ff8a2f'; ox.lineWidth = pxw(2); ox.beginPath();
     for (let j = 0; j < b.n; j++) for (let i = 0; i < b.n; i++) { const a = b.c[j * b.n + i]; if (i < b.n - 1) { const c2 = b.c[j * b.n + i + 1]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } if (j < b.n - 1) { const c2 = b.c[(j + 1) * b.n + i]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } }
     ox.stroke(); b.c.forEach(a => { ox.beginPath(); ox.arc(a.x, a.y, g.hr * .8, 0, 7); ox.fillStyle = '#ff8a2f'; ox.fill(); ox.strokeStyle = '#fff'; ox.stroke(); }); }
-  else if (bendMode && !selObj.clip) g.q.forEach(p => { ox.beginPath(); ox.arc(p.x, p.y, g.hr * .7, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.stroke(); });
+  else if (bendMode && !selObj.clip) { const q = g.q, a = q[0], z = q[q.length - 1], m = arcAt(q, .5);
+    ox.save(); ox.strokeStyle = '#ff8a2f'; ox.lineWidth = pxw(2); dash(true); ox.beginPath(); ox.moveTo(a.x, a.y); ox.lineTo(z.x, z.y); ox.stroke(); dash(false);
+    [a, z].forEach(p => { ox.beginPath(); ox.arc(p.x, p.y, g.hr * .8, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.strokeStyle = '#4f7cff'; ox.stroke(); });
+    ox.beginPath(); ox.arc(m.x, m.y, g.hr * .9, 0, 7); ox.fillStyle = '#ff8a2f'; ox.fill(); ox.strokeStyle = '#fff'; ox.stroke(); ox.restore(); }
   else {
     ox.beginPath(); ox.moveTo(g.ro.x, g.ro.y); ox.lineTo(g.ro.x, g.y0); ox.stroke();
     ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
@@ -612,11 +617,9 @@ function objDown(p) {
       const b = wpCtrl(g), hi = b.c.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.8);
       if (hi >= 0) { oMode = 'warp'; wp = { b, hi, c: b.c.map(q => ({ x: q.x, y: q.y })), w0: g.q.map(q => ({ x: q.x, y: q.y })) }; return; }
     } else if (bendMode && !selObj.clip) {
-      let bi = g.q.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.6);
-      if (bi < 0) { const h = hitSeg(selObj, p, .8); if (h) {                       // tap on the line = add a bend point there
-        osnap(); selObj.kf.forEach(k => { const a = k.pts[h.j], b = k.pts[Math.min(h.j + 1, k.pts.length - 1)]; k.pts.splice(h.j + 1, 0, { x: a.x + (b.x - a.x) * h.u, y: a.y + (b.y - a.y) * h.u }); });
-        bi = h.j + 1; oMoved = true; oBase = { k: ensureKf(selObj, ct) }; } }
-      if (bi >= 0) { oMode = 'bend'; bendI = bi; return; }
+      const q0 = g.q, mid = arcAt(q0, .5), hit = Math.hypot(mid.x - p.x, mid.y - p.y) < g.hr * 2 ? 'm' : Math.hypot(q0[0].x - p.x, q0[0].y - p.y) < g.hr * 1.8 ? 'a' : Math.hypot(q0[q0.length - 1].x - p.x, q0[q0.length - 1].y - p.y) < g.hr * 1.8 ? 'z' : '';
+      if (hit) { osnap(); if (selObj.kf[0].pts.length < 16) selObj.kf.forEach(k => { k.pts = resample(k.pts, 24); });   // enough points to bend smoothly
+        const g2 = objGeo(); oMode = 'bend'; bendI = hit; oMoved = true; oBase = { k: ensureKf(selObj, ct), q: g2.q.map(a => ({ x: a.x, y: a.y })), u: arcU(g2.q), p0: p }; return; }
     } else {
       if (Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { oMode = 'scale'; oBase = { d: Math.hypot(p.x - g.pv.x, p.y - g.pv.y) || 1, s: g.e.s }; return; }
       if (Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2) { oMode = 'rot'; oBase = { a: Math.atan2(p.y - g.pv.y, p.x - g.pv.x), r: g.e.r }; return; }
@@ -635,11 +638,11 @@ function objMove(p) {
   if (oMode === 'move') { k.x = oBase.x + p.x - oBase.p.x; k.y = oBase.y + p.y - oBase.p.y; }
   else if (oMode === 'scale') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.s = Math.min(20, Math.max(.05, oBase.s * Math.hypot(p.x - pv.x, p.y - pv.y) / oBase.d)); }
   else if (oMode === 'rot') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.r = oBase.r + Math.atan2(p.y - pv.y, p.x - pv.x) - oBase.a; }
-  else if (oMode === 'bend') { k.pts[bendI] = toL(selObj, k, p); }
+  else if (oMode === 'bend') { const dx = p.x - oBase.p0.x, dy = p.y - oBase.p0.y; k.pts = oBase.q.map((a, i) => { const u = oBase.u[i], w = bendI === 'm' ? Math.pow(Math.sin(Math.PI * u), 2) : bendI === 'a' ? Math.pow(1 - u, 2) : u * u; return toL(selObj, k, { x: a.x + dx * w, y: a.y + dy * w }); }); }
   else if (oMode === 'warp') { wp.c[wp.hi] = { x: p.x, y: p.y }; if (selObj.tw === 'motion') selObj.tw = 'all'; k.pts = wp.w0.map(q => toL(selObj, k, wpMap(wp.b, wp.c, q))); }
 }
 function objUp() { if (oMoved) { build(); save(); } oMode = ''; render(); }
-let vsel = [], vst = null, vpoly = [];                             // V-Select: many whole strokes at once, moved / resized / turned as a group
+let vsel = [], vst = null, vpoly = [], vsWarp = '', vclip = null;                             // V-Select: many whole strokes at once, moved / resized / turned as a group
 const vsInside = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) c = !c; } return c; };
 const vsWorld = it => { const e = evalObj(it.o, ct); return e.pts.map(p => toW(it.o, e, p)); };
 function vsGeo() {
@@ -656,12 +659,23 @@ function vsGizmo() {
   vsel.forEach(it => { const q = vsWorld(it), a = Math.min(...q.map(p => p.x)), b = Math.min(...q.map(p => p.y)), c = Math.max(...q.map(p => p.x)), d = Math.max(...q.map(p => p.y)); ox.strokeRect(a - 6, b - 6, c - a + 12, d - b + 12); });
   ox.lineWidth = pxw(2); ox.strokeRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0); dash(false);
   ox.beginPath(); ox.moveTo(g.ro.x, g.ro.y); ox.lineTo(g.ro.x, g.y0); ox.stroke(); ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
+  if (vsWarp) { const b = vsWp(); if (b) { ox.strokeStyle = '#ff8a2f'; ox.lineWidth = pxw(2); ox.beginPath();
+      for (let j = 0; j < b.n; j++) for (let i = 0; i < b.n; i++) { const a = b.c[j * b.n + i]; if (i < b.n - 1) { const c2 = b.c[j * b.n + i + 1]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } if (j < b.n - 1) { const c2 = b.c[(j + 1) * b.n + i]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } }
+      ox.stroke(); b.c.forEach(a => { ox.beginPath(); ox.arc(a.x, a.y, g.hr * .8, 0, 7); ox.fillStyle = '#ff8a2f'; ox.fill(); ox.strokeStyle = '#fff'; ox.stroke(); }); } ox.restore(); return; }
   ox.fillStyle = '#4f7cff'; ox.fillRect(g.sc.x - g.hr, g.sc.y - g.hr, g.hr * 2, g.hr * 2); ox.restore();
+}
+function vsWp() {                                                  // warp handles of the whole selection: 4 corners or 3x3 grid
+  const ws = vsel.filter(it => !it.o.clip).flatMap(it => vsWorld(it)); if (!ws.length) return null;
+  const xs = ws.map(p => p.x), ys = ws.map(p => p.y), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), n = vsWarp === 'mesh' ? 3 : 2, c = [];
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) c.push({ x: x0 + (x1 - x0) * i / (n - 1), y: y0 + (y1 - y0) * j / (n - 1) });
+  return { x0, y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0), n, c };
 }
 function vsDown(p) {
   vst = null; const g = vsGeo();
+  if (g && vsWarp) { const b = vsWp(), hi = b ? b.c.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.8) : -1;
+    if (hi >= 0) { vst = { mode: 'warp', moved: false, b, hi, c: b.c.map(q => ({ x: q.x, y: q.y })), w0: vsel.map(it => it.o.clip ? null : vsWorld(it).map(q => ({ x: q.x, y: q.y }))) }; render(); return; } }
   if (g) {
-    const mode = Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2 ? 'scale' : Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2 ? 'rot' : (p.x >= g.x0 && p.x <= g.x1 && p.y >= g.y0 && p.y <= g.y1) ? 'move' : '';
+    const mode = vsWarp ? ((p.x >= g.x0 && p.x <= g.x1 && p.y >= g.y0 && p.y <= g.y1) ? 'move' : '') : Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2 ? 'scale' : Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2 ? 'rot' : (p.x >= g.x0 && p.x <= g.x1 && p.y >= g.y0 && p.y <= g.y1) ? 'move' : '';
     if (mode) vst = { mode, p0: p, C: g.C, a0: Math.atan2(p.y - g.C.y, p.x - g.C.x), d0: Math.hypot(p.x - g.C.x, p.y - g.C.y) || 1, moved: false, base: vsel.map(it => { const e = evalObj(it.o, ct); return { x: e.x, y: e.y, r: e.r, s: e.s }; }) };
   }
   if (!vst) { vsel = []; vpoly = [p]; vst = { mode: 'lasso' }; }
@@ -671,6 +685,7 @@ function vsMove(p) {
   if (!vst) return;
   if (vst.mode === 'lasso') { const l = vpoly[vpoly.length - 1]; if (Math.hypot(p.x - l.x, p.y - l.y) > pxw(3)) { vpoly.push(p); renderSoon(); } return; }
   if (!vst.moved) { vst.moved = true; osnap(); }
+  if (vst.mode === 'warp') { vst.c[vst.hi] = { x: p.x, y: p.y }; vsel.forEach((it, i) => { if (!vst.w0[i]) return; const o = it.o, k = ensureKf(o, ct); if (o.tw === 'motion') o.tw = 'all'; k.pts = vst.w0[i].map(q => toL(o, k, wpMap(vst.b, vst.c, q))); }); renderSoon(); return; }
   const C = vst.C, th = vst.mode === 'rot' ? Math.atan2(p.y - C.y, p.x - C.x) - vst.a0 : 0, kk = vst.mode === 'scale' ? Math.max(.05, Math.min(20, Math.hypot(p.x - C.x, p.y - C.y) / vst.d0)) : 1, cs = Math.cos(th), sn = Math.sin(th);
   vsel.forEach((it, i) => {
     const o = it.o, b = vst.base[i], k = ensureKf(o, ct);
@@ -691,6 +706,15 @@ function vsUp() {
   render();
 }
 $('vsAll').onclick = () => { vsel = objsNow(); render(); };
+const vsUI = () => { $('vsPers').classList.toggle('on', vsWarp === 'persp'); $('vsMesh').classList.toggle('on', vsWarp === 'mesh'); };
+$('vsPers').onclick = () => { vsWarp = vsWarp === 'persp' ? '' : 'persp'; vsUI(); render(); };
+$('vsMesh').onclick = () => { vsWarp = vsWarp === 'mesh' ? '' : 'mesh'; vsUI(); render(); };
+$('vsCopy').onclick = () => { if (!vsel.length) return flashBtn($('vsCopy'), 'Select first'); vclip = vsel.map(it => ({ o: JSON.parse(JSON.stringify(it.o)), k: it.k, t: it.o.kf[0].t })); flashBtn($('vsCopy'), 'Copied ✓'); };
+$('vsPaste').onclick = () => {
+  if (!vclip) return flashBtn($('vsPaste'), 'Copy first'); if (playing) return;
+  commit(); osnap(); vsel = vclip.map(c => { const n = JSON.parse(JSON.stringify(c.o)), dt = ct - c.t, k = layers[c.k] && !layers[c.k].lock ? c.k : lay; n.id = oid++; n.kf.forEach(f => { f.t += dt; }); if (n.t0 != null) n.t0 += dt; ensureCell(k, ct).objs.push(n); return { o: n, k }; });
+  fixLen(); build(); render(); save();
+};
 $('vsDel').onclick = () => { if (!vsel.length) return; osnap(); vsel.forEach(it => { const c = findCell(it.o); if (c) c.objs = c.objs.filter(o => o !== it.o); }); vsel = []; build(); render(); save(); };
 $('vsDup').onclick = () => { if (!vsel.length) return; osnap(); const nv = vsel.map(it => { const n = JSON.parse(JSON.stringify(it.o)); n.id = oid++; n.pv.x += 40; n.pv.y += 40; n.kf.forEach(k => k.pts.forEach(p => { p.x += 40; p.y += 40; })); (findCell(it.o) || ensureCell(it.k, ct)).objs.push(n); return { o: n, k: it.k }; }); vsel = nv; render(); save(); };
 function vecErase(p) {                                           // vector eraser: wipes out any vector stroke it touches (the real data, in this frame's keyframe)
@@ -1808,7 +1832,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 21, NEWS = [
+const APPV = 22, NEWS = [
+  { v: 22, t: 'V-Select tools + easy bend', i: ['V-Select: Copy / Paste, ⬚ Perspective and ▦ Mesh for everything you selected', 'Bend: a stroke now has 2 end dots and 1 middle handle, drag them to bend (no more adding dots)'] },
   { v: 21, t: 'Blur / glow per stroke', i: ['Select tool: Blur and Glow sliders now affect only the stroke you picked', 'Glow colour for strokes and for layers', 'Layer opacity moved to the bottom of the layer panel', 'Video export holds the last frame longer so the end is not cut'] },
   { v: 20, t: 'Perspective + Mesh', i: ['Objects tool: ⬚ Perspective = drag the 4 corners to squash, stretch or tilt a stroke', '▦ Mesh = 9 points to bend a stroke like rubber', 'Do it on different frames with ◆ keyframes and it animates', 'Works on strokes (not symbols yet)'] },
   { v: 19, t: 'Symbols (movieclips)', i: ['Symbol button: ＋ Create new symbol opens a brand-new canvas, animate it, tap 💾 Save symbol and give it a name', 'Your saved symbols are listed in the Symbol panel for every project: tap one to place it and it animates by itself', 'Saved GIFs, videos, PNG zips and project files are named after your project, so nothing gets replaced', 'New projects are named Untitled 1, Untitled 2, ...'] },
