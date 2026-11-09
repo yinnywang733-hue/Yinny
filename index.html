@@ -157,11 +157,12 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
     <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
     <div class="box sec" id="objBox" hidden><label>Only vector strokes work here: double-tap Brush to make one, tap it, then go to another frame and move/bend it = keyframe + tween</label>
-      <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
+      <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oPers">⬚ Perspective</button><button id="oMesh">▦ Mesh</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
+      <label>Blur this stroke only <b id="oblN">0</b></label><input type="range" id="obl" min="0" max="40" value="0"><label>Glow this stroke only <b id="oglN">0</b></label><input type="range" id="ogl" min="0" max="40" value="0"><label>Glow colour</label><div class="two"><input type="color" id="oglc" value="#ffd24a"><button id="oglcA">Same as stroke</button></div>
     </div>
     <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
     <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
-    <div class="sec"><label>Layer opacity / blend</label><input type="range" id="lop" min="0" max="100" value="100"><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"></div>
+    <div class="sec"><label>Layer blend</label><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"><label>Layer glow colour</label><div class="two"><input type="color" id="lglc" value="#ffd24a"><button id="lglcA">Same as drawing</button></div><label>Layer opacity <b id="lopN">100</b>%</label><input type="range" id="lop" min="0" max="100" value="100"></div>
     <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
     <div class="sec"><label>Grid size</label><select id="gridN"><option value="40">Small (40)</option><option value="80" selected>Medium (80)</option><option value="160">Large (160)</option><option value="240">Huge (240)</option></select></div>
     <div class="sec"><label>Canvas background</label><input type="color" id="bgc" value="#ffffff"></div>
@@ -219,7 +220,7 @@ let playing = false, timer = null, fps = 12;
 let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
 let undo = [], redo = [];
 const vecOn = { brush: true, line: true, eraser: true, outline: true }; const isVec = () => !boardMode && !!vecOn[tool] && tool !== 'eraser' && !(tool === 'brush' && $('bStyle').value !== 'n'), vecEr = () => !boardMode && tool === 'eraser' && vecOn.eraser; let boardMode = false, olSide = 'both', olColor = '#ffffff', olW = 6, sizeShow = false, sizeT = 0, prevTool = 'brush', veDone = false, shapeKind = 'rect', shapeFill = false;
-let selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
+let warpMode = '', wp = null, selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
 const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
 const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
@@ -255,7 +256,7 @@ function flat(ctx, t) {                            // every visible layer at tim
     if (L.bl > 0 || L.gl > 0) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
       const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
       c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
-      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); c2.filter = 'blur(' + L.gl * 1.5 + 'px) brightness(1.4)'; c2.drawImage(T, 0, 0); c2.filter = 'none'; }
+      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); const G = L.glc ? tintC(T, L.glc) : T; c2.filter = 'blur(' + L.gl * 1.5 + 'px)' + (L.glc ? '' : ' brightness(1.4)'); c2.drawImage(G, 0, 0); c2.drawImage(G, 0, 0); c2.filter = 'none'; }
       c2.restore(); return;
     }
     c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
@@ -280,10 +281,10 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -527,7 +528,17 @@ const toW = (o, e, p) => { const dx = (p.x - o.pv.x) * e.s, dy = (p.y - o.pv.y) 
 const toL = (o, e, w) => { const ux = w.x - o.pv.x - e.x, uy = w.y - o.pv.y - e.y, c = Math.cos(-e.r), n = Math.sin(-e.r); return { x: o.pv.x + (ux * c - uy * n) / e.s, y: o.pv.y + (ux * n + uy * c) / e.s }; };
 const alive = o => objsNow().some(x => x.o === o);
 const olGeo = (side, k) => side === 'both' || !side ? { w: 2 * k, dx: 0, dy: 0 } : { w: k, dx: ({ left: -1, right: 1 }[side] || 0) * k / 2, dy: ({ top: -1, bottom: 1 }[side] || 0) * k / 2 };   // outline on both sides, or just one
+let objTmp = null; const tintC = (src, col) => { const c = objTmp2(), g = c.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; return c; };
+let objTmp2c = null; const objTmp2 = () => (!objTmp2c || objTmp2c.width !== W || objTmp2c.height !== H) ? (objTmp2c = mk()) : objTmp2c;
 function drawObj(ctx, o, t, phase) {
+  if (o.clip || !(o.bl > 0 || o.gl > 0) || phase === 'ol') return drawObj0(ctx, o, t, phase);   // blur / glow belong to this one stroke only
+  if (!objTmp || objTmp.width !== W || objTmp.height !== H) objTmp = mk();
+  const T = objTmp, g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawObj0(g, o, t, phase);
+  ctx.save(); if (o.bl > 0) ctx.filter = 'blur(' + o.bl + 'px)'; ctx.drawImage(T, 0, 0); ctx.filter = 'none';
+  if (o.gl > 0) { const G = o.glc ? tintC(T, o.glc) : T; ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(' + o.gl * 1.5 + 'px)' + (o.glc ? '' : ' brightness(1.4)'); ctx.drawImage(G, 0, 0); ctx.drawImage(G, 0, 0); ctx.filter = 'none'; }
+  ctx.restore();
+}
+function drawObj0(ctx, o, t, phase) {
   if (o.clip) return drawClipObj(ctx, o, t);
   const e = evalObj(o, t), q = e.pts.map(p => toW(o, e, p));
   ctx.save(); ctx.lineCap = ctx.lineJoin = 'round';
@@ -566,11 +577,27 @@ function objGeo() {
   const x0 = Math.min(...q.map(p => p.x)) - m, x1 = Math.max(...q.map(p => p.x)) + m, y0 = Math.min(...q.map(p => p.y)) - m, y1 = Math.max(...q.map(p => p.y)) + m;
   return { o, e, q, hr, x0, y0, x1, y1, pv: { x: o.pv.x + e.x, y: o.pv.y + e.y }, sc: { x: x1, y: y1 }, ro: { x: (x0 + x1) / 2, y: y0 - hr * 2.5 } };
 }
+function wpCtrl(g) {                                               // handle positions: 4 corners (perspective) or 3x3 grid (mesh) of the stroke's box
+  const xs = g.q.map(p => p.x), ys = g.q.map(p => p.y), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), n = warpMode === 'mesh' ? 3 : 2, c = [];
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) c.push({ x: x0 + (x1 - x0) * i / (n - 1), y: y0 + (y1 - y0) * j / (n - 1) });
+  return { x0, y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0), n, c };
+}
+function wpMap(b, c, p) {                                          // where a point of the original box lands after the handles moved
+  const u = (p.x - b.x0) / b.w, v = (p.y - b.y0) / b.h;
+  if (b.n === 3) { const fi = Math.min(1.999, u * 2), fj = Math.min(1.999, v * 2), i = Math.max(0, Math.floor(fi)), j = Math.max(0, Math.floor(fj)), a = fi - i, d = fj - j, G = (x, y) => c[y * 3 + x],
+    L = (A, B, t) => ({ x: A.x + (B.x - A.x) * t, y: A.y + (B.y - A.y) * t }), top = L(G(i, j), G(i + 1, j), a), bot = L(G(i, j + 1), G(i + 1, j + 1), a); return L(top, bot, d); }
+  const [p0, p1, p3, p2] = c, dx1 = p1.x - p2.x, dx2 = p3.x - p2.x, dx3 = p0.x - p1.x + p2.x - p3.x, dy1 = p1.y - p2.y, dy2 = p3.y - p2.y, dy3 = p0.y - p1.y + p2.y - p3.y, den = dx1 * dy2 - dx2 * dy1 || 1e-9,
+    gg = (dx3 * dy2 - dx2 * dy3) / den, hh = (dx1 * dy3 - dx3 * dy1) / den, w = gg * u + hh * v + 1 || 1e-9;
+  return { x: ((p1.x - p0.x + gg * p1.x) * u + (p3.x - p0.x + hh * p3.x) * v + p0.x) / w, y: ((p1.y - p0.y + gg * p1.y) * u + (p3.y - p0.y + hh * p3.y) * v + p0.y) / w };
+}
 function objGizmo(plain) {
   if (!alive(selObj, ct)) return;
   const g = objGeo(); ox.lineWidth = pxw(2); ox.strokeStyle = '#4f7cff'; dash(true); ox.strokeRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0); dash(false);
   if (plain) return;
-  if (bendMode && !selObj.clip) g.q.forEach(p => { ox.beginPath(); ox.arc(p.x, p.y, g.hr * .7, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.stroke(); });
+  if (warpMode && !selObj.clip) { const b = wpCtrl(g); ox.strokeStyle = '#ff8a2f'; ox.lineWidth = pxw(2); ox.beginPath();
+    for (let j = 0; j < b.n; j++) for (let i = 0; i < b.n; i++) { const a = b.c[j * b.n + i]; if (i < b.n - 1) { const c2 = b.c[j * b.n + i + 1]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } if (j < b.n - 1) { const c2 = b.c[(j + 1) * b.n + i]; ox.moveTo(a.x, a.y); ox.lineTo(c2.x, c2.y); } }
+    ox.stroke(); b.c.forEach(a => { ox.beginPath(); ox.arc(a.x, a.y, g.hr * .8, 0, 7); ox.fillStyle = '#ff8a2f'; ox.fill(); ox.strokeStyle = '#fff'; ox.stroke(); }); }
+  else if (bendMode && !selObj.clip) g.q.forEach(p => { ox.beginPath(); ox.arc(p.x, p.y, g.hr * .7, 0, 7); ox.fillStyle = '#fff'; ox.fill(); ox.stroke(); });
   else {
     ox.beginPath(); ox.moveTo(g.ro.x, g.ro.y); ox.lineTo(g.ro.x, g.y0); ox.stroke();
     ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
@@ -581,7 +608,10 @@ function objDown(p) {
   oMoved = false; oMode = ''; oBase = null;
   if (selObj && alive(selObj, ct)) {
     const g = objGeo();
-    if (bendMode && !selObj.clip) {
+    if (warpMode && !selObj.clip) {
+      const b = wpCtrl(g), hi = b.c.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.8);
+      if (hi >= 0) { oMode = 'warp'; wp = { b, hi, c: b.c.map(q => ({ x: q.x, y: q.y })), w0: g.q.map(q => ({ x: q.x, y: q.y })) }; return; }
+    } else if (bendMode && !selObj.clip) {
       let bi = g.q.findIndex(q => Math.hypot(q.x - p.x, q.y - p.y) < g.hr * 1.6);
       if (bi < 0) { const h = hitSeg(selObj, p, .8); if (h) {                       // tap on the line = add a bend point there
         osnap(); selObj.kf.forEach(k => { const a = k.pts[h.j], b = k.pts[Math.min(h.j + 1, k.pts.length - 1)]; k.pts.splice(h.j + 1, 0, { x: a.x + (b.x - a.x) * h.u, y: a.y + (b.y - a.y) * h.u }); });
@@ -606,6 +636,7 @@ function objMove(p) {
   else if (oMode === 'scale') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.s = Math.min(20, Math.max(.05, oBase.s * Math.hypot(p.x - pv.x, p.y - pv.y) / oBase.d)); }
   else if (oMode === 'rot') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.r = oBase.r + Math.atan2(p.y - pv.y, p.x - pv.x) - oBase.a; }
   else if (oMode === 'bend') { k.pts[bendI] = toL(selObj, k, p); }
+  else if (oMode === 'warp') { wp.c[wp.hi] = { x: p.x, y: p.y }; if (selObj.tw === 'motion') selObj.tw = 'all'; k.pts = wp.w0.map(q => toL(selObj, k, wpMap(wp.b, wp.c, q))); }
 }
 function objUp() { if (oMoved) { build(); save(); } oMode = ''; render(); }
 let vsel = [], vst = null, vpoly = [];                             // V-Select: many whole strokes at once, moved / resized / turned as a group
@@ -680,7 +711,7 @@ $('olTog').onclick = () => {
   if (tool === 'obj' || tool === 'key') { if (!selObj) return toast('Tap a stroke first'); osnap(); if (selObj.ol) { delete selObj.ol; delete selObj.olw; delete selObj.olside; } else { selObj.ol = olColor; selObj.olw = olW * SK; selObj.olside = olSide; } olUI(); render(); save(); }
   else { olOn = !olOn; olUI(); render(); }
 };
-const objUI = () => { olUI(); $('oMove').classList.toggle('on', !bendMode); $('oBend').classList.toggle('on', bendMode); $('oEase').textContent = 'Ease: ' + (selObj && selObj.ease ? 'on' : 'off'); $('oTw').textContent = 'Tween: ' + (selObj && selObj.tw || 'all'); const ez = (selObj && selObj.ez) || 0; if ($('kEz')) { $('kEz').value = ez; $('kEzN').textContent = ez; } };
+const objUI = () => { olUI(); $('oMove').classList.toggle('on', !bendMode); $('oBend').classList.toggle('on', bendMode && !warpMode); $('oPers').classList.toggle('on', warpMode === 'persp'); $('oMesh').classList.toggle('on', warpMode === 'mesh'); $('oMove').classList.toggle('on', !bendMode && !warpMode); $('oEase').textContent = 'Ease: ' + (selObj && selObj.ease ? 'on' : 'off'); $('oTw').textContent = 'Tween: ' + (selObj && selObj.tw || 'all'); $('obl').value = (selObj && selObj.bl) || 0; $('oblN').textContent = $('obl').value; $('ogl').value = (selObj && selObj.gl) || 0; $('oglN').textContent = $('ogl').value; if (selObj && selObj.glc) $('oglc').value = selObj.glc; const ez = (selObj && selObj.ez) || 0; if ($('kEz')) { $('kEz').value = ez; $('kEzN').textContent = ez; } };
 function resample(q, n) {                                          // the same line, redrawn with n evenly spaced points
   if (n === 1 || q.length === 1) return Array.from({ length: n }, () => ({ x: q[0].x, y: q[0].y }));
   const d = [0]; for (let i = 1; i < q.length; i++) d.push(d[i - 1] + Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y));
@@ -731,8 +762,10 @@ $('kEz').oninput = e => { $('kEzN').textContent = e.target.value; if (!selObj) r
 $('kEz').onchange = e => { delete e.target.dataset.d; };
 $('kDel').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1 && o.kf.some(k => k.t === ct)); if (!t.length) return; osnap(); t.forEach(o => o.kf.splice(o.kf.findIndex(k => k.t === ct), 1)); build(); render(); save(); };
 $('kDelAll').onclick = () => { const t = keyTargets().filter(o => o.kf.length > 1); if (!t.length) return toast('No extra keyframes to delete'); commit(); osnap(); t.forEach(o => { o.kf = [o.kf[0]]; }); build(); render(); save(); toast('All its keyframes deleted'); };
-$('oMove').onclick = () => { bendMode = false; objUI(); render(); };
-$('oBend').onclick = () => { bendMode = true; objUI(); render(); };
+$('oPers').onclick = () => { if (selObj && selObj.clip) return toast('Perspective/Mesh work on strokes (not symbols)'); bendMode = false; warpMode = 'persp'; objUI(); render(); };
+$('oMesh').onclick = () => { if (selObj && selObj.clip) return toast('Perspective/Mesh work on strokes (not symbols)'); bendMode = false; warpMode = 'mesh'; objUI(); render(); };
+$('oMove').onclick = () => { warpMode = ''; bendMode = false; objUI(); render(); };
+$('oBend').onclick = () => { warpMode = ''; bendMode = true; objUI(); render(); };
 $('oTw').onclick = () => { if (!selObj) return; osnap(); selObj.tw = { all: 'motion', motion: 'shape' }[selObj.tw || 'all'] || 'all'; objUI(); render(); save(); };
 $('oEase').onclick = () => { if (!selObj) return; osnap(); selObj.ease = !selObj.ease; objUI(); render(); save(); };
 $('oDel').onclick = () => { if (!selObj) return; osnap(); const c = findCell(selObj); if (c) c.objs = c.objs.filter(o => o !== selObj); selObj = null; build(); render(); save(); };
@@ -771,7 +804,7 @@ function moveTo(t, soft) {                         // move the playhead (everyth
   if (playing) return; commit(); $('cf').hidden = true; ct = Math.max(0, Math.min(cols() - 1, t)); syncCam(); hl(); soft ? renderSoon() : render();
 }
 function build() {
-  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
+  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lopN').textContent = $('lop').value; if (layers[lay].glc) $('lglc').value = layers[lay].glc; $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
   tlbox.innerHTML = ''; const n = cols();
   const rr = el('lr rr'); rr.append(el('ln corner'));
   for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
@@ -1601,15 +1634,17 @@ function exportVideo(mp4) {
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { xStatus(mp4 ? 'This browser cannot make MP4. Try WebM or GIF.' : 'Video export is not supported here. Try GIF.'); return res(false); }
     const back = ct, chunks = []; setPlay(true); playing = true;
-    const stream = view.captureStream(fps); let rd = null;
+    const stream = view.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
     try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
     const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
-    let i = 0; rec.start(); if (audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); }
+    let last = -1; const t0 = performance.now(), total = len * 1000 / fps; rec.start(500); if (audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); }
     const iv = setInterval(() => {
-      if (i >= len) { clearInterval(iv); rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }
-      ct = i++; sfxFrame(ct); render(); hl(); xStatus('Recording frame ' + i + ' / ' + len);
-    }, 1000 / fps);
+      const el = performance.now() - t0;
+      if (el >= total + 1000) { clearInterval(iv); try { rec.requestData(); } catch (e) {} rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }   // hold the last frame so the end is never cut
+      const f = Math.min(len - 1, Math.floor(el * fps / 1000));
+      if (f !== last) { last = f; ct = f; sfxFrame(ct); render(); push(); hl(); xStatus('Recording frame ' + (f + 1) + ' / ' + len); } else if (el > total) { render(); push(); }   // keep drawing so the recorder gets the final frame
+    }, 1000 / Math.max(fps, 24) / 2);
   });
 }
 async function runExport(kind) {
@@ -1632,7 +1667,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1659,7 +1694,7 @@ function loadData(d) {
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
-  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
     const src = c.png; delete c.png; if (!src) return; pend++;
@@ -1711,8 +1746,13 @@ $('npOk').onclick = async () => {
   const [w, h] = clampSize(npv.w || lastSize()[0], npv.h || lastSize()[1]); if ((npv.w && npv.w !== w) || (npv.h && npv.h !== h)) toast('Size set to ' + w + '×' + h + ' (the most a phone can hold)');
   $('np').hidden = true; await flush(); pid = 'p' + Date.now(); pname = freeName(npv.name, (await allP()).map(x => x.name)); blank({ fps: npv.fps, ow: w, oh: h }); await saveNow(); drawProjects(); $('pj').hidden = true;
 };
-$('lop').onpointerdown = () => osnap(); $('lop').oninput = e => { layers[lay].op = +e.target.value / 100; render(); save(); };
+$('lop').onpointerdown = () => osnap(); $('lop').oninput = e => { layers[lay].op = +e.target.value / 100; $('lopN').textContent = e.target.value; render(); save(); };
 $('lmk').onchange = e => { osnap(); const L = layers[lay]; L.mk = e.target.value || undefined; if (L.mk === 'mask' && lay > 0 && !layers[lay - 1].mk) layers[lay - 1].mk = 'masked'; build(); render(); save(); };
+[['obl', 'bl', 'oblN'], ['ogl', 'gl', 'oglN']].forEach(([i, k, n]) => { const e = $(i); e.onpointerdown = () => osnap(); e.oninput = () => { if (!selObj || selObj.clip) return; selObj[k] = +e.value || undefined; $(n).textContent = e.value; render(); save(); }; });
+$('oglc').onpointerdown = () => osnap(); $('oglc').oninput = () => { if (!selObj || selObj.clip) return; selObj.glc = $('oglc').value; if (!selObj.gl) { selObj.gl = 12; $('ogl').value = 12; $('oglN').textContent = 12; } render(); save(); };
+$('oglcA').onclick = () => { if (!selObj) return; osnap(); selObj.glc = undefined; render(); save(); };
+$('lglc').onpointerdown = () => osnap(); $('lglc').oninput = () => { layers[lay].glc = $('lglc').value; if (!layers[lay].gl) { layers[lay].gl = 12; $('lgl').value = 12; $('lglN').textContent = 12; } render(); save(); };
+$('lglcA').onclick = () => { osnap(); layers[lay].glc = undefined; render(); save(); };
 ['bl', 'gl'].forEach(k => { const e = $(k === 'bl' ? 'lbl' : 'lgl'); e.onpointerdown = () => osnap(); e.oninput = () => { layers[lay][k] = +e.value || undefined; $(k === 'bl' ? 'lblN' : 'lglN').textContent = e.value; render(); save(); }; });
 $('lbm').onchange = e => { osnap(); layers[lay].bm = e.target.value; render(); save(); };
 $('bgc').oninput = e => { bgCol = e.target.value; render(); save(); };
@@ -1768,7 +1808,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 19, NEWS = [
+const APPV = 21, NEWS = [
+  { v: 21, t: 'Blur / glow per stroke', i: ['Select tool: Blur and Glow sliders now affect only the stroke you picked', 'Glow colour for strokes and for layers', 'Layer opacity moved to the bottom of the layer panel', 'Video export holds the last frame longer so the end is not cut'] },
+  { v: 20, t: 'Perspective + Mesh', i: ['Objects tool: ⬚ Perspective = drag the 4 corners to squash, stretch or tilt a stroke', '▦ Mesh = 9 points to bend a stroke like rubber', 'Do it on different frames with ◆ keyframes and it animates', 'Works on strokes (not symbols yet)'] },
   { v: 19, t: 'Symbols (movieclips)', i: ['Symbol button: ＋ Create new symbol opens a brand-new canvas, animate it, tap 💾 Save symbol and give it a name', 'Your saved symbols are listed in the Symbol panel for every project: tap one to place it and it animates by itself', 'Saved GIFs, videos, PNG zips and project files are named after your project, so nothing gets replaced', 'New projects are named Untitled 1, Untitled 2, ...'] },
   { v: 18, t: 'Layer effects + camera keys', i: ['Layer Blur and Layer Glow (left column): they only affect the layer you pick, never the others', '✨ Glow added to the camera effects', 'Camera: ◆ Add camera key and ✕ Delete camera key buttons', '⛔ Delete ALL keyframes of a stroke (Keyframe tool)', '+ Frame now adds a frame on the current layer only; other layers and the camera stay put'] },
   { v: 17, t: 'Outline inside every brush', i: ['The separate Outline button is gone: Brush, Line and Shapes each have an Outline switch (colour, thickness, side) in their options', 'Outlines are drawn behind, so touching strokes mesh together', 'Switch it on, draw, switch it off: it only affects what you draw next', 'Keyframe / Objects tool: the same switch turns an outline on or off for the selected stroke'] },
