@@ -77,7 +77,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #opts button,#opts select{width:100%;border-radius:3px;padding:10px 6px;background:var(--cream);color:var(--ink);font-size:13px}
 #opts .box{flex-direction:column;align-items:stretch}
 #olSides button.on,#shpBox button.on,#objBox button.on{background:#4f7cff}#tools button.bdon{outline:2px solid #4f7cff;background:#4f7cff55}#tools button.v{outline:2px solid #4f7cff}#tools button.v::after{content:"vector";font-size:8px;color:#4f7cff}.rn.ct{box-shadow:inset 0 -3px #4f7cff}.rn.kf{color:#b58900;font-weight:900}
-#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
+#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
 #ph{position:absolute;top:0;bottom:0;width:2px;background:#e8231c;pointer-events:none;z-index:4}#ph u{position:absolute;top:0;left:-6px;width:14px;height:12px;background:#e8231c;border-radius:0 0 7px 7px}
 #fi{font-size:11px;color:#ddd;align-self:center;padding:0 4px}.cell.lift{opacity:.85}
 #cList{display:flex;flex-direction:column;gap:4px}.crow{display:flex;gap:4px}.crow button:first-child{flex:1}.crow button+button{width:44px;flex:none}
@@ -162,7 +162,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     </div>
     <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
     <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
-    <div class="sec"><label>Layer blend</label><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"><label>Layer glow colour</label><div class="two"><input type="color" id="lglc" value="#ffd24a"><button id="lglcA">Same as drawing</button></div><label>Layer opacity <b id="lopN">100</b>%</label><input type="range" id="lop" min="0" max="100" value="100"></div>
+    <div class="sec"><label>Layer blend</label><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"><label>Layer glow colour</label><div class="two"><input type="color" id="lglc" value="#ffd24a"><button id="lglcA">Same as drawing</button></div><label>Drop shadow: blur <b id="lshN">0</b></label><input type="range" id="lsh" min="0" max="40" value="0"><label>Shadow height (distance) <b id="lshdN">0</b></label><input type="range" id="lshd" min="0" max="120" value="0"><label>Shadow angle <b id="lshaN">45</b>°</label><input type="range" id="lsha" min="0" max="360" value="45"><label>Shadow thickness <b id="lshtN">0</b></label><input type="range" id="lsht" min="0" max="40" value="0"><label>Shadow colour</label><input type="color" id="lshc" value="#000000"><label>Layer opacity <b id="lopN">100</b>%</label><input type="range" id="lop" min="0" max="100" value="100"></div>
     <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
     <div class="sec"><label>Grid size</label><select id="gridN"><option value="40">Small (40)</option><option value="80" selected>Medium (80)</option><option value="160">Large (160)</option><option value="240">Huge (240)</option></select></div>
     <div class="sec"><label>Canvas background</label><input type="color" id="bgc" value="#ffffff"></div>
@@ -177,7 +177,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="tlw">
     <div id="tlbtns">
       <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rm" title="Delete this keyframe">🗑</button></div>
-      <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
   </div>
@@ -220,6 +220,7 @@ let playing = false, timer = null, fps = 12;
 let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
 let undo = [], redo = [];
 const vecOn = { brush: true, line: true, eraser: true, outline: true }; const isVec = () => !boardMode && !!vecOn[tool] && tool !== 'eraser' && !(tool === 'brush' && $('bStyle').value !== 'n'), vecEr = () => !boardMode && tool === 'eraser' && vecOn.eraser; let boardMode = false, olSide = 'both', olColor = '#ffffff', olW = 6, sizeShow = false, sizeT = 0, prevTool = 'brush', veDone = false, shapeKind = 'rect', shapeFill = false;
+let mulOn = false; const msel = new Set();   // several layers selected at once (☑ Multi)
 let warpMode = '', wp = null, selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
 const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
@@ -250,12 +251,23 @@ const drawCell = (ctx, c, t) => {                  // behind-strokes, then the b
   base(g); g.globalCompositeOperation = 'source-atop'; drawList(g, ins, t); g.globalCompositeOperation = 'source-over'; ctx.drawImage(T, 0, 0);
 };
 const mg = mk(), mgx = mg.getContext('2d'), mm = mk(), mmx = mm.getContext('2d');
+const shOn = L => L.sh > 0 || L.shd > 0 || L.sht > 0;
+let shTmp = null;
+function drawShadow(c2, T, L, op) {                                // drop shadow: thicker (spread), blurred, pushed away at an angle
+  if (!shTmp || shTmp.width !== W || shTmp.height !== H) shTmp = mk();
+  const g = shTmp.getContext('2d'), th = L.sht || 0, h = L.shc || '#000000', a = (L.sha == null ? 45 : L.sha) * Math.PI / 180, d = L.shd == null ? (L.sh ? L.sh * .6 : 0) : L.shd;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
+  if (th > 0) for (let i = 0; i < 16; i++) g.drawImage(T, Math.cos(i * Math.PI / 8) * th, Math.sin(i * Math.PI / 8) * th); g.drawImage(T, 0, 0);
+  g.globalCompositeOperation = 'source-in'; g.fillStyle = h; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
+  c2.save(); c2.globalAlpha = op * .65; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.sh > 0) c2.filter = 'blur(' + L.sh + 'px)'; c2.drawImage(shTmp, Math.cos(a) * d, Math.sin(a) * d); c2.restore();
+}
 function flat(ctx, t) {                            // every visible layer at time t, bottom to top; a Mask layer cuts the "masked" layers under it (Flash style)
   const n = layers.length, used = new Uint8Array(n);
   const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
-    if (L.bl > 0 || L.gl > 0) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
+    if (L.bl > 0 || L.gl > 0 || shOn(L)) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
       const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
-      c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
+      c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (shOn(L)) drawShadow(c2, T, L, op);
+      if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
       if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); const G = L.glc ? tintC(T, L.glc) : T; c2.filter = 'blur(' + L.gl * 1.5 + 'px)' + (L.glc ? '' : ' brightness(1.4)'); c2.drawImage(G, 0, 0); c2.drawImage(G, 0, 0); c2.filter = 'none'; }
       c2.restore(); return;
     }
@@ -281,10 +293,10 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -338,7 +350,7 @@ function gStart() {
 function gMove() {
   const [a, b] = [...ptrs.values()], g = gest;
   const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
-  const s = Math.min(6, Math.max(.3, g.V.s * d / g.d)), r = g.V.r + (Math.atan2(b.y - a.y, b.x - a.x) - g.a);
+  const s = Math.min(24, Math.max(.3, g.V.s * d / g.d)), r = g.V.r + (Math.atan2(b.y - a.y, b.x - a.x) - g.a);
   const dx = g.mx - g.cx - g.V.x, dy = g.my - g.cy - g.V.y, c0 = Math.cos(-g.V.r), s0 = Math.sin(-g.V.r);
   const qx = (dx * c0 - dy * s0) / g.V.s, qy = (dx * s0 + dy * c0) / g.V.s;   // canvas point under the fingers at the start
   V.s = s; V.r = r;
@@ -828,7 +840,7 @@ function moveTo(t, soft) {                         // move the playhead (everyth
   if (playing) return; commit(); $('cf').hidden = true; ct = Math.max(0, Math.min(cols() - 1, t)); syncCam(); hl(); soft ? renderSoon() : render();
 }
 function build() {
-  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lopN').textContent = $('lop').value; if (layers[lay].glc) $('lglc').value = layers[lay].glc; $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
+  if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lopN').textContent = $('lop').value; if (layers[lay].glc) $('lglc').value = layers[lay].glc; $('lsh').value = layers[lay].sh || 0; $('lshN').textContent = layers[lay].sh || 0; if (layers[lay].shc) $('lshc').value = layers[lay].shc; [['lshd', 'shd', 'lshdN', 0], ['lsha', 'sha', 'lshaN', 45], ['lsht', 'sht', 'lshtN', 0]].forEach(([i, k, n, d]) => { const v = layers[lay][k] == null ? (k === 'shd' ? (layers[lay].sh ? Math.round(layers[lay].sh * .6) : 0) : d) : layers[lay][k]; $(i).value = v; $(n).textContent = v; }); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
   tlbox.innerHTML = ''; const n = cols();
   const rr = el('lr rr'); rr.append(el('ln corner'));
   for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; r.style.width = CW + 'px'; rr.append(r); }
@@ -848,9 +860,9 @@ function build() {
     pg = L.g || null; if (L.g && gcol[L.g]) continue;
     const lr = el('lr'), ln = el('ln'), eye = el('eye', L.vis ? '👁' : '🚫'), lk = el('eye', L.lock ? '🔒' : '🔓');
     lr.dataset.l = k;
-    eye.onclick = e => { e.stopPropagation(); osnap(); L.vis = !L.vis; build(); render(); save(); };
-    lk.onclick = e => { e.stopPropagation(); osnap(); L.lock = !L.lock; build(); render(); save(); };
-    const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); ln.append(dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); ln.onclick = () => { commit(); lay = k; hl(); render(); };
+    eye.onclick = e => { e.stopPropagation(); osnap(); const v = !L.vis; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.vis = v; }); build(); render(); save(); };
+    lk.onclick = e => { e.stopPropagation(); osnap(); const v = !L.lock; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.lock = v; }); build(); render(); save(); };
+    const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); ln.append(dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); if (msel.has(L)) ln.classList.add('msel'); ln.onclick = () => { commit(); if (mulOn) { if (msel.has(L)) msel.delete(L); else msel.add(L); lay = k; build(); render(); return; } lay = k; hl(); render(); };
     lr.append(ln);
     let t = 0;
     const gap = (a, b) => { for (let x = a; x < b; x++) { const g = el('cell gap'); g.dataset.l = k; g.dataset.t = x; g.style.width = CW + 'px'; lr.append(g); } };
@@ -979,6 +991,13 @@ $('addLayer').onclick = () => {
   if (playing || layers.length >= LMAX) return; commit(); osnap();
   layers.splice(lay + 1, 0, { name: 'Layer ' + (++layerCount), vis: true, lock: false, cells: [] }); lay++; afterLayer();
 };
+const mulTargets = () => mulOn && msel.size ? layers.filter(L => msel.has(L)) : [layers[lay]];
+$('mulLayer').onclick = () => { mulOn = !mulOn; msel.clear(); if (mulOn) msel.add(layers[lay]); $('mulLayer').textContent = mulOn ? '☑ Multi: ON' : '☑ Multi'; $('mulLayer').style.background = mulOn ? '#ff8a2f' : ''; build(); };
+$('dupLayer').onclick = () => {
+  const T = mulTargets(); if (playing || layers.length + T.length > LMAX) return toast('Too many layers'); commit(); osnap(); let last = lay;
+  T.forEach(L => { const n = { ...L, name: L.name + ' copy', cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv && c.cv._has ? clone(c.cv) : null, objs: c.objs.map(o => { const q = JSON.parse(JSON.stringify(o)); q.id = oid++; return q; }) })) }; const i = layers.indexOf(L); layers.splice(i + 1, 0, n); last = i + 1; });
+  msel.clear(); lay = Math.min(last, layers.length - 1); if (mulOn) msel.add(layers[lay]); afterLayer();
+};
 const gcol = {};
 function dragLayer(e, k) {
   if (playing) return; e.stopPropagation(); e.preventDefault(); const pid = e.pointerId; let tgt = null;
@@ -998,10 +1017,10 @@ $('grpLayer').onclick = () => { if (playing) return; const L = layers[lay]; comm
 let delArm = 0;
 $('delLayer').onclick = () => {                     // tap ✕, then tap ✔ to confirm
   const b = $('delLayer'), reset = () => { delArm = 0; b.textContent = '✕'; b.style.background = ''; };
-  if (playing || layers.length === 1) return;
+  const T = mulTargets(); if (playing || layers.length <= T.length) return;
   if (!delArm) { b.textContent = '✔'; b.style.background = '#d62f2f'; delArm = setTimeout(reset, 2500); return; }
   clearTimeout(delArm); reset(); commit(); osnap();
-  sel = null; layers.splice(lay, 1); lay = Math.min(lay, layers.length - 1); fixLen(); afterLayer();
+  sel = null; T.forEach(L => { const i = layers.indexOf(L); if (i >= 0) layers.splice(i, 1); }); msel.clear(); lay = Math.min(lay, layers.length - 1); if (mulOn) msel.add(layers[lay]); fixLen(); afterLayer();
 };
 $('renLayer').onclick = () => ask('Layer name', layers[lay].name, n => { osnap(); layers[lay].name = n.slice(0, 16); build(); save(); });
 function moveLayer(d) {
@@ -1691,7 +1710,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataNow = () => ({ v: 3, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1718,7 +1737,7 @@ function loadData(d) {
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
-  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
     const src = c.png; delete c.png; if (!src) return; pend++;
@@ -1776,6 +1795,9 @@ $('lmk').onchange = e => { osnap(); const L = layers[lay]; L.mk = e.target.value
 $('oglc').onpointerdown = () => osnap(); $('oglc').oninput = () => { if (!selObj || selObj.clip) return; selObj.glc = $('oglc').value; if (!selObj.gl) { selObj.gl = 12; $('ogl').value = 12; $('oglN').textContent = 12; } render(); save(); };
 $('oglcA').onclick = () => { if (!selObj) return; osnap(); selObj.glc = undefined; render(); save(); };
 $('lglc').onpointerdown = () => osnap(); $('lglc').oninput = () => { layers[lay].glc = $('lglc').value; if (!layers[lay].gl) { layers[lay].gl = 12; $('lgl').value = 12; $('lglN').textContent = 12; } render(); save(); };
+$('lsh').onpointerdown = () => osnap(); $('lsh').oninput = () => { layers[lay].sh = +$('lsh').value || undefined; $('lshN').textContent = $('lsh').value; render(); save(); };
+[['lshd', 'shd', 'lshdN'], ['lsha', 'sha', 'lshaN'], ['lsht', 'sht', 'lshtN']].forEach(([i, k, n]) => { const e = $(i); e.onpointerdown = () => osnap(); e.oninput = () => { layers[lay][k] = +e.value; $(n).textContent = e.value; render(); save(); }; });
+$('lshc').onpointerdown = () => osnap(); $('lshc').oninput = () => { layers[lay].shc = $('lshc').value; if (!shOn(layers[lay])) { layers[lay].shd = 14; $('lshd').value = 14; $('lshdN').textContent = 14; } render(); save(); };
 $('lglcA').onclick = () => { osnap(); layers[lay].glc = undefined; render(); save(); };
 ['bl', 'gl'].forEach(k => { const e = $(k === 'bl' ? 'lbl' : 'lgl'); e.onpointerdown = () => osnap(); e.oninput = () => { layers[lay][k] = +e.value || undefined; $(k === 'bl' ? 'lblN' : 'lglN').textContent = e.value; render(); save(); }; });
 $('lbm').onchange = e => { osnap(); layers[lay].bm = e.target.value; render(); save(); };
@@ -1832,7 +1854,10 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 22, NEWS = [
+const APPV = 25, NEWS = [
+  { v: 25, t: 'Select several layers', i: ['☑ Multi button (next to ⧉): tap layers to select many, then ⧉ duplicates, ✕ deletes, 👁 / 🔒 hide or lock all of them', 'Also included: ⧉ duplicate layer and pinch-zoom up to 24x'] },
+  { v: 24, t: 'Full drop shadow controls', i: ['Drop shadow: Blur, Height (distance), Angle and Thickness sliders + colour'] },
+  { v: 23, t: 'Drop shadow, duplicate layer, more zoom', i: ['Layer panel: Drop shadow slider + shadow colour (only that layer)', '⧉ button next to ＋ Layer duplicates the selected layer', 'You can pinch-zoom the canvas much closer now (up to 24x)'] },
   { v: 22, t: 'V-Select tools + easy bend', i: ['V-Select: Copy / Paste, ⬚ Perspective and ▦ Mesh for everything you selected', 'Bend: a stroke now has 2 end dots and 1 middle handle, drag them to bend (no more adding dots)'] },
   { v: 21, t: 'Blur / glow per stroke', i: ['Select tool: Blur and Glow sliders now affect only the stroke you picked', 'Glow colour for strokes and for layers', 'Layer opacity moved to the bottom of the layer panel', 'Video export holds the last frame longer so the end is not cut'] },
   { v: 20, t: 'Perspective + Mesh', i: ['Objects tool: ⬚ Perspective = drag the 4 corners to squash, stretch or tilt a stroke', '▦ Mesh = 9 points to bend a stroke like rubber', 'Do it on different frames with ◆ keyframes and it animates', 'Works on strokes (not symbols yet)'] },
