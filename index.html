@@ -184,7 +184,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 </div>
 
 <div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
-<div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
+<div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
 <div id="cmBar" hidden><b>🎞 Making a symbol</b><button id="cmDone">💾 Save symbol</button><button id="cmNo">✕ Cancel</button></div>
 <div id="nw" hidden><div id="nwb"><b id="nwT"></b><div id="nwL"></div><button id="nwOk" class="on">Got it</button></div></div>
@@ -484,9 +484,10 @@ function overlay() {
     drawSel(ox);
     const g = selGeo();
     ox.save(); ox.translate(g.c.x, g.c.y); ox.rotate(g.r); ox.strokeStyle = '#4f7cff'; ox.lineWidth = 4; dash(true);
-    ox.strokeRect(-g.w * g.s / 2, -g.h * g.s / 2, g.w * g.s, g.h * g.s); ox.restore(); dash(false);
+    ox.strokeRect(-g.sw / 2, -g.sh / 2, g.sw, g.sh); ox.restore(); dash(false);
     if (tool === 'lasso') {                         // handles: round = turn, square = resize
-      const top = { x: g.c.x + Math.sin(g.r) * g.h * g.s / 2, y: g.c.y - Math.cos(g.r) * g.h * g.s / 2 };
+      const top = { x: g.c.x + Math.sin(g.r) * g.sh / 2, y: g.c.y - Math.cos(g.r) * g.sh / 2 };
+      ox.fillStyle = '#ff8a2f'; Object.values(g.sd).forEach(q => { ox.beginPath(); ox.arc(q.x, q.y, g.hr * .8, 0, 7); ox.fill(); ox.strokeStyle = '#fff'; ox.lineWidth = 3; ox.stroke(); });   // orange dots = squash / stretch
       ox.strokeStyle = '#4f7cff'; ox.lineWidth = 4;
       ox.beginPath(); ox.moveTo(top.x, top.y); ox.lineTo(g.ro.x, g.ro.y); ox.stroke();
       ox.fillStyle = '#fff'; ox.beginPath(); ox.arc(g.ro.x, g.ro.y, g.hr, 0, 7); ox.fill(); ox.stroke();
@@ -1471,24 +1472,25 @@ function lift() {                                   // cut the lassoed pixels ou
 }
 function drawSel(c) {                               // the piece, scaled and turned around its centre
   const w = sel.cv.width, h = sel.cv.height, k = sel.s || 1;
-  c.save(); c.translate(sel.x + w / 2, sel.y + h / 2); c.rotate(sel.r || 0); c.scale(k, k); c.drawImage(sel.cv, -w / 2, -h / 2); c.restore();
+  c.save(); c.translate(sel.x + w / 2, sel.y + h / 2); c.rotate(sel.r || 0); c.scale(k * (sel.sx || 1), k * (sel.sy || 1)); c.drawImage(sel.cv, -w / 2, -h / 2); c.restore();
 }
 function selGeo() {                                 // centre + the two handles (kept inside the canvas so you can always reach them)
   const w = sel.cv.width, h = sel.cv.height, s = sel.s || 1, r = sel.r || 0, cx0 = sel.x + w / 2, cy0 = sel.y + h / 2;
   const hr = 14 * (VW / ov.offsetWidth) / V.s, co = Math.cos(r), si = Math.sin(r);
   const at = (lx, ly) => ({ x: Math.min(W + MX - hr, Math.max(hr - MX, cx0 + lx * co - ly * si)), y: Math.min(H + MY - hr, Math.max(hr - MY, cy0 + lx * si + ly * co)) });
-  return { w, h, s, r, c: { x: cx0, y: cy0 }, hr, sc: at(w * s / 2, h * s / 2), ro: at(0, -h * s / 2 - 5 * hr) };
+  const sw = w * s * (sel.sx || 1), sh = h * s * (sel.sy || 1);
+  return { w, h, s, r, sw, sh, c: { x: cx0, y: cy0 }, hr, sc: at(sw / 2, sh / 2), ro: at(0, -sh / 2 - 5 * hr), sd: { r: at(sw / 2, 0), l: at(-sw / 2, 0), t: at(0, -sh / 2), b: at(0, sh / 2) } };
 }
 function inSel(p) {
   const g = selGeo(), dx = p.x - g.c.x, dy = p.y - g.c.y, co = Math.cos(-g.r), si = Math.sin(-g.r);
-  return Math.abs((dx * co - dy * si) / g.s) <= g.w / 2 && Math.abs((dx * si + dy * co) / g.s) <= g.h / 2;
+  return Math.abs(dx * co - dy * si) <= g.sw / 2 && Math.abs(dx * si + dy * co) <= g.sh / 2;
 }
 function commit() { if (!sel) return; if (sel.board || sel.x + sel.cv.width / 2 < 0 || sel.y + sel.cv.height / 2 < 0 || sel.x + sel.cv.width / 2 >= W || sel.y + sel.cv.height / 2 >= H) { bundle = new Map(); boardDraw(-MX, -MY, W + MX, H + MY, g => drawSel(g)); pushBundle(); } else drawSel(fc()); sel = null; build(); save(); render(); }
 const clone = c => { const n = document.createElement('canvas'); n.width = c.width; n.height = c.height; n.getContext('2d').drawImage(c, 0, 0); n._has = c._has; return n; };
-$('copy').onclick = () => { if (!sel) return; clip = { cv: clone(sel.cv), s: sel.s || 1, r: sel.r || 0, x: sel.x, y: sel.y }; commit(); };
+$('copy').onclick = () => { if (!sel) return; clip = { cv: clone(sel.cv), s: sel.s || 1, sx: sel.sx, sy: sel.sy, r: sel.r || 0, x: sel.x, y: sel.y }; commit(); };
 $('paste').onclick = () => {
   if (!clip || playing) return; commit(); snap();
-  sel = { cv: clone(clip.cv), x: clip.x, y: clip.y, s: clip.s, r: clip.r }; render();
+  sel = { cv: clone(clip.cv), x: clip.x, y: clip.y, s: clip.s, sx: clip.sx, sy: clip.sy, r: clip.r }; render();
 };
 const flipSel = h => { if (!sel) return; const c = document.createElement('canvas'); c.width = sel.cv.width; c.height = sel.cv.height; const x = c.getContext('2d'); if (h) { x.translate(c.width, 0); x.scale(-1, 1); } else { x.translate(0, c.height); x.scale(1, -1); } x.drawImage(sel.cv, 0, 0); sel.cv = c; sel.r = -(sel.r || 0); render(); };
 $('fH').onclick = () => flipSel(true); $('fV').onclick = () => flipSel(false);
@@ -1553,7 +1555,9 @@ ov.onpointerdown = e => {
   if (vecEr()) { veDone = false; vecErase(p); return; }
   if (tool === 'lasso') {
     const g = sel && selGeo();
-    if (g && Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { mode = 'scale'; xf = { d: Math.hypot(p.x - g.c.x, p.y - g.c.y) || 1, s: g.s }; }
+    const sd = g && Object.keys(g.sd).find(k => Math.hypot(p.x - g.sd[k].x, p.y - g.sd[k].y) < g.hr * 1.8);
+    if (sd) { mode = 'side'; xf = { side: sd, sx: sel.sx || 1, sy: sel.sy || 1, s: g.s, r: g.r, c: { ...g.c }, w: g.w, h: g.h }; }
+    else if (g && Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { mode = 'scale'; xf = { d: Math.hypot(p.x - g.c.x, p.y - g.c.y) || 1, s: g.s }; }
     else if (g && Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2) { mode = 'rot'; xf = { a: Math.atan2(p.y - g.c.y, p.x - g.c.x), r: g.r }; }
     else if (g && inSel(p)) { mode = 'move'; off = { x: p.x - sel.x, y: p.y - sel.y }; }
     else { commit(); boardMode = p.x < 0 || p.y < 0 || p.x >= W || p.y >= H; mode = 'draw'; pts = [p]; }
@@ -1573,6 +1577,13 @@ ov.onpointermove = e => {
   else if (tool === 'lasso') {
     if (mode === 'move') { sel.x = p.x - off.x; sel.y = p.y - off.y; }
     else if (mode === 'scale') { const g = selGeo(); sel.s = Math.min(8, Math.max(.1, xf.s * Math.hypot(p.x - g.c.x, p.y - g.c.y) / xf.d)); }
+    else if (mode === 'side') {                                    // drag an orange dot: that side stretches, the opposite side stays put
+      const co = Math.cos(xf.r), si = Math.sin(xf.r), dx = p.x - xf.c.x, dy = p.y - xf.c.y, lx = dx * co + dy * si, ly = -dx * si + dy * co, h = xf.side;
+      const horiz = h === 'r' || h === 'l', base = (horiz ? xf.w * xf.s * xf.sx : xf.h * xf.s * xf.sy), fix = (h === 'r' || h === 'b') ? -base / 2 : base / 2, cur = horiz ? lx : ly;
+      const nb = Math.max(.1 * (horiz ? xf.w : xf.h) * xf.s, (h === 'r' || h === 'b') ? cur - fix : fix - cur), cc = (h === 'r' || h === 'b') ? fix + nb / 2 : fix - nb / 2;
+      if (horiz) { sel.sx = nb / (xf.w * xf.s); sel.x = xf.c.x + cc * co - sel.cv.width / 2; sel.y = xf.c.y + cc * si - sel.cv.height / 2; }
+      else { sel.sy = nb / (xf.h * xf.s); sel.x = xf.c.x - cc * si - sel.cv.width / 2; sel.y = xf.c.y + cc * co - sel.cv.height / 2; }
+    }
     else if (mode === 'rot') {
       const g = selGeo(), q = Math.PI / 12; let r = xf.r + Math.atan2(p.y - g.c.y, p.x - g.c.x) - xf.a;
       const n = Math.round(r / q) * q; if (Math.abs(r - n) < .05) r = n;   // clicks into place every 15 degrees
@@ -1687,8 +1698,9 @@ const download = (blob, name) => { if (_dl) { _dl.save({ filename: name, data: b
    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); };
 const xStatus = t => { $('xst').textContent = t; };
 const tick = () => new Promise(r => setTimeout(r, 0));
+const even = v => Math.max(2, Math.round(v / 2) * 2);
 async function exportGif() {
-  const gw = Math.min(640, OW), gh = Math.round(gw * OH / OW), c = document.createElement('canvas'); c.width = gw; c.height = gh; const g = c.getContext('2d', { willReadFrequently: true }), fr = [], back = ct, [ra, rb] = xRange();
+  const [xw0, xh0] = $('xRes').value.split('x').map(Number), gk = Math.min(1, 1280 / xw0), gw = even(xw0 * gk), gh = even(xh0 * gk), c = document.createElement('canvas'); c.width = gw; c.height = gh; const g = c.getContext('2d', { willReadFrequently: true }), fr = [], back = ct, [ra, rb] = xRange();
   setPlay(true); playing = true;
   for (let t = ra; t <= rb; t++) {
     ct = t; render(); g.drawImage(view, 0, 0, gw, gh); const d = g.getImageData(0, 0, gw, gh).data, ix = new Uint8Array(gw * gh);
@@ -1730,7 +1742,8 @@ function exportVideo(mp4) {
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { xStatus(mp4 ? 'This browser cannot make MP4. Try WebM or GIF.' : 'Video export is not supported here. Try GIF.'); return res(false); }
     const back = ct, chunks = [], [ra, rb] = xRange(); setPlay(true); playing = true;
-    const stream = view.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
+    const [xw, xh] = $('xRes').value.split('x').map(Number), vsrc = (xw === OW && xh === OH) ? view : Object.assign(document.createElement('canvas'), { width: xw, height: xh }), vg = vsrc === view ? null : vsrc.getContext('2d'), paintOut = () => { if (vg) { vg.clearRect(0, 0, xw, xh); drawCam(vg, ct, xw, xh); } };
+    const stream = vsrc.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
     try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
     const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
@@ -1739,7 +1752,7 @@ function exportVideo(mp4) {
       const el = performance.now() - t0;
       if (el >= total + 1000) { clearInterval(iv); try { rec.requestData(); } catch (e) {} rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }   // hold the last frame so the end is never cut
       const f = ra + Math.min(rb - ra, Math.floor(el * fps / 1000));
-      if (f !== last) { last = f; ct = f; sfxFrame(ct); render(); push(); hl(); xStatus('Recording frame ' + (f + 1) + ' / ' + len); } else if (el > total) { render(); push(); }   // keep drawing so the recorder gets the final frame
+      if (f !== last) { last = f; ct = f; sfxFrame(ct); render(); paintOut(); push(); hl(); xStatus('Recording frame ' + (f + 1) + ' / ' + len); } else if (el > total) { render(); paintOut(); push(); }   // keep drawing so the recorder gets the final frame
     }, 1000 / Math.max(fps, 24) / 2);
   });
 }
@@ -1749,7 +1762,8 @@ async function runExport(kind) {
   catch (e) { playing = false; setPlay(false); render(); xStatus('Export failed: ' + e.message); }
   exporting = false;
 }
-$('exp').onclick = () => { if (playing) stop(); commit(); $('xRes').innerHTML = [1, .75, .5, 1.5].map(k => { const a = Math.round(OW * k / 2) * 2, b = Math.round(OH * k / 2) * 2; return '<option value="' + a + 'x' + b + '">PNG size ' + a + '×' + b + '</option>'; }).join(''); $('xFrom').value = 1; $('xTo').value = len; $('xFrom').max = $('xTo').max = len; xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
+$('exp').onclick = () => { if (playing) stop(); commit(); const std = [['4K', 2160], ['1440p', 1440], ['1080p Full HD', 1080], ['900p', 900], ['720p HD', 720], ['540p', 540], ['480p', 480], ['360p', 360], ['240p', 240]];
+  $('xRes').innerHTML = '<option value="' + OW + 'x' + OH + '">Size: same as project (' + OW + '×' + OH + ')</option>' + std.map(([n, hh]) => { const w = even(hh * OW / OH); return '<option value="' + w + 'x' + even(hh) + '">Size: ' + n + ' (' + w + '×' + even(hh) + ')</option>'; }).join(''); $('xFrom').value = 1; $('xTo').value = len; $('xFrom').max = $('xTo').max = len; xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
 $('xPng').onclick = () => runExport('png'); $('xGif').onclick = () => runExport('gif'); $('xMp4').onclick = () => runExport('mp4'); $('xWebm').onclick = () => runExport('webm');
 $('xNo').onclick = () => { if (!exporting) $('xp').hidden = true; };
 
@@ -1907,7 +1921,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 28, NEWS = [
+const APPV = 29, NEWS = [
+  { v: 29, t: 'Squash lasso + more export sizes', i: ['Lasso: 4 orange dots on the sides squash and stretch the piece (corner square = resize, round = rotate)', 'Export size for GIF, video and PNG: 4K, 1440p, 1080p, 900p, 720p, 540p, 480p, 360p, 240p or same as project'] },
   { v: 28, t: 'Effects quality + export range', i: ['✨ FX button (bottom-left of the canvas): High / Medium / None. None = no lag while you animate, effects still show in every export', 'Export: choose which frames to export (for example 1 to 50)'] },
   { v: 27, t: 'Auto camera + perfect bend + V-Select blur', i: ['Camera: 🎬 Auto camera glides from the key you are on to the next camera key (Ease option)', 'Bend: the stroke stays straight and the middle handle bends it into a perfect curve; end dots pull the ends', 'V-Select: Blur and Glow (with colour) for everything you selected'] },
   { v: 26, t: 'Select many frames (Rough Animator style)', i: ['Timeline: ⬚ Select, then drag across frames and layers to select a block', 'Copy / Cut / Paste / Clear the block. Paste lands at the playhead on the chosen layer'] },
