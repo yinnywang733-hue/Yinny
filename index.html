@@ -77,7 +77,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #opts button,#opts select{width:100%;border-radius:3px;padding:10px 6px;background:var(--cream);color:var(--ink);font-size:13px}
 #opts .box{flex-direction:column;align-items:stretch}
 #olSides button.on,#shpBox button.on,#objBox button.on{background:#4f7cff}#tools button.bdon{outline:2px solid #4f7cff;background:#4f7cff55}#tools button.v{outline:2px solid #4f7cff}#tools button.v::after{content:"vector";font-size:8px;color:#4f7cff}.rn.ct{box-shadow:inset 0 -3px #4f7cff}.rn.kf{color:#b58900;font-weight:900}
-#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.cell.fsel{box-shadow:inset 0 0 0 99px rgba(255,138,47,.5);outline:2px solid #ff8a2f;outline-offset:-2px}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
+#fxq{position:absolute;left:6px;bottom:6px;z-index:25;background:#2a2a33cc;color:#fff;border:1px solid #4f7cff;border-radius:14px;padding:4px 10px;font-size:12px}#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.cell.fsel{box-shadow:inset 0 0 0 99px rgba(255,138,47,.5);outline:2px solid #ff8a2f;outline-offset:-2px}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
 #ph{position:absolute;top:0;bottom:0;width:2px;background:#e8231c;pointer-events:none;z-index:4}#ph u{position:absolute;top:0;left:-6px;width:14px;height:12px;background:#e8231c;border-radius:0 0 7px 7px}
 #fi{font-size:11px;color:#ddd;align-self:center;padding:0 4px}.cell.lift{opacity:.85}
 #cList{display:flex;flex-direction:column;gap:4px}.crow{display:flex;gap:4px}.crow button:first-child{flex:1}.crow button+button{width:44px;flex:none}
@@ -172,7 +172,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
   </div>
 
-  <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
+  <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><button id="fxq" title="Effects quality while you animate (exports are always full quality)">✨ FX: High</button><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
 
   <div id="tlw">
     <div id="tlbtns">
@@ -184,7 +184,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 </div>
 
 <div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
-<div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><button id="xNo">Close</button></div></div>
+<div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"><option value="1280x720">PNG size 1280×720</option><option value="1920x1080">PNG size 1920×1080</option><option value="854x480">PNG size 854×480</option><option value="640x360">PNG size 640×360</option></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
 <div id="cmBar" hidden><b>🎞 Making a symbol</b><button id="cmDone">💾 Save symbol</button><button id="cmNo">✕ Cancel</button></div>
 <div id="nw" hidden><div id="nwb"><b id="nwT"></b><div id="nwL"></div><button id="nwOk" class="on">Got it</button></div></div>
@@ -223,6 +223,9 @@ let playing = false, timer = null, fps = 12;
 let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
 let undo = [], redo = [];
 const vecOn = { brush: true, line: true, eraser: true, outline: true }; const isVec = () => !boardMode && !!vecOn[tool] && tool !== 'eraser' && !(tool === 'brush' && $('bStyle').value !== 'n'), vecEr = () => !boardMode && tool === 'eraser' && vecOn.eraser; let boardMode = false, olSide = 'both', olColor = '#ffffff', olW = 6, sizeShow = false, sizeT = 0, prevTool = 'brush', veDone = false, shapeKind = 'rect', shapeFill = false;
+let exporting = false;
+let fxQ = (() => { try { const v = localStorage.getItem('yfxq'); return v == null ? 2 : +v; } catch (e) { return 2; } })();   // editor effects quality: 2 high, 1 medium, 0 none (exports are always full quality)
+const fq = () => exporting ? 1 : fxQ === 2 ? 1 : fxQ === 1 ? .5 : 0;
 let fOn = false, fsel = null, fclip = null, fDrag = null;   // frame selection (⬚ Select)
 let mulOn = false; const msel = new Set();   // several layers selected at once (☑ Multi)
 let warpMode = '', wp = null, selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
@@ -259,20 +262,20 @@ const shOn = L => L.sh > 0 || L.shd > 0 || L.sht > 0;
 let shTmp = null;
 function drawShadow(c2, T, L, op) {                                // drop shadow: thicker (spread), blurred, pushed away at an angle
   if (!shTmp || shTmp.width !== W || shTmp.height !== H) shTmp = mk();
-  const g = shTmp.getContext('2d'), th = L.sht || 0, h = L.shc || '#000000', a = (L.sha == null ? 45 : L.sha) * Math.PI / 180, d = L.shd == null ? (L.sh ? L.sh * .6 : 0) : L.shd;
+  const g = shTmp.getContext('2d'), th = fq() < 1 ? 0 : (L.sht || 0), h = L.shc || '#000000', a = (L.sha == null ? 45 : L.sha) * Math.PI / 180, d = L.shd == null ? (L.sh ? L.sh * .6 : 0) : L.shd;
   g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
   if (th > 0) for (let i = 0; i < 16; i++) g.drawImage(T, Math.cos(i * Math.PI / 8) * th, Math.sin(i * Math.PI / 8) * th); g.drawImage(T, 0, 0);
   g.globalCompositeOperation = 'source-in'; g.fillStyle = h; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
-  c2.save(); c2.globalAlpha = op * .65; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.sh > 0) c2.filter = 'blur(' + L.sh + 'px)'; c2.drawImage(shTmp, Math.cos(a) * d, Math.sin(a) * d); c2.restore();
+  c2.save(); c2.globalAlpha = op * .65; c2.globalCompositeOperation = L.bm || 'source-over'; if (L.sh > 0) c2.filter = 'blur(' + L.sh * fq() + 'px)'; c2.drawImage(shTmp, Math.cos(a) * d, Math.sin(a) * d); c2.restore();
 }
 function flat(ctx, t) {                            // every visible layer at time t, bottom to top; a Mask layer cuts the "masked" layers under it (Flash style)
   const n = layers.length, used = new Uint8Array(n);
   const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
-    if (L.bl > 0 || L.gl > 0 || shOn(L)) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
+    if (fq() > 0 && (L.bl > 0 || L.gl > 0 || shOn(L))) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
       const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
       c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (shOn(L)) drawShadow(c2, T, L, op);
-      if (L.bl > 0) c2.filter = 'blur(' + L.bl + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
-      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); const G = L.glc ? tintC(T, L.glc) : T; c2.filter = 'blur(' + L.gl * 1.5 + 'px)' + (L.glc ? '' : ' brightness(1.4)'); c2.drawImage(G, 0, 0); c2.drawImage(G, 0, 0); c2.filter = 'none'; }
+      if (L.bl > 0) c2.filter = 'blur(' + L.bl * fq() + 'px)'; c2.drawImage(T, 0, 0); c2.filter = 'none';
+      if (L.gl > 0) { c2.globalCompositeOperation = 'lighter'; c2.globalAlpha = Math.min(1, op * .9); const G = L.glc ? tintC(T, L.glc) : T; c2.filter = 'blur(' + L.gl * 1.5 * fq() + 'px)' + (L.glc ? '' : ' brightness(1.4)'); c2.drawImage(G, 0, 0); if (fq() === 1) c2.drawImage(G, 0, 0); c2.filter = 'none'; }
       c2.restore(); return;
     }
     c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
@@ -412,10 +415,10 @@ function camFx(t) {
   return { x, y, z, r, fl, bl, gl };
 }
 function drawCam(g, t, w, h) {                       // what the camera sees at frame t, with its effects
-  const c = camFx(t), k = w * c.z / OW; if (c.bl > .5) g.filter = 'blur(' + (c.bl * w / OW).toFixed(1) + 'px)';
+  const c = camFx(t), k = w * c.z / OW; if (c.bl > .5 && fq() > 0) g.filter = 'blur(' + (c.bl * w / OW * fq()).toFixed(1) + 'px)';
   if (c.r) { g.fillStyle = bgCol; g.fillRect(0, 0, w, h); }
   g.save(); g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); g.filter = 'none';
-  if (c.gl > .01) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.min(1, c.gl); g.filter = 'blur(' + (16 * w / OW).toFixed(1) + 'px) brightness(1.3)'; g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); }
+  if (c.gl > .01 && fq() > 0) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.min(1, c.gl); g.filter = 'blur(' + (16 * w / OW * fq()).toFixed(1) + 'px) brightness(1.3)'; g.translate(w / 2, h / 2); g.rotate(-c.r); g.scale(k, k); g.drawImage(comp, -c.x, -c.y); g.restore(); }
   if (c.fl > .01) { g.save(); g.globalAlpha = Math.min(1, c.fl); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.restore(); }
 }
 let wave = null;                                    // sound picture: peak per 1/100 s
@@ -547,11 +550,11 @@ const olGeo = (side, k) => side === 'both' || !side ? { w: 2 * k, dx: 0, dy: 0 }
 let objTmp = null; const tintC = (src, col) => { const c = objTmp2(), g = c.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; return c; };
 let objTmp2c = null; const objTmp2 = () => (!objTmp2c || objTmp2c.width !== W || objTmp2c.height !== H) ? (objTmp2c = mk()) : objTmp2c;
 function drawObj(ctx, o, t, phase) {
-  if (o.clip || !(o.bl > 0 || o.gl > 0) || phase === 'ol') return drawObj0(ctx, o, t, phase);   // blur / glow belong to this one stroke only
+  if (o.clip || fq() === 0 || !(o.bl > 0 || o.gl > 0) || phase === 'ol') return drawObj0(ctx, o, t, phase);   // blur / glow belong to this one stroke only
   if (!objTmp || objTmp.width !== W || objTmp.height !== H) objTmp = mk();
   const T = objTmp, g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawObj0(g, o, t, phase);
-  ctx.save(); if (o.bl > 0) ctx.filter = 'blur(' + o.bl + 'px)'; ctx.drawImage(T, 0, 0); ctx.filter = 'none';
-  if (o.gl > 0) { const G = o.glc ? tintC(T, o.glc) : T; ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(' + o.gl * 1.5 + 'px)' + (o.glc ? '' : ' brightness(1.4)'); ctx.drawImage(G, 0, 0); ctx.drawImage(G, 0, 0); ctx.filter = 'none'; }
+  ctx.save(); if (o.bl > 0) ctx.filter = 'blur(' + o.bl * fq() + 'px)'; ctx.drawImage(T, 0, 0); ctx.filter = 'none';
+  if (o.gl > 0) { const G = o.glc ? tintC(T, o.glc) : T; ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(' + o.gl * 1.5 * fq() + 'px)' + (o.glc ? '' : ' brightness(1.4)'); ctx.drawImage(G, 0, 0); if (fq() === 1) ctx.drawImage(G, 0, 0); ctx.filter = 'none'; }
   ctx.restore();
 }
 function drawObj0(ctx, o, t, phase) {
@@ -904,6 +907,9 @@ function phOnly() {                                // while playing: only move t
   const ph = $('ph'), sc = $('tlscroll'); if (ph) ph.style.left = LNW + (ct + .5) * CW - 1 + 'px';
   const px = LNW + ct * CW; if (sc && (px < sc.scrollLeft + LNW || px + CW > sc.scrollLeft + sc.clientWidth)) sc.scrollLeft = px - sc.clientWidth / 2;
 }
+const fxqUI = () => { $('fxq').textContent = '✨ FX: ' + ['None', 'Medium', 'High'][fxQ]; $('fxq').style.opacity = fxQ === 2 ? .75 : 1; $('fxq').style.background = fxQ === 0 ? '#d62f2fcc' : fxQ === 1 ? '#c98a1bcc' : ''; };
+$('fxq').onclick = () => { fxQ = (fxQ + 2) % 3; try { localStorage.setItem('yfxq', fxQ); } catch (e) {} fxqUI(); render(); toast(fxQ === 0 ? 'Effects hidden while you animate. They still appear in exports' : fxQ === 1 ? 'Effects: medium quality' : 'Effects: full quality'); };
+fxqUI();
 function hl() {
   if (fsel) markSel();
   const sb = $('scrub'); sb.max = Math.max(0, cols() - 1); sb.value = ct; $('fbadge').textContent = 'Frame ' + (ct + 1) + ' / ' + len; $('fi').textContent = 'Frame ' + (ct + 1) + ' / ' + len;
@@ -1679,13 +1685,12 @@ function gifEncode(fr, w, h, delay) {
 let _dl; if (window.claude && claude.use) claude.use('downloads').then(d => { _dl = d; }, () => {});
 const download = (blob, name) => { if (_dl) { _dl.save({ filename: name, data: blob }).then(() => toast('Saved ' + name), e => { if (!e || e.code !== 'declined') toast('Save blocked: ' + ((e && e.message) || 'try again')); }); return; }
    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); };
-let exporting = false;
 const xStatus = t => { $('xst').textContent = t; };
 const tick = () => new Promise(r => setTimeout(r, 0));
 async function exportGif() {
-  const gw = Math.min(640, OW), gh = Math.round(gw * OH / OW), c = document.createElement('canvas'); c.width = gw; c.height = gh; const g = c.getContext('2d', { willReadFrequently: true }), fr = [], back = ct;
+  const gw = Math.min(640, OW), gh = Math.round(gw * OH / OW), c = document.createElement('canvas'); c.width = gw; c.height = gh; const g = c.getContext('2d', { willReadFrequently: true }), fr = [], back = ct, [ra, rb] = xRange();
   setPlay(true); playing = true;
-  for (let t = 0; t < len; t++) {
+  for (let t = ra; t <= rb; t++) {
     ct = t; render(); g.drawImage(view, 0, 0, gw, gh); const d = g.getImageData(0, 0, gw, gh).data, ix = new Uint8Array(gw * gh);
     for (let i = 0, j = 0; j < ix.length; i += 4, j++) ix[j] = ((d[i] >> 5) << 5) | ((d[i + 1] >> 5) << 2) | (d[i + 2] >> 6);
     fr.push(ix); xStatus('Drawing frame ' + (t + 1) + ' / ' + len); await tick();
@@ -1708,9 +1713,10 @@ function zipStore(files) {                                       // a plain "sto
   e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cs, true); e.setUint32(16, off, true);
   return new Blob([...out, ...cd, new Uint8Array(e.buffer)], { type: 'application/zip' });
 }
+const xRange = () => { let a = Math.max(1, Math.round(+$('xFrom').value || 1)), b = Math.min(len, Math.round(+$('xTo').value || len)); if (a > b) [a, b] = [b, a]; a = Math.min(a, len); return [a - 1, Math.max(a - 1, b - 1)]; };
 async function exportPng() {
-  const [ow, oh] = $('xRes').value.split('x').map(Number), a = $('xA').checked, o = document.createElement('canvas'); o.width = ow; o.height = oh; const g = o.getContext('2d'), files = [];
-  for (let t = 0; t < len; t++) {
+  const [ow, oh] = $('xRes').value.split('x').map(Number), a = $('xA').checked, o = document.createElement('canvas'); o.width = ow; o.height = oh; const g = o.getContext('2d'), files = [], [ra, rb] = xRange();
+  for (let t = ra; t <= rb; t++) {
     if (a) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t);
     g.clearRect(0, 0, ow, oh); drawCam(g, t, ow, oh);
     const b = await new Promise(r => o.toBlob(r, 'image/png')); files.push({ n: 'frame_' + String(t + 1).padStart(3, '0') + '.png', d: new Uint8Array(await b.arrayBuffer()) });
@@ -1723,16 +1729,16 @@ function exportVideo(mp4) {
     const types = mp4 ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm'];
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { xStatus(mp4 ? 'This browser cannot make MP4. Try WebM or GIF.' : 'Video export is not supported here. Try GIF.'); return res(false); }
-    const back = ct, chunks = []; setPlay(true); playing = true;
+    const back = ct, chunks = [], [ra, rb] = xRange(); setPlay(true); playing = true;
     const stream = view.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
     try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
     const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
-    let last = -1; const t0 = performance.now(), total = len * 1000 / fps; rec.start(500); if (audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); }
+    let last = -1; const t0 = performance.now(), total = (rb - ra + 1) * 1000 / fps; rec.start(500); if (audio) { aEl.currentTime = ra / fps; aEl.play().catch(() => {}); }
     const iv = setInterval(() => {
       const el = performance.now() - t0;
       if (el >= total + 1000) { clearInterval(iv); try { rec.requestData(); } catch (e) {} rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }   // hold the last frame so the end is never cut
-      const f = Math.min(len - 1, Math.floor(el * fps / 1000));
+      const f = ra + Math.min(rb - ra, Math.floor(el * fps / 1000));
       if (f !== last) { last = f; ct = f; sfxFrame(ct); render(); push(); hl(); xStatus('Recording frame ' + (f + 1) + ' / ' + len); } else if (el > total) { render(); push(); }   // keep drawing so the recorder gets the final frame
     }, 1000 / Math.max(fps, 24) / 2);
   });
@@ -1743,7 +1749,7 @@ async function runExport(kind) {
   catch (e) { playing = false; setPlay(false); render(); xStatus('Export failed: ' + e.message); }
   exporting = false;
 }
-$('exp').onclick = () => { if (playing) stop(); commit(); $('xRes').innerHTML = [1, .75, .5, 1.5].map(k => { const a = Math.round(OW * k / 2) * 2, b = Math.round(OH * k / 2) * 2; return '<option value="' + a + 'x' + b + '">PNG size ' + a + '×' + b + '</option>'; }).join(''); xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
+$('exp').onclick = () => { if (playing) stop(); commit(); $('xRes').innerHTML = [1, .75, .5, 1.5].map(k => { const a = Math.round(OW * k / 2) * 2, b = Math.round(OH * k / 2) * 2; return '<option value="' + a + 'x' + b + '">PNG size ' + a + '×' + b + '</option>'; }).join(''); $('xFrom').value = 1; $('xTo').value = len; $('xFrom').max = $('xTo').max = len; xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
 $('xPng').onclick = () => runExport('png'); $('xGif').onclick = () => runExport('gif'); $('xMp4').onclick = () => runExport('mp4'); $('xWebm').onclick = () => runExport('webm');
 $('xNo').onclick = () => { if (!exporting) $('xp').hidden = true; };
 
@@ -1901,7 +1907,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 27, NEWS = [
+const APPV = 28, NEWS = [
+  { v: 28, t: 'Effects quality + export range', i: ['✨ FX button (bottom-left of the canvas): High / Medium / None. None = no lag while you animate, effects still show in every export', 'Export: choose which frames to export (for example 1 to 50)'] },
   { v: 27, t: 'Auto camera + perfect bend + V-Select blur', i: ['Camera: 🎬 Auto camera glides from the key you are on to the next camera key (Ease option)', 'Bend: the stroke stays straight and the middle handle bends it into a perfect curve; end dots pull the ends', 'V-Select: Blur and Glow (with colour) for everything you selected'] },
   { v: 26, t: 'Select many frames (Rough Animator style)', i: ['Timeline: ⬚ Select, then drag across frames and layers to select a block', 'Copy / Cut / Paste / Clear the block. Paste lands at the playhead on the chosen layer'] },
   { v: 25, t: 'Select several layers', i: ['☑ Multi button (next to ⧉): tap layers to select many, then ⧉ duplicates, ✕ deletes, 👁 / 🔒 hide or lock all of them', 'Also included: ⧉ duplicate layer and pinch-zoom up to 24x'] },
