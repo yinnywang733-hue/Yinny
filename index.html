@@ -77,7 +77,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #opts button,#opts select{width:100%;border-radius:3px;padding:10px 6px;background:var(--cream);color:var(--ink);font-size:13px}
 #opts .box{flex-direction:column;align-items:stretch}
 #olSides button.on,#shpBox button.on,#objBox button.on{background:#4f7cff}#tools button.bdon{outline:2px solid #4f7cff;background:#4f7cff55}#tools button.v{outline:2px solid #4f7cff}#tools button.v::after{content:"vector";font-size:8px;color:#4f7cff}.rn.ct{box-shadow:inset 0 -3px #4f7cff}.rn.kf{color:#b58900;font-weight:900}
-#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
+#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.cell.fsel{box-shadow:inset 0 0 0 99px rgba(255,138,47,.5);outline:2px solid #ff8a2f;outline-offset:-2px}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
 #ph{position:absolute;top:0;bottom:0;width:2px;background:#e8231c;pointer-events:none;z-index:4}#ph u{position:absolute;top:0;left:-6px;width:14px;height:12px;background:#e8231c;border-radius:0 0 7px 7px}
 #fi{font-size:11px;color:#ddd;align-self:center;padding:0 4px}.cell.lift{opacity:.85}
 #cList{display:flex;flex-direction:column;gap:4px}.crow{display:flex;gap:4px}.crow button:first-child{flex:1}.crow button+button{width:44px;flex:none}
@@ -150,7 +150,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <div class="two"><button id="copy">Copy</button><button id="paste">Paste</button><button id="del">Delete</button><button id="fH">Flip ↔</button><button id="fV">Flip ↕</button><button id="done">Done</button></div>
     </div>
     <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
-    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><div id="vsN"></div></div>
+    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
     <div class="box sec" id="bsBox" hidden><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
@@ -160,7 +160,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <div class="two"><button id="oMove" class="on">Move</button><button id="oBend">Bend</button><button id="oPers">⬚ Perspective</button><button id="oMesh">▦ Mesh</button><button id="oEase">Ease: off</button><button id="oTw">Tween: all</button><button id="oDup">Duplicate</button><button id="oCopy">Copy</button><button id="oPaste">Paste</button><button id="oDel">Delete</button></div>
       <label>Blur this stroke only <b id="oblN">0</b></label><input type="range" id="obl" min="0" max="40" value="0"><label>Glow this stroke only <b id="oglN">0</b></label><input type="range" id="ogl" min="0" max="40" value="0"><label>Glow colour</label><div class="two"><input type="color" id="oglc" value="#ffd24a"><button id="oglcA">Same as stroke</button></div>
     </div>
-    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
+    <div class="box sec" id="camBox" hidden><label>Drag on the canvas to move the camera. It stays put on later frames until you move it again.</label><label>Zoom</label><input type="range" id="camz" min="50" max="300" value="100"><label>Rotate <b id="camrN">0°</b></label><input type="range" id="camr" min="-180" max="180" value="0"><div class="two"><button id="camCopy">📋 Copy camera</button><button id="camPaste">📌 Paste camera</button><button id="camReset">↺ Reset</button></div><div class="two"><button id="camAuto">🎬 Auto camera</button><button id="camEase">Ease: off</button></div><div class="two"><button id="camAddK">◆ Add camera key</button><button id="camDelK">✕ Delete camera key</button></div></div>
     <div class="sec"><label>Frames per second</label><select id="fps"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option></select></div>
     <div class="sec"><label>Layer blend</label><select id="lbm"><option value="source-over">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option><option value="overlay">Overlay</option></select><label>Layer Blur <b id="lblN">0</b> (only this layer)</label><input type="range" id="lbl" min="0" max="40" value="0"><label>Layer Glow <b id="lglN">0</b> (only this layer)</label><input type="range" id="lgl" min="0" max="40" value="0"><label>Layer glow colour</label><div class="two"><input type="color" id="lglc" value="#ffd24a"><button id="lglcA">Same as drawing</button></div><label>Drop shadow: blur <b id="lshN">0</b></label><input type="range" id="lsh" min="0" max="40" value="0"><label>Shadow height (distance) <b id="lshdN">0</b></label><input type="range" id="lshd" min="0" max="120" value="0"><label>Shadow angle <b id="lshaN">45</b>°</label><input type="range" id="lsha" min="0" max="360" value="45"><label>Shadow thickness <b id="lshtN">0</b></label><input type="range" id="lsht" min="0" max="40" value="0"><label>Shadow colour</label><input type="color" id="lshc" value="#000000"><label>Layer opacity <b id="lopN">100</b>%</label><input type="range" id="lop" min="0" max="100" value="100"></div>
     <div class="sec"><label>Layer mask (Flash style)</label><select id="lmk"><option value="">Normal layer</option><option value="mask">Mask: its shape reveals the layers under it</option><option value="masked">Masked: only shows inside the mask above</option></select></div>
@@ -176,7 +176,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 
   <div id="tlw">
     <div id="tlbtns">
-      <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rm" title="Delete this keyframe">🗑</button></div>
+      <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
       <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
@@ -212,14 +212,18 @@ let clips = [];                                                  // movieclips: 
 let bgCol = '#ffffff', xAlpha = false, audio = null; const aEl = new Audio();
 let layers = [{ name: 'Layer 1', vis: true, lock: false, cells: [] }], layerCount = 1, len = 1;     // len = length of the animation in frames
 let cams = [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }];            // the camera only changes where YOU set it (k = keyed); every frame after that holds the same camera
-const cam = t => { while (cams.length <= t) cams.push({ ...cams[cams.length - 1], k: 0 }); let i = t; while (i > 0 && !cams[i].k) i--; return cams[i]; };
-const camKey = t => { const e = cam(t); if (cams[t] === e) return e; cams[t] = { ...e, k: 1 }; return cams[t]; };
+const cam = t => { while (cams.length <= t) cams.push({ ...cams[cams.length - 1], k: 0 }); let i = t; while (i > 0 && !cams[i].k) i--; const A = cams[i];
+  if (A.a && t > i) { let j = i + 1; while (j < cams.length && !cams[j].k) j++;       // Auto camera: glide from this key to the next one
+    if (j < cams.length) { const B = cams[j]; let u = (t - i) / (j - i); if (A.e) u = u * u * (3 - 2 * u); return { ...A, k: 0, a: 0, x: A.x + (B.x - A.x) * u, y: A.y + (B.y - A.y) * u, z: A.z + (B.z - A.z) * u, r: (A.r || 0) + ((B.r || 0) - (A.r || 0)) * u }; } }
+  return A; };
+const camKey = t => { const e = cam(t); if (cams[t] === e) return e; cams[t] = { ...e, k: 1, a: 0 }; return cams[t]; };
 const camMig = a => { if (a.some(c => c.k)) return a; a.forEach((c, i) => { c.k = !i || c.x !== a[i - 1].x || c.y !== a[i - 1].y || c.z !== a[i - 1].z || (c.r || 0) !== (a[i - 1].r || 0) ? 1 : 0; if (c.r == null) c.r = 0; }); return a; };
 let lay = 0, tool = 'brush', color = '#000000', size = 6, onion = true;
 let playing = false, timer = null, fps = 12;
 let grid = false, sym = 0, drag = false, last = null, p2 = null, pts = [], sel = null, clip = null, mode = '', off = null, xf = null, camOrig = null;
 let undo = [], redo = [];
 const vecOn = { brush: true, line: true, eraser: true, outline: true }; const isVec = () => !boardMode && !!vecOn[tool] && tool !== 'eraser' && !(tool === 'brush' && $('bStyle').value !== 'n'), vecEr = () => !boardMode && tool === 'eraser' && vecOn.eraser; let boardMode = false, olSide = 'both', olColor = '#ffffff', olW = 6, sizeShow = false, sizeT = 0, prevTool = 'brush', veDone = false, shapeKind = 'rect', shapeFill = false;
+let fOn = false, fsel = null, fclip = null, fDrag = null;   // frame selection (⬚ Select)
 let mulOn = false; const msel = new Set();   // several layers selected at once (☑ Multi)
 let warpMode = '', wp = null, selObj = null, ct = 0, bendMode = false, oid = 1, hov = null, oMode = '', oMoved = false, oBase = null, bendI = -1;   // ct = the playhead (current frame)
 const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
@@ -630,8 +634,8 @@ function objDown(p) {
       if (hi >= 0) { oMode = 'warp'; wp = { b, hi, c: b.c.map(q => ({ x: q.x, y: q.y })), w0: g.q.map(q => ({ x: q.x, y: q.y })) }; return; }
     } else if (bendMode && !selObj.clip) {
       const q0 = g.q, mid = arcAt(q0, .5), hit = Math.hypot(mid.x - p.x, mid.y - p.y) < g.hr * 2 ? 'm' : Math.hypot(q0[0].x - p.x, q0[0].y - p.y) < g.hr * 1.8 ? 'a' : Math.hypot(q0[q0.length - 1].x - p.x, q0[q0.length - 1].y - p.y) < g.hr * 1.8 ? 'z' : '';
-      if (hit) { osnap(); if (selObj.kf[0].pts.length < 16) selObj.kf.forEach(k => { k.pts = resample(k.pts, 24); });   // enough points to bend smoothly
-        const g2 = objGeo(); oMode = 'bend'; bendI = hit; oMoved = true; oBase = { k: ensureKf(selObj, ct), q: g2.q.map(a => ({ x: a.x, y: a.y })), u: arcU(g2.q), p0: p }; return; }
+      if (hit) { osnap(); if (selObj.kf[0].pts.length < 40) selObj.kf.forEach(k => { k.pts = resample(k.pts, 48); });   // enough points for a smooth curve
+        const g2 = objGeo(); oMode = 'bend'; bendI = hit; oMoved = true; oBase = { k: ensureKf(selObj, ct), q: g2.q.map(a => ({ x: a.x, y: a.y })), u: arcU(g2.q), p0: p }; if (hit === 'm') oBase.p0 = arcAt(g2.q, .5); return; }
     } else {
       if (Math.hypot(p.x - g.sc.x, p.y - g.sc.y) < g.hr * 2.2) { oMode = 'scale'; oBase = { d: Math.hypot(p.x - g.pv.x, p.y - g.pv.y) || 1, s: g.e.s }; return; }
       if (Math.hypot(p.x - g.ro.x, p.y - g.ro.y) < g.hr * 2.2) { oMode = 'rot'; oBase = { a: Math.atan2(p.y - g.pv.y, p.x - g.pv.x), r: g.e.r }; return; }
@@ -643,6 +647,17 @@ function objDown(p) {
   else selObj = null;
   build(); render();
 }
+function bendPts(B, mode, p) {                                    // 'm' = bend the whole stroke into a perfect circular arc, 'a'/'z' = pull an end (the stroke turns and stretches about the other end)
+  const q = B.q, n = q.length, A = q[0], Z = q[n - 1];
+  if (mode !== 'm') { const O = mode === 'a' ? Z : A, E = mode === 'a' ? A : Z, v0x = E.x - O.x, v0y = E.y - O.y, v1x = p.x - O.x, v1y = p.y - O.y, l0 = Math.hypot(v0x, v0y) || 1, k = Math.max(.05, Math.hypot(v1x, v1y) / l0), th = Math.atan2(v1y, v1x) - Math.atan2(v0y, v0x), cs = Math.cos(th) * k, sn = Math.sin(th) * k;
+    return q.map(a => ({ x: O.x + cs * (a.x - O.x) - sn * (a.y - O.y), y: O.y + sn * (a.x - O.x) + cs * (a.y - O.y) })); }
+  const c = Math.hypot(Z.x - A.x, Z.y - A.y); if (c < 2) return q;
+  const ux = (Z.x - A.x) / c, uy = (Z.y - A.y) / c, vx = -uy, vy = ux, Mx = (A.x + Z.x) / 2, My = (A.y + Z.y) / 2;
+  const sg = (p.x - B.p0.x) * vx + (p.y - B.p0.y) * vy, S = Math.abs(sg), sig = sg < 0 ? -1 : 1;
+  if (S < 1) return q;
+  const R = (c * c / 4 + S * S) / (2 * S), al = 2 * Math.atan(2 * S / c);
+  return q.map(a => { const x = (a.x - Mx) * ux + (a.y - My) * uy, y = ((a.x - Mx) * vx + (a.y - My) * vy) * sig, f = x / (c / 2) * al, r = R + y, pu = r * Math.sin(f), pv = (S - R + r * Math.cos(f)) * sig; return { x: Mx + pu * ux + pv * vx, y: My + pu * uy + pv * vy }; });
+}
 function objMove(p) {
   if (!selObj || !oMode) return;
   if (!oMoved) { oMoved = true; if (!(oBase && oBase.k)) osnap(); }
@@ -650,7 +665,7 @@ function objMove(p) {
   if (oMode === 'move') { k.x = oBase.x + p.x - oBase.p.x; k.y = oBase.y + p.y - oBase.p.y; }
   else if (oMode === 'scale') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.s = Math.min(20, Math.max(.05, oBase.s * Math.hypot(p.x - pv.x, p.y - pv.y) / oBase.d)); }
   else if (oMode === 'rot') { const pv = { x: selObj.pv.x + k.x, y: selObj.pv.y + k.y }; k.r = oBase.r + Math.atan2(p.y - pv.y, p.x - pv.x) - oBase.a; }
-  else if (oMode === 'bend') { const dx = p.x - oBase.p0.x, dy = p.y - oBase.p0.y; k.pts = oBase.q.map((a, i) => { const u = oBase.u[i], w = bendI === 'm' ? Math.pow(Math.sin(Math.PI * u), 2) : bendI === 'a' ? Math.pow(1 - u, 2) : u * u; return toL(selObj, k, { x: a.x + dx * w, y: a.y + dy * w }); }); }
+  else if (oMode === 'bend') { k.pts = bendPts(oBase, bendI, p).map(w => toL(selObj, k, w)); }
   else if (oMode === 'warp') { wp.c[wp.hi] = { x: p.x, y: p.y }; if (selObj.tw === 'motion') selObj.tw = 'all'; k.pts = wp.w0.map(q => toL(selObj, k, wpMap(wp.b, wp.c, q))); }
 }
 function objUp() { if (oMoved) { build(); save(); } oMode = ''; render(); }
@@ -713,10 +728,13 @@ function vsUp() {
     const nw = objsNow(), xs = vpoly.map(p => p.x), ys = vpoly.map(p => p.y), small = vpoly.length < 4 || Math.max(...xs) - Math.min(...xs) < pxw(14) && Math.max(...ys) - Math.min(...ys) < pxw(14);
     if (small) { let h = null; for (let i = nw.length - 1; i >= 0 && !h; i--) if (hitSeg(nw[i].o, vpoly[0])) h = nw[i]; vsel = h ? [h] : []; }
     else vsel = nw.filter(it => { const q = vsWorld(it); return q.filter(p => vsInside(p, vpoly)).length >= q.length * .5; });
-    vpoly = [];
+    vpoly = []; const f = vsel[0] && vsel[0].o; $('vbl').value = f && f.bl || 0; $('vbN').textContent = $('vbl').value; $('vgl').value = f && f.gl || 0; $('vgN').textContent = $('vgl').value;
   } else if (moved) { build(); save(); }
   render();
 }
+[['vbl', 'bl', 'vbN'], ['vgl', 'gl', 'vgN']].forEach(([i, k, n]) => { const e = $(i); e.onpointerdown = () => { if (vsel.length) osnap(); }; e.oninput = () => { vsel.forEach(it => { if (!it.o.clip) it.o[k] = +e.value || undefined; }); $(n).textContent = e.value; render(); save(); }; });
+$('vglc').onpointerdown = () => { if (vsel.length) osnap(); }; $('vglc').oninput = () => { vsel.forEach(it => { if (!it.o.clip) { it.o.glc = $('vglc').value; if (!it.o.gl) it.o.gl = 12; } }); if (vsel.length && !+$('vgl').value) { $('vgl').value = 12; $('vgN').textContent = 12; } render(); save(); };
+$('vglcA').onclick = () => { if (!vsel.length) return; osnap(); vsel.forEach(it => { it.o.glc = undefined; }); render(); save(); };
 $('vsAll').onclick = () => { vsel = objsNow(); render(); };
 const vsUI = () => { $('vsPers').classList.toggle('on', vsWarp === 'persp'); $('vsMesh').classList.toggle('on', vsWarp === 'mesh'); };
 $('vsPers').onclick = () => { vsWarp = vsWarp === 'persp' ? '' : 'persp'; vsUI(); render(); };
@@ -887,6 +905,7 @@ function phOnly() {                                // while playing: only move t
   const px = LNW + ct * CW; if (sc && (px < sc.scrollLeft + LNW || px + CW > sc.scrollLeft + sc.clientWidth)) sc.scrollLeft = px - sc.clientWidth / 2;
 }
 function hl() {
+  if (fsel) markSel();
   const sb = $('scrub'); sb.max = Math.max(0, cols() - 1); sb.value = ct; $('fbadge').textContent = 'Frame ' + (ct + 1) + ' / ' + len; $('fi').textContent = 'Frame ' + (ct + 1) + ' / ' + len;
   tlbox.querySelectorAll('.rn.ct').forEach(x => x.classList.remove('ct'));
   const rn = tlbox.querySelector('.rn[data-t="' + ct + '"]'); if (rn) rn.classList.add('ct');
@@ -1043,8 +1062,27 @@ function startExtend(e, c) {
   const up = ev => { if (ev.pointerId !== pid) return; removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); save(); };
   addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
 }
+const cellFrames = x => x.classList.contains('gap') ? [+x.dataset.t, +x.dataset.t + 1] : [+x.dataset.t, +x.dataset.t + Math.max(1, Math.round(parseFloat(x.style.width) / CW))];
+function markSel() { tlbox.querySelectorAll('.cell').forEach(x => { let on = false; if (fsel && x.dataset.l != null) { const k = +x.dataset.l; if (k >= fsel.k0 && k <= fsel.k1) { const [a, b] = cellFrames(x); on = a <= fsel.t1 && b > fsel.t0; } } x.classList.toggle('fsel', on); }); }
+function clearRange(L, a, b) { for (const t of [b + 1, a]) { const i = L.cells.findIndex(c => c.s < t && c.s + c.d > t); if (i >= 0) L.cells.splice(i + 1, 0, splitCell(L.cells[i], t, false)); } L.cells = L.cells.filter(c => !(c.s >= a && c.s <= b)); }
+function fCopy() {
+  if (!fsel) { toast('Drag across the timeline to select frames first'); return false; }
+  const a = fsel.t0, b = fsel.t1 + 1; fclip = { w: b - a, rows: [] };
+  for (let k = fsel.k0; k <= fsel.k1; k++) { const pc = []; layers[k].cells.forEach(c => { const s0 = Math.max(c.s, a), e = Math.min(c.s + c.d, b); if (e > s0) pc.push({ s: s0 - a, d: e - s0, cv: c.cv && c.cv._has ? clone(c.cv) : null, objs: c.objs.map(o => windowObj(o, s0, e, -a)) }); }); fclip.rows.push(pc); }
+  return true;
+}
+$('fSel').onclick = () => { fOn = !fOn; fsel = null; $('fSel').style.background = fOn ? '#ff8a2f' : ''; $('fSel').textContent = fOn ? '⬚ Select: ON' : '⬚ Select'; ['fcCopy', 'fcCut', 'fcPaste', 'fcDel'].forEach(i => { $(i).hidden = !fOn; }); markSel(); if (fOn) toast('Drag across the timeline to select frames (many layers too)'); };
+$('fcCopy').onclick = () => { if (fCopy()) toast('Copied ' + fclip.w + ' frame' + (fclip.w > 1 ? 's' : '')); };
+$('fcCut').onclick = () => { if (playing || !fCopy()) return; commit(); osnap(); for (let k = fsel.k0; k <= fsel.k1; k++) if (!layers[k].lock) cutFrames(layers[k], fsel.t0, fsel.t1); fsel = null; fixLen(); ct = Math.min(ct, len - 1); build(); render(); save(); };
+$('fcDel').onclick = () => { if (playing || !fsel) return toast('Select frames first'); commit(); osnap(); for (let k = fsel.k0; k <= fsel.k1; k++) if (!layers[k].lock) clearRange(layers[k], fsel.t0, fsel.t1); fixLen(); build(); render(); save(); };
+$('fcPaste').onclick = () => {
+  if (playing) return; if (!fclip) return toast('Copy or cut frames first'); commit(); osnap();
+  fclip.rows.forEach((pc, i) => { const k = lay + i; if (k >= layers.length || layers[k].lock) return; const L = layers[k], a = ct; clearRange(L, a, a + fclip.w - 1); pc.forEach(p => L.cells.push({ s: a + p.s, d: p.d, cv: p.cv ? clone(p.cv) : null, objs: p.objs.map(o => windowObj(o, 0, p.d, a + p.s)) })); L.cells.sort((x, y) => x.s - y.s); });
+  fixLen(); build(); render(); save();
+};
 tlbox.addEventListener('pointerdown', e => {
   if (playing) return;
+  if (fOn) { const c = e.target.closest('.cell'); if (c && c.dataset.l != null) { e.preventDefault(); const k = +c.dataset.l, t = colAt(LX(e)); fDrag = { k, t }; fsel = { k0: k, k1: k, t0: t, t1: t }; lay = k; try { tlbox.setPointerCapture(e.pointerId); } catch (x) {} markSel(); return; } }
   const hd = e.target.closest('.hd'); if (hd) { startExtend(e, hd.closest('.cell')); return; }
   if (e.target.closest('.ln')) return;
   if (e.target.closest('.rr, .wvc')) { scrubbing = true; try { tlbox.setPointerCapture(e.pointerId); } catch (x) {} moveTo(colAt(LX(e)), true); return; }
@@ -1056,6 +1094,7 @@ tlbox.addEventListener('pointerdown', e => {
   }
 });
 tlbox.addEventListener('pointermove', e => {
+  if (fDrag) { const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest && el.closest('.cell'), k = c && c.dataset.l != null ? +c.dataset.l : fDrag.k, t = colAt(LX(e)); fsel = { k0: Math.min(k, fDrag.k), k1: Math.max(k, fDrag.k), t0: Math.min(t, fDrag.t), t1: Math.max(t, fDrag.t) }; markSel(); return; }
   if (scrubbing) { moveTo(colAt(LX(e)), true); const r = sc.getBoundingClientRect(), x = LX(e), l = S(r.left, r.top).x, rt = S(r.right, r.bottom).x; if (x < l + LNW + 20) sc.scrollLeft -= 10; else if (x > rt - 24) sc.scrollLeft += 10; return; }
   if (!td) return;
   if (!td.on) { if (Math.hypot(LX(e) - td.x0, LY(e) - td.y0) > 8) { clearTimeout(td.timer); td = null; } return; }   // moved too soon = just scrolling
@@ -1063,6 +1102,7 @@ tlbox.addEventListener('pointermove', e => {
   const r = sc.getBoundingClientRect(), x = LX(e), l = S(r.left, r.top).x, rt = S(r.right, r.bottom).x; if (x < l + LNW + 20) sc.scrollLeft -= 12; else if (x > rt - 30) sc.scrollLeft += 12;
 });
 function tEnd(e) {
+  if (fDrag) { fDrag = null; return; }
   if (scrubbing) { scrubbing = false; save(); hl(); render(); return; }
   if (!td) return; clearTimeout(td.timer); const t = td; td = null;
   t.c.style.transform = ''; t.c.classList.remove('lift');
@@ -1071,7 +1111,7 @@ function tEnd(e) {
   else { lay = t.k; moveTo(t.t); }
 }
 tlbox.addEventListener('pointerup', tEnd); tlbox.addEventListener('pointercancel', tEnd);
-tlbox.addEventListener('touchmove', e => { if ((td && td.on) || scrubbing) e.preventDefault(); }, { passive: false });
+tlbox.addEventListener('touchmove', e => { if ((td && td.on) || scrubbing || fDrag) e.preventDefault(); }, { passive: false });
 tlbox.addEventListener('contextmenu', e => e.preventDefault());
 
 // ---------- import GIF / video: every frame becomes its own drawing on a new layer ----------
@@ -1305,7 +1345,14 @@ function buildSizes() {                                             // tap a sav
 $('sizeAdd').onclick = () => { if (sizes.length < 12 && !sizes.includes(size)) { sizes.push(size); sizes.sort((a, b) => a - b); saveSizes(); buildSizes(); } };
 buildSizes();
 $('onion').onclick = () => { onion = !onion; $('onion').classList.toggle('on', onion); render(); };
-function syncCam() { const c = cam(ct); $('camz').value = Math.round(c.z * 100); $('camr').value = Math.round((c.r || 0) * 180 / Math.PI); $('camrN').textContent = $('camr').value + '°'; }
+const camSrc = () => { let i = ct; cam(ct); while (i > 0 && !cams[i].k) i--; return i; };
+function camAutoUI() { const A = cams[camSrc()]; $('camAuto').style.background = A && A.a ? '#4f7cff' : ''; $('camAuto').textContent = A && A.a ? '🎬 Auto camera: ON' : '🎬 Auto camera'; $('camEase').textContent = 'Ease: ' + (A && A.e ? 'on' : 'off'); }
+$('camAuto').onclick = () => { const i = camSrc(), A = cams[i]; let j = i + 1; while (j < cams.length && !cams[j].k) j++;
+  if (A.a) { osnap(); A.a = 0; camAutoUI(); render(); save(); return toast('Auto camera off'); }
+  if (j >= cams.length) return toast('Move the camera on a later frame first, then tap Auto camera on the earlier one');
+  osnap(); A.a = 1; camAutoUI(); render(); save(); toast('Camera glides from frame ' + (i + 1) + ' to frame ' + (j + 1)); };
+$('camEase').onclick = () => { const A = cams[camSrc()]; osnap(); A.e = A.e ? 0 : 1; camAutoUI(); render(); save(); };
+function syncCam() { const c = cam(ct); $('camz').value = Math.round(c.z * 100); $('camr').value = Math.round((c.r || 0) * 180 / Math.PI); $('camrN').textContent = $('camr').value + '°'; camAutoUI(); }
 $('camz').oninput = e => { camKey(ct).z = e.target.value / 100; render(); save(); };   // from this frame on, until you set it again
 $('camr').oninput = e => { camKey(ct).r = e.target.value * Math.PI / 180; $('camrN').textContent = e.target.value + '°'; render(); save(); };
 $('camAddK').onclick = () => { osnap(); const c = cam(ct); if (cams[ct] && cams[ct].k) return toast('This frame already has a camera key'); camKey(ct); build(); render(); save(); toast('Camera key added on frame ' + (ct + 1)); };
@@ -1854,7 +1901,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 25, NEWS = [
+const APPV = 27, NEWS = [
+  { v: 27, t: 'Auto camera + perfect bend + V-Select blur', i: ['Camera: 🎬 Auto camera glides from the key you are on to the next camera key (Ease option)', 'Bend: the stroke stays straight and the middle handle bends it into a perfect curve; end dots pull the ends', 'V-Select: Blur and Glow (with colour) for everything you selected'] },
+  { v: 26, t: 'Select many frames (Rough Animator style)', i: ['Timeline: ⬚ Select, then drag across frames and layers to select a block', 'Copy / Cut / Paste / Clear the block. Paste lands at the playhead on the chosen layer'] },
   { v: 25, t: 'Select several layers', i: ['☑ Multi button (next to ⧉): tap layers to select many, then ⧉ duplicates, ✕ deletes, 👁 / 🔒 hide or lock all of them', 'Also included: ⧉ duplicate layer and pinch-zoom up to 24x'] },
   { v: 24, t: 'Full drop shadow controls', i: ['Drop shadow: Blur, Height (distance), Angle and Thickness sliders + colour'] },
   { v: 23, t: 'Drop shadow, duplicate layer, more zoom', i: ['Layer panel: Drop shadow slider + shadow colour (only that layer)', '⧉ button next to ＋ Layer duplicates the selected layer', 'You can pinch-zoom the canvas much closer now (up to 24x)'] },
