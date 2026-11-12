@@ -127,7 +127,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <button data-t="lasso"><b>➰</b>Lasso</button>
       <button data-t="eye"><b>💧</b>Picker</button>
       <button data-t="bucket"><b>🪣</b>Bucket</button>
-      <button data-t="text"><b>T</b>Text</button><button data-t="pen"><b>✒</b>Pen</button>
+      <button data-t="text"><b>T</b>Text</button><button data-t="bone"><b>🦴</b>Bone</button>
       <button data-t="vsel"><b>↖</b>V-Select</button><button data-t="obj"><b>◇</b>Objects</button>
       <button data-t="key"><b>◆</b>Keyframe</button>
       <button data-t="cam"><b>🎥</b>Camera</button>
@@ -144,6 +144,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="olBox" hidden><button id="olTog">Outline: off</button><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
     <div class="box sec" id="clipBox" hidden><label>🎞 Symbols: animate something once (explosion, fire, a walk…), then reuse it anywhere. It plays by itself like a movieclip.</label><button id="cNew">＋ Create new symbol</button><label>Your symbols · tap one to place it</label><div id="lList"></div><button id="cMake" hidden>＋ Make clip from this layer</button><label>Used in this project (🔊 = add sounds)</label><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
 </div>
+    <div class="box sec" id="boneBox" hidden><div id="bnHint"></div><button id="bnMode">Switch to POSE</button><button id="bnDelOne">🗑 Delete selected bone (tap a joint first)</button><div class="two"><button id="bnKey">✕ Delete pose on this frame</button><button id="bnDel">🗑 Delete all bones</button></div></div>
     <div class="box sec" id="penBox" hidden><label>Pen: tap to place points, drag a point to curve it. Tap the first point to close the shape.</label><div class="two"><button id="penOk">✔ Finish line</button><button id="penUndo">↶ Remove last point</button><button id="penClose">Close shape: off</button><button id="penNo">✕ Cancel</button></div></div>
     <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button><button id="shE">⬭ Ellipse</button><button id="shP">⬠ Polygon</button><button id="shT">★ Star</button></div><label>Polygon / star sides <b id="shNn">5</b></label><input type="range" id="shN" min="3" max="12" value="5"><button id="shF">Fill: off</button></div>
     <div class="box sec" id="txtBox" hidden><label>Font</label><select id="font"><option value="'Comic Neue', 'Comic Sans MS', cursive">Comic (bold)</option><option value="'Bangers', Impact, fantasy">Bangers</option><option value="'Pacifico', cursive">Pacifico</option><option value="'Permanent Marker', cursive">Marker</option><option value="'Lobster', Georgia, serif">Lobster</option></select></div>
@@ -227,6 +228,7 @@ const vecOn = { brush: true, line: true, eraser: true, outline: true }; const is
 let exporting = false;
 let fxQ = (() => { try { const v = localStorage.getItem('yfxq'); return v == null ? 2 : +v; } catch (e) { return 2; } })();   // editor effects quality: 2 high, 1 medium, 0 none (exports are always full quality)
 const fq = () => exporting ? 1 : fxQ === 2 ? 1 : fxQ === 1 ? .5 : 0;
+let rigs = [], rigId = 1, bnMode = 'build', bnSt = null, bnSel = null;   // bones (Adobe Animate style armatures)
 let guides = [], marks = {}, gEdit = false, snapOn = false, gDrag = null, penPts = [], penD = null, penCl = false;   // guides, frame labels, pen tool
 let fOn = false, fsel = null, fclip = null, fDrag = null;   // frame selection (⬚ Select)
 let mulOn = false; const msel = new Set();   // several layers selected at once (☑ Multi)
@@ -302,8 +304,9 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
+  if (s.rigs) rigs = JSON.parse(JSON.stringify(s.rigs));
   len = s.len; cams = s.cams.map(c => ({ ...c }));
   layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
@@ -475,7 +478,7 @@ let rq = 0; const renderSoon = () => { if (!rq) rq = requestAnimationFrame(() =>
 function dash(on) { ox.setLineDash(on ? [8, 6] : []); }
 function overlay() {
   ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); ox.setTransform(1, 0, 0, 1, MX, MY);
-  guideDraw(); penDraw();
+  guideDraw(); penDraw(); boneDraw();
   const c = cam(ct), sw = OW / c.z, sh = OH / c.z;       // camera frame
   const cr = c.r || 0, cc = Math.cos(cr), cs = Math.sin(cr), cp = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => ({ x: c.x + a * sw / 2 * cc - b * sh / 2 * cs, y: c.y + a * sw / 2 * cs + b * sh / 2 * cc }));
   const camPath = () => { ox.moveTo(cp[0].x, cp[0].y); for (let i = 1; i < 4; i++) ox.lineTo(cp[i].x, cp[i].y); ox.closePath(); };
@@ -565,7 +568,7 @@ function drawObj(ctx, o, t, phase) {
 }
 function drawObj0(ctx, o, t, phase) {
   if (o.clip) return drawClipObj(ctx, o, t);
-  const e = evalObj(o, t), q = e.pts.map(p => toW(o, e, p));
+  const e = evalObj(o, t), q = e.pts.map(p => toW(o, e, p)); if (o.bn) rigPts(o, q, t);
   ctx.save(); ctx.lineCap = ctx.lineJoin = 'round';
   const pass = (col, w, dx, dy) => {
     ctx.save(); ctx.translate((dx || 0) * e.s, (dy || 0) * e.s); try {
@@ -939,6 +942,90 @@ $('penOk').onclick = () => penFinish(false);
 $('penUndo').onclick = () => { penPts.pop(); render(); };
 $('penNo').onclick = () => { penPts = []; render(); };
 $('penClose').onclick = () => { penCl = !penCl; $('penClose').textContent = 'Close shape: ' + (penCl ? 'ON' : 'off'); $('penClose').classList.toggle('on', penCl); render(); };
+// ---------- bones ----------
+const rigRest = r => ({ rx: r.J[0].x, ry: r.J[0].y, a: r.J.map(j => j.a) });
+function rigPos(r, rx, ry, ang) { const pos = []; r.J.forEach((j, i) => { if (j.p < 0) pos.push({ x: rx, y: ry }); else { const q = pos[j.p]; pos.push({ x: q.x + Math.cos(ang[i]) * j.len, y: q.y + Math.sin(ang[i]) * j.len }); } }); return { pos, ang, rx, ry }; }
+function rigPose(r, t) {
+  let A = null, B = null; for (const k of r.keys) { if (k.t <= t && (!A || k.t > A.t)) A = k; if (k.t > t && (!B || k.t < B.t)) B = k; }
+  const a0 = A || rigRest(r); let rx = a0.rx, ry = a0.ry, ang = a0.a.slice();
+  if (A && B) { const u = (t - A.t) / (B.t - A.t); rx = A.rx + (B.rx - A.rx) * u; ry = A.ry + (B.ry - A.ry) * u; ang = ang.map((x, i) => x + Math.atan2(Math.sin(B.a[i] - x), Math.cos(B.a[i] - x)) * u); }
+  return rigPos(r, rx, ry, ang);
+}
+function rigPts(o, q, t) {                                          // move a bound stroke with its bone
+  const r = rigs.find(x => x.id === o.bn.r); if (!r || !r.J[o.bn.j]) return; const j = o.bn.j, J = r.J[j]; if (J.p < 0) return;
+  const P = rigPose(r, t), R = r.J[J.p], Pp = P.pos[J.p], th = P.ang[j] - J.a, c = Math.cos(th), sn = Math.sin(th);
+  q.forEach(a => { const dx = a.x - R.x, dy = a.y - R.y; a.x = Pp.x + dx * c - dy * sn; a.y = Pp.y + dx * sn + dy * c; });
+}
+const isDesc = (r, k, j) => { while (k >= 0) { if (k === j) return true; k = r.J[k].p; } return false; };
+function boneKeyAt(r, t) {
+  let k = r.keys.find(x => x.t === t); if (k) return k; const P = rigPose(r, t);
+  if (t > 0 && !r.keys.some(x => x.t === 0)) { const R = rigRest(r); r.keys.push({ t: 0, rx: R.rx, ry: R.ry, a: R.a.slice() }); }
+  k = { t, rx: P.rx, ry: P.ry, a: P.ang.slice() }; r.keys.push(k); return k;
+}
+function boneHit(p, pose) {                                         // which joint is under the finger
+  const tol = pxw(28); let best = null;
+  rigs.forEach(r => { const P = pose ? rigPose(r, ct).pos : r.J.map(j => ({ x: j.x, y: j.y })); P.forEach((q, i) => { const d = Math.hypot(q.x - p.x, q.y - p.y); if (d < tol && (!best || d <= best.d)) best = { r, j: i, d }; }); });
+  return best;
+}
+function boneDown(p) {
+  if (bnMode === 'bind') return;
+  if (bnMode === 'build') { const h = boneHit(p, false); bnSt = { r: h && h.r, j: h ? h.j : -1, sx: h ? h.r.J[h.j].x : p.x, sy: h ? h.r.J[h.j].y : p.y, cx: p.x, cy: p.y }; return; }
+  const h = boneHit(p, true); if (!h) { bnSt = null; return; }
+  layers.forEach((L, li) => { if (cellAt(li, ct)) return; const c = L.cells.filter(x => x.s < ct && x.objs.some(o => o.bn)).pop(); if (c) { c.d = ct + 1 - c.s; fixLen(); } });   // keep rigged drawings visible on this frame
+  const kind = h.j === 0 ? 'root' : h.r.J.some(j => j.p === h.j) ? 'fk' : 'ik'; osnap(); bnSt = { r: h.r, j: h.j, kind, made: false, ox: p.x - rigPose(h.r, ct).pos[h.j].x, oy: p.y - rigPose(h.r, ct).pos[h.j].y };
+}
+function boneMove(p) {
+  if (!bnSt) return;
+  if (bnMode === 'build') { bnSt.cx = p.x; bnSt.cy = p.y; return; }
+  const r = bnSt.r, J = r.J, k = boneKeyAt(r, ct), j = bnSt.j; bnSt.made = true;
+  const pos = () => rigPos(r, k.rx, k.ry, k.a).pos;
+  if (bnSt.kind === 'root') { k.rx = p.x - bnSt.ox; k.ry = p.y - bnSt.oy; }
+  else if (bnSt.kind === 'fk') { const P = pos()[J[j].p], d = Math.atan2(p.y - P.y, p.x - P.x) - k.a[j]; J.forEach((x, m) => { if (isDesc(r, m, j)) k.a[m] += d; }); }
+  else { const chain = []; for (let m = j; J[m].p >= 0; m = J[m].p) chain.push(m);                 // drag the end of a chain: the whole chain follows (IK)
+    for (let it = 0; it < 14; it++) chain.forEach(m => { const P = pos(), piv = P[J[m].p], tip = P[j], d = Math.atan2(p.y - piv.y, p.x - piv.x) - Math.atan2(tip.y - piv.y, tip.x - piv.x); J.forEach((x, n) => { if (isDesc(r, n, m)) k.a[n] += d; }); }); }
+  dirtyOnion(); renderSoon();
+}
+function boneUp(p) {
+  if (bnMode === 'build' && bnSt) {
+    const d = Math.hypot(bnSt.cx - bnSt.sx, bnSt.cy - bnSt.sy);
+    if (d <= pxw(14)) { bnSel = bnSt.r ? { r: bnSt.r.id, j: bnSt.j } : null; if (bnSel) toast(bnSel.j === 0 ? 'Root joint selected: Delete removes the whole skeleton' : 'Bone selected. Tap 🗑 Delete selected bone'); }
+    if (d > pxw(14)) { osnap(); let r = bnSt.r, j = bnSt.j;
+      if (!r) { r = { id: rigId++, keys: [], J: [{ p: -1, x: bnSt.sx, y: bnSt.sy, len: 0, a: 0 }] }; rigs.push(r); j = 0; }
+      r.J.push({ p: j, x: bnSt.cx, y: bnSt.cy, len: d, a: Math.atan2(bnSt.cy - bnSt.sy, bnSt.cx - bnSt.sx) }); save(); }
+  }
+  bnSt = null; dirtyOnion(); save(); render();
+}
+function boneBind(auto) {
+  const c = cellAt(lay, ct); if (!c || !rigs.length) { if (!auto) toast('Nothing drawn on this frame/layer'); return; } osnap(); let n = 0;
+  c.objs.forEach(o => { if (o.clip || o.bn) return; const e = evalObj(o, ct), q = e.pts.map(a => toW(o, e, a)), cx = q.reduce((a, b) => a + b.x, 0) / q.length, cy = q.reduce((a, b) => a + b.y, 0) / q.length; let best = null;
+    rigs.forEach(r => r.J.forEach((J, j) => { if (J.p < 0) return; const A = r.J[J.p], dx = J.x - A.x, dy = J.y - A.y, t = Math.max(0, Math.min(1, ((cx - A.x) * dx + (cy - A.y) * dy) / (dx * dx + dy * dy || 1))), d = Math.hypot(cx - (A.x + dx * t), cy - (A.y + dy * t)); if (!best || d < best.d) best = { d, r, j }; }));
+    if (best) { o.bn = { r: best.r.id, j: best.j }; n++; } });
+  toast(n ? n + ' stroke' + (n > 1 ? 's' : '') + ' attached to bones. Drag a joint to pose' : 'Drag a joint to pose'); save(); render();
+}
+function boneDraw() {
+  if (tool !== 'bone') return; ox.save(); ox.lineJoin = 'round';
+  rigs.forEach(r => { const pose = bnMode === 'build' ? { pos: r.J.map(j => ({ x: j.x, y: j.y })) } : rigPose(r, ct), P = pose.pos;
+    r.J.forEach((J, i) => { if (J.p < 0) return; const a = P[J.p], b = P[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, w = Math.min(pxw(14), L * .18), mx = a.x + dx * .2, my = a.y + dy * .2;
+      ox.beginPath(); ox.moveTo(a.x, a.y); ox.lineTo(mx + nx * w, my + ny * w); ox.lineTo(b.x, b.y); ox.lineTo(mx - nx * w, my - ny * w); ox.closePath(); ox.fillStyle = 'rgba(79,124,255,.45)'; ox.fill(); ox.strokeStyle = '#4f7cff'; ox.lineWidth = pxw(2); ox.stroke(); });
+    P.forEach((q, i) => { ox.beginPath(); ox.arc(q.x, q.y, pxw(i === 0 ? 8 : 6), 0, 7); ox.fillStyle = bnSel && bnSel.r === r.id && bnSel.j === i ? '#e8231c' : i === 0 ? '#ff8a2f' : '#fff'; ox.fill(); ox.strokeStyle = '#4f7cff'; ox.stroke(); }); });
+  if (bnSt && bnMode === 'build') { ox.strokeStyle = '#ff8a2f'; ox.lineWidth = pxw(3); ox.beginPath(); ox.moveTo(bnSt.sx, bnSt.sy); ox.lineTo(bnSt.cx, bnSt.cy); ox.stroke(); }
+  ox.restore();
+}
+const bnUI = () => {
+  $('bnHint').innerHTML = bnMode === 'build' ? '<b>BUILD</b>: drag on your drawing to make a bone. Start the next drag from the end of a bone to continue the chain. When the skeleton is done, tap the button below.' : '<b>POSE</b>: go to any frame, then drag a joint. Drag the end of an arm or leg and the whole limb follows. Do it on another frame for the next pose, it tweens by itself.';
+  $('bnMode').textContent = bnMode === 'build' ? 'Done building → start POSING' : '← Back to building bones'; $('bnMode').classList.toggle('on', bnMode === 'pose'); render();
+};
+$('bnMode').onclick = () => { if (bnMode === 'build') { if (!rigs.length) return toast('Drag on the canvas to make a bone first'); boneBind(true); bnMode = 'pose'; } else bnMode = 'build'; bnUI(); };
+$('bnKey').onclick = () => { osnap(); let n = 0; rigs.forEach(r => { const b = r.keys.length; r.keys = r.keys.filter(k => k.t !== ct); n += b - r.keys.length; }); dirtyOnion(); save(); render(); toast(n ? 'Pose key removed' : 'No pose key on this frame'); };
+$('bnDelOne').onclick = () => {
+  if (!bnSel) return toast('Switch to building, then tap a joint to select it'); const r = rigs.find(x => x.id === bnSel.r); if (!r) { bnSel = null; return; } osnap();
+  const j = bnSel.j, drop = r.J.map((_, i) => j === 0 || isDesc(r, i, j)), map = []; let n = 0; r.J.forEach((_, i) => { map[i] = drop[i] ? -1 : n++; });
+  layers.forEach(L => L.cells.forEach(c => c.objs.forEach(o => { if (o.bn && o.bn.r === r.id) { if (drop[o.bn.j]) delete o.bn; else o.bn.j = map[o.bn.j]; } })));
+  if (n <= 1) rigs = rigs.filter(x => x !== r);
+  else { r.J = r.J.filter((_, i) => !drop[i]).map(J => ({ ...J, p: J.p < 0 ? -1 : map[J.p] })); r.keys.forEach(k => { k.a = k.a.filter((_, i) => !drop[i]); }); }
+  bnSel = null; dirtyOnion(); save(); render();
+};
+$('bnDel').onclick = () => { if (!rigs.length) return; osnap(); const ids = new Set(rigs.map(r => r.id)); layers.forEach(L => L.cells.forEach(c => c.objs.forEach(o => { if (o.bn && ids.has(o.bn.r)) delete o.bn; }))); rigs = []; dirtyOnion(); save(); render(); };
 function guideDraw() { if (!guides.length) return; ox.save(); ox.strokeStyle = '#00e5ff'; ox.lineWidth = pxw(2); dash(true); guides.forEach(g => { ox.beginPath(); if (g.o === 'v') { ox.moveTo(g.p, -MY); ox.lineTo(g.p, H + MY); } else { ox.moveTo(-MX, g.p); ox.lineTo(W + MX, g.p); } ox.stroke(); }); dash(false); ox.restore(); }
 const gUI = () => { $('gE').textContent = '✥ Move guides: ' + (gEdit ? 'ON' : 'off'); $('gE').classList.toggle('on', gEdit); $('gS').textContent = '🧲 Snap: ' + (snapOn ? 'ON' : 'off'); $('gS').classList.toggle('on', snapOn); $('gdq').style.background = gEdit || snapOn ? '#0a7a88cc' : ''; };
 $('gdq').onclick = () => { $('gpop').hidden = !$('gpop').hidden; };
@@ -994,6 +1081,7 @@ function resizeCell(L, c, nd) {                    // hold a drawing for more / 
 $('add').onclick = () => {                         // a brand-new blank frame after this drawing, on THIS layer only (other layers and the camera stay as they are)
   if (playing) return; commit(); const L = layers[lay]; if (L.lock) return; osnap();
   const c0 = cellAt(lay, ct), n = c0 ? c0.s + c0.d : ct + 1;
+  if (c0 && c0.objs.some(o => o.bn)) { resizeCell(L, c0, c0.d + 1); ct = c0.s + c0.d - 1; selObj = null; syncCam(); build(); render(); save(); return; }   // a rigged drawing is held, not replaced by a blank frame
   for (let i = 0; i < L.cells.length; i++) {
     const c = L.cells[i];
     if (c.s >= n) shiftCell(c, 1);
@@ -1346,9 +1434,9 @@ function setTool(t, keep) {
   if (t !== 'eye') prevTool = t;
   if (!keep) commit(); tool = t;
   if (t !== 'obj' && t !== 'key') selObj = null;
-  if (t === 'pen' || t === 'vsel' || t === 'lasso' || t === 'cam' || t === 'outline' || t === 'clip' || t === 'shape' || t === 'text' || t === 'obj' || t === 'key' || t === 'eraser' || t === 'brush' || t === 'line' || t === 'bucket') $('app').classList.remove('noopt');   // those tools need the options panel
+  if (t === 'pen' || t === 'bone' || t === 'vsel' || t === 'lasso' || t === 'cam' || t === 'outline' || t === 'clip' || t === 'shape' || t === 'text' || t === 'obj' || t === 'key' || t === 'eraser' || t === 'brush' || t === 'line' || t === 'bucket') $('app').classList.remove('noopt');   // those tools need the options panel
   document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  $('selBox').hidden = t !== 'lasso'; $('vsBox').hidden = t !== 'vsel'; if (t !== 'vsel') vsel = []; $('bkBox').hidden = t !== 'bucket'; $('olBox').hidden = !['outline', 'obj', 'key', 'brush', 'line', 'shape'].includes(t); $('clipBox').hidden = t !== 'clip'; if (t === 'clip') buildClips(); $('shpBox').hidden = t !== 'shape'; $('penBox').hidden = t !== 'pen'; if (t !== 'pen') { penPts = []; penD = null; } $('txtBox').hidden = t !== 'text'; $('camBox').hidden = t !== 'cam'; $('objBox').hidden = t !== 'obj' && t !== 'key'; $('keyBox').hidden = t !== 'key'; vecUI(); objUI();
+  $('selBox').hidden = t !== 'lasso'; $('vsBox').hidden = t !== 'vsel'; if (t !== 'vsel') vsel = []; $('bkBox').hidden = t !== 'bucket'; $('olBox').hidden = !['outline', 'obj', 'key', 'brush', 'line', 'shape'].includes(t); $('clipBox').hidden = t !== 'clip'; if (t === 'clip') buildClips(); $('shpBox').hidden = t !== 'shape'; $('boneBox').hidden = t !== 'bone'; bnSt = null; if (t === 'bone') bnUI(); penPts = []; penD = null; $('txtBox').hidden = t !== 'text'; $('camBox').hidden = t !== 'cam'; $('objBox').hidden = t !== 'obj' && t !== 'key'; $('keyBox').hidden = t !== 'key'; vecUI(); objUI();
   syncCam(); render();
 }
 document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => setTool(b.dataset.t));
@@ -1596,6 +1684,7 @@ ov.onpointerdown = e => {
   }
   if (!layers[lay].vis || layers[lay].lock) { if (!boardMode) { drag = false; return; } }   // can't draw on a hidden or locked layer
   if (tool === 'pen') { if (penPts.length >= 3 && Math.hypot(p.x - penPts[0].x, p.y - penPts[0].y) < penHit()) { drag = false; penFinish(true); return; } penD = { x: p.x, y: p.y, hx: 0, hy: 0 }; penPts.push(penD); render(); return; }
+  if (tool === 'bone') { boneDown(p); return; }
   if (isVec()) { pts = [p]; return; }
   if (tool === 'obj' || tool === 'key') { objDown(p); objUI(); return; }
   if (tool === 'vsel') { vsDown(p); return; }
@@ -1638,6 +1727,7 @@ ov.onpointermove = e => {
       sel.r = r;
     } else pts.push(p);
   }
+  else if (tool === 'bone') boneMove(p);
   else if (tool === 'pen') { if (penD) { penD.hx = p.x - penD.x; penD.hy = p.y - penD.y; } }
   else if (vecEr()) vecErase(p);
   else if (isVec()) { if (tool === 'line') pts = [pts[0], p]; else pts.push(p); }
@@ -1655,6 +1745,7 @@ function up0(e) {
   if (gest) { if (!ptrs.size) { gest = null; snapV(); } return; }
   if (!drag) return; drag = false; const p = P(e);
   if (tool === 'pen') { penD = null; render(); return; }
+  if (tool === 'bone') { boneUp(p); return; }
   if (boardMode && /^(brush|eraser|line|shape)$/.test(tool)) {
     if (tool === 'line') stroke(last, p); else if (tool === 'shape') boardDraw(-MX, -MY, W + MX, H + MY, g => drawShape(g, last, p));
     pushBundle(); save(); render(); return;
@@ -1828,7 +1919,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataNow = () => ({ v: 3, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1854,7 +1945,7 @@ function loadData(d) {
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
-  guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
+  rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
   layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
@@ -1972,7 +2063,11 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 30, NEWS = [
+const APPV = 34, NEWS = [
+  { v: 34, t: 'Bone delete + everything since the Pen was removed', i: ['Bone tool: tap a joint in Build mode, then 🗑 Delete selected bone', 'Pen tool removed, simpler 2-step bones, Add Frame holds rigged drawings'] },
+  { v: 33, t: 'Rigged drawings stay', i: ['➕ Frame on a rigged layer now holds the drawing instead of making a blank frame', 'Posing on a later frame keeps the rigged drawing visible'] },
+  { v: 32, t: 'Simpler bones, Pen removed', i: ['Bone tool: just 2 steps. Build the skeleton, tap one button, then pose (strokes attach to bones by themselves)', 'Pen tool removed'] },
+  { v: 31, t: 'Bones (Adobe Animate style)', i: ['🦴 Bone tool: 1 Build bones by dragging (chains and branches)', '2 Bind: strokes follow their nearest bone', '3 Pose: drag a joint on any frame. The end of a chain moves the whole chain (IK). Poses tween between frames'] },
   { v: 30, t: 'Pen, shapes, guides, labels', i: ['✒ Pen tool: tap points, drag to curve, tap the first point to close', 'Shapes: Ellipse, Polygon and Star (choose the number of sides)', '📏 Guides (bottom-left of the canvas): add guides, move them, and snap lines / shapes / brush to them', '🏷 Label: name a frame in the timeline, 🏷▶ jumps to the next label'] },
   { v: 29, t: 'Squash lasso + more export sizes', i: ['Lasso: 4 orange dots on the sides squash and stretch the piece (corner square = resize, round = rotate)', 'Export size for GIF, video and PNG: 4K, 1440p, 1080p, 900p, 720p, 540p, 480p, 360p, 240p or same as project'] },
   { v: 28, t: 'Effects quality + export range', i: ['✨ FX button (bottom-left of the canvas): High / Medium / None. None = no lag while you animate, effects still show in every export', 'Export: choose which frames to export (for example 1 to 50)'] },
