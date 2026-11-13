@@ -34,6 +34,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #ruler,#row{display:flex;width:max-content;min-width:100%}
 .rn{flex:none;width:26px;height:16px;font-size:10px;line-height:16px;color:#333;background:#e9e9ee;border-right:1px solid #aaa;padding-left:2px;cursor:pointer}
 .rn.cur{background:#e8231c;color:#fff}
+.rn.rg{box-shadow:inset 0 4px 0 #ff8a2f}.rn.out{opacity:.35}
 .cell{flex:none;width:26px;height:30px;background:#fff;border-right:1px solid #bbb;border-top:1px solid #bbb;position:relative;cursor:pointer}
 .cell.five{background:#eef1f7}
 .cell.cur{background:#ffd9d6}
@@ -178,7 +179,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 
   <div id="tlw">
     <div id="tlbtns">
-      <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
+      <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rgA" title="Playback and export start at this frame">⟦ Start</button><button id="rgB" title="Playback and export end at this frame">End ⟧</button><button id="rgX" title="Use all frames again">Full</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
       <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
@@ -228,6 +229,8 @@ const vecOn = { brush: true, line: true, eraser: true, outline: true }; const is
 let exporting = false;
 let fxQ = (() => { try { const v = localStorage.getItem('yfxq'); return v == null ? 2 : +v; } catch (e) { return 2; } })();   // editor effects quality: 2 high, 1 medium, 0 none (exports are always full quality)
 const fq = () => exporting ? 1 : fxQ === 2 ? 1 : fxQ === 1 ? .5 : 0;
+let rng = null;   // export / playback range {a,b}, 0-based frames
+const RG = () => rng && rng.a < len ? { a: rng.a, b: Math.min(rng.b, len - 1) } : null;
 let rigs = [], rigId = 1, bnMode = 'build', bnSt = null, bnSel = null;   // bones (Adobe Animate style armatures)
 let guides = [], marks = {}, gEdit = false, snapOn = false, gDrag = null, penPts = [], penD = null, penCl = false;   // guides, frame labels, pen tool
 let fOn = false, fsel = null, fclip = null, fDrag = null;   // frame selection (⬚ Select)
@@ -873,7 +876,7 @@ function build() {
   if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lopN').textContent = $('lop').value; if (layers[lay].glc) $('lglc').value = layers[lay].glc; $('lsh').value = layers[lay].sh || 0; $('lshN').textContent = layers[lay].sh || 0; if (layers[lay].shc) $('lshc').value = layers[lay].shc; [['lshd', 'shd', 'lshdN', 0], ['lsha', 'sha', 'lshaN', 45], ['lsht', 'sht', 'lshtN', 0]].forEach(([i, k, n, d]) => { const v = layers[lay][k] == null ? (k === 'shd' ? (layers[lay].sh ? Math.round(layers[lay].sh * .6) : 0) : d) : layers[lay][k]; $(i).value = v; $(n).textContent = v; }); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
   tlbox.innerHTML = ''; const n = cols();
   const rr = el('lr rr'); rr.append(el('ln corner'));
-  for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : marks[t] ? '🏷' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; if (marks[t]) r.title = marks[t]; r.style.width = CW + 'px'; rr.append(r); }
+  for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : marks[t] ? '🏷' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; if (marks[t]) r.title = marks[t]; { const R = RG(); if (R) r.classList.add(t >= R.a && t <= R.b ? 'rg' : 'out'); } r.style.width = CW + 'px'; rr.append(r); }
   tlbox.append(rr);
   let pg = null;
   for (let k = layers.length - 1; k >= 0; k--) {   // top layer first
@@ -1202,6 +1205,10 @@ function fCopy() {
   for (let k = fsel.k0; k <= fsel.k1; k++) { const pc = []; layers[k].cells.forEach(c => { const s0 = Math.max(c.s, a), e = Math.min(c.s + c.d, b); if (e > s0) pc.push({ s: s0 - a, d: e - s0, cv: c.cv && c.cv._has ? clone(c.cv) : null, objs: c.objs.map(o => windowObj(o, s0, e, -a)) }); }); fclip.rows.push(pc); }
   return true;
 }
+const rgSay = () => { const R = RG(); build(); hl(); save(); toast(R ? 'Playback + export: frames ' + (R.a + 1) + ' to ' + (R.b + 1) + ' (' + (R.b - R.a + 1) + ' of ' + len + ')' : 'Playback + export: all ' + len + ' frames'); };
+$('rgA').onclick = () => { const R = RG(); rng = { a: ct, b: R ? Math.max(R.b, ct) : len - 1 }; rgSay(); };
+$('rgB').onclick = () => { const R = RG(); rng = { a: R ? Math.min(R.a, ct) : 0, b: ct }; rgSay(); };
+$('rgX').onclick = () => { rng = null; rgSay(); };
 $('mkLbl').onclick = () => ask('Name for frame ' + (ct + 1) + ' (empty = remove)', marks[ct] || '', v => { v = (v || '').trim().slice(0, 24); if (v) marks[ct] = v; else delete marks[ct]; build(); hl(); save(); });
 $('mkNext').onclick = () => { const f = Object.keys(marks).map(Number).sort((a, b) => a - b); if (!f.length) return toast('No labels yet. Tap 🏷 Label'); const n = f.find(x => x > ct); ct = n == null ? f[0] : n; hl(); render(); toast('🏷 ' + marks[ct]); };
 $('fSel').onclick = () => { fOn = !fOn; fsel = null; $('fSel').style.background = fOn ? '#ff8a2f' : ''; $('fSel').textContent = fOn ? '⬚ Select: ON' : '⬚ Select'; ['fcCopy', 'fcCut', 'fcPaste', 'fcDel'].forEach(i => { $(i).hidden = !fOn; }); markSel(); if (fOn) toast('Drag across the timeline to select frames (many layers too)'); };
@@ -1800,13 +1807,14 @@ $('play').onclick = async () => {
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
   try { pcache = refV ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
   $('toast').classList.remove('on');
-  let t = ct >= plen ? 0 : ct;
+  const R = RG(), rn = R ? R.b - R.a + 1 : plen, lp = x => R ? R.a + (((x - R.a) % rn) + rn) % rn : x % plen;   // loop inside the range
+  let t = R ? ((ct < R.a || ct > R.b) ? R.a : ct) : (ct >= plen ? 0 : ct);
   if (audio) { aEl.currentTime = t / fps; aEl.play().catch(() => {}); }
   ac(); sfxFrame(t);
   let prev = performance.now(), acc = 0, shown = 0, since = prev; fpsTxt = ''; const fd = () => 1000 / fps;
   const tick = now => {                            // steady frame pacing: skips frames if the phone falls behind instead of slowing down
     if (!playing) return; acc += Math.min(now - prev, 250); prev = now;
-    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = (t + k) % plen; if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame((t + j) % plen); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
+    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = lp(t + k); if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame(lp(t + j)); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
     timer = requestAnimationFrame(tick);
   };
   timer = requestAnimationFrame(tick);
@@ -1905,7 +1913,7 @@ async function runExport(kind) {
   exporting = false;
 }
 $('exp').onclick = () => { if (playing) stop(); commit(); const std = [['4K', 2160], ['1440p', 1440], ['1080p Full HD', 1080], ['900p', 900], ['720p HD', 720], ['540p', 540], ['480p', 480], ['360p', 360], ['240p', 240]];
-  $('xRes').innerHTML = '<option value="' + OW + 'x' + OH + '">Size: same as project (' + OW + '×' + OH + ')</option>' + std.map(([n, hh]) => { const w = even(hh * OW / OH); return '<option value="' + w + 'x' + even(hh) + '">Size: ' + n + ' (' + w + '×' + even(hh) + ')</option>'; }).join(''); $('xFrom').value = 1; $('xTo').value = len; $('xFrom').max = $('xTo').max = len; xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
+  $('xRes').innerHTML = '<option value="' + OW + 'x' + OH + '">Size: same as project (' + OW + '×' + OH + ')</option>' + std.map(([n, hh]) => { const w = even(hh * OW / OH); return '<option value="' + w + 'x' + even(hh) + '">Size: ' + n + ' (' + w + '×' + even(hh) + ')</option>'; }).join(''); { const R = RG(); $('xFrom').value = R ? R.a + 1 : 1; $('xTo').value = R ? R.b + 1 : len; } $('xFrom').max = $('xTo').max = len; xStatus('Choose a format (' + len + ' frames, ' + fps + ' fps)'); $('xp').hidden = false; };
 $('xPng').onclick = () => runExport('png'); $('xGif').onclick = () => runExport('gif'); $('xMp4').onclick = () => runExport('mp4'); $('xWebm').onclick = () => runExport('webm');
 $('xNo').onclick = () => { if (!exporting) $('xp').hidden = true; };
 
@@ -1919,7 +1927,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataNow = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1945,7 +1953,7 @@ function loadData(d) {
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
   fxs = d.fx || []; buildFx();
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
-  rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
+  rng = d.rng || null; rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
   layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
@@ -2063,7 +2071,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 34, NEWS = [
+const APPV = 35, NEWS = [
+  { v: 35, t: 'Playback / export range', i: ['Timeline: ⟦ Start and End ⟧ set the part of your animation to play and export (orange bar on the frame numbers). Full resets it', 'Play loops only inside the range; Export starts with that range filled in'] },
   { v: 34, t: 'Bone delete + everything since the Pen was removed', i: ['Bone tool: tap a joint in Build mode, then 🗑 Delete selected bone', 'Pen tool removed, simpler 2-step bones, Add Frame holds rigged drawings'] },
   { v: 33, t: 'Rigged drawings stay', i: ['➕ Frame on a rigged layer now holds the drawing instead of making a blank frame', 'Posing on a later frame keeps the rigged drawing visible'] },
   { v: 32, t: 'Simpler bones, Pen removed', i: ['Bone tool: just 2 steps. Build the skeleton, tap one button, then pose (strokes attach to bones by themselves)', 'Pen tool removed'] },
