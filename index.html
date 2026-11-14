@@ -79,7 +79,8 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #opts button,#opts select{width:100%;border-radius:3px;padding:10px 6px;background:var(--cream);color:var(--ink);font-size:13px}
 #opts .box{flex-direction:column;align-items:stretch}
 #olSides button.on,#shpBox button.on,#objBox button.on{background:#4f7cff}#tools button.bdon{outline:2px solid #4f7cff;background:#4f7cff55}#tools button.v{outline:2px solid #4f7cff}#tools button.v::after{content:"vector";font-size:8px;color:#4f7cff}.rn.ct{box-shadow:inset 0 -3px #4f7cff}.rn.kf{color:#b58900;font-weight:900}
-#gdq{position:absolute;left:6px;bottom:36px;z-index:25;background:#2a2a33cc;color:#fff;border:1px solid #00e5ff;border-radius:14px;padding:4px 10px;font-size:12px}#gpop{position:absolute;left:6px;bottom:66px;z-index:26;display:flex;flex-direction:column;gap:4px;background:#1b1b22ee;padding:6px;border-radius:10px}#gpop button{font-size:12px;padding:6px 10px}#fxq{position:absolute;left:6px;bottom:6px;z-index:25;background:#2a2a33cc;color:#fff;border:1px solid #4f7cff;border-radius:14px;padding:4px 10px;font-size:12px}#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.cell.fsel{box-shadow:inset 0 0 0 99px rgba(255,138,47,.5);outline:2px solid #ff8a2f;outline-offset:-2px}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
+#gdq{position:absolute;left:6px;bottom:36px;z-index:25;background:#2a2a33cc;color:#fff;border:1px solid #00e5ff;border-radius:14px;padding:4px 10px;font-size:12px}#scnP{position:absolute;left:6px;top:6px;z-index:40;display:flex;flex-direction:column;gap:4px;background:#1b1b22f5;padding:8px;border-radius:10px;border:1px solid #555;max-height:92%;overflow:auto;min-width:190px}#scnP .r{display:flex;gap:4px}#scnP .r button:first-child{flex:1;text-align:left}#scnP .cur{background:#4f7cff}
+#gpop{position:absolute;left:6px;bottom:66px;z-index:26;display:flex;flex-direction:column;gap:4px;background:#1b1b22ee;padding:6px;border-radius:10px}#gpop button{font-size:12px;padding:6px 10px}#fxq{position:absolute;left:6px;bottom:6px;z-index:25;background:#2a2a33cc;color:#fff;border:1px solid #4f7cff;border-radius:14px;padding:4px 10px;font-size:12px}#tlbox{position:relative}.trow{flex-wrap:wrap}.ln{width:112px}.rr{touch-action:none}.cell.gap{background:#f4f4f6}.cell.fsel{box-shadow:inset 0 0 0 99px rgba(255,138,47,.5);outline:2px solid #ff8a2f;outline-offset:-2px}.ln.msel{outline:3px solid #ff8a2f;outline-offset:-3px;background:#ff8a2f33}.rn.ct{background:#e8231c;color:#fff;box-shadow:none}
 #ph{position:absolute;top:0;bottom:0;width:2px;background:#e8231c;pointer-events:none;z-index:4}#ph u{position:absolute;top:0;left:-6px;width:14px;height:12px;background:#e8231c;border-radius:0 0 7px 7px}
 #fi{font-size:11px;color:#ddd;align-self:center;padding:0 4px}.cell.lift{opacity:.85}
 #cList{display:flex;flex-direction:column;gap:4px}.crow{display:flex;gap:4px}.crow button:first-child{flex:1}.crow button+button{width:44px;flex:none}
@@ -124,7 +125,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="app">
   <div id="top">
     <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
-    <button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
+    <button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
     <span class="qs">Size <input type="range" id="qsz" min="1" max="300" value="6"><b id="qszN">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
   </div>
   <div id="tools">
@@ -163,7 +164,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
     <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
-    <div class="box sec" id="bsBox" hidden><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
+    <div class="box sec" id="bsBox" hidden><label>Gradient stroke (vector brush)</label><select id="gsM"><option value="0">Off</option><option value="1">On: colour → end colour</option></select><input type="color" id="gsC" value="#ff3b8d"><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
     <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
     <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
@@ -181,9 +182,12 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div class="trow"><button data-fx="glow">✨ Glow</button></div><div id="fxL"></div></div>
     <div class="sec"><button id="nwBtn">✨ What's new</button></div>
     <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
+    <div class="sec"><label>Reference image</label><button id="riAdd">🖼 Add reference image</button><div id="riBox" hidden><button id="riDel">✕ Remove image</button><label>Image opacity</label><input type="range" id="riOp" min="10" max="100" value="50"></div><input type="file" id="riF" accept="image/*" hidden></div>
+    <div class="sec"><label>Onion skin</label><div class="trow"><label>Before</label><select id="oB"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select><label>After</label><select id="oA"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div><label>Strength</label><input type="range" id="oOp" min="10" max="90" value="40"><div class="trow"><input type="color" id="oCb" value="#e8231c"><input type="color" id="oCa" value="#1fa84a"></div><button id="oTint">🎨 Tint: on</button></div>
   </div>
 
-  <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><button id="gdq" title="Guides and snapping">📏 Guides</button><div id="gpop" hidden><button id="gV">＋ Vertical guide</button><button id="gH">＋ Horizontal guide</button><button id="gE">✥ Move guides: off</button><button id="gS">🧲 Snap: off</button><button id="gC">Clear guides</button></div><button id="fxq" title="Effects quality while you animate (exports are always full quality)">✨ FX: High</button><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
+  <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><button id="gdq" title="Guides and snapping">📏 Guides</button><div id="scnP" hidden></div>
+<div id="gpop" hidden><button id="gV">＋ Vertical guide</button><button id="gH">＋ Horizontal guide</button><button id="gE">✥ Move guides: off</button><button id="gS">🧲 Snap: off</button><button id="gC">Clear guides</button></div><button id="fxq" title="Effects quality while you animate (exports are always full quality)">✨ FX: High</button><div id="cf" hidden><div id="cft"></div><div><button id="cfy">Draw here</button><button id="cfn">Cancel</button></div></div><div id="toast"></div></div>
 
   <div id="tlw">
     <div id="tlbtns">
@@ -415,14 +419,16 @@ function applySize(ow, oh) {
   if (ow === OW && oh === OH) return; OW = ow; OH = oh; W = Math.round(ow * 1.5); H = Math.round(oh * 1.5); SK = W / OW; MX = OW; MY = OH; VW = W + 2 * MX; VH = H + 2 * MY;
   view.width = ov.width = VW; view.height = ov.height = VH; [comp, mg, mm, oc, fillCv].forEach(c => { c.width = W; c.height = H; }); onionC.clear(); tiles.clear(); V.x = V.y = 0; V.s = 1; V.r = 0; applyV(); fit();
 }
+let oS = { b: 2, a: 2, op: 40, cb: '#e8231c', ca: '#1fa84a', tint: true }; try { Object.assign(oS, JSON.parse(localStorage.getItem('yinnyOnion') || '{}')); } catch (e) {}
+let refI = null;   // reference picture: sits under your drawing, never saved or exported
 const onionC = new Map(); const dirtyOnion = () => onionC.clear();
 function onionDraw(c, col, a) {                    // the coloured ghost of a neighbour frame is drawn once and reused until something is edited
   let e = onionC.get(c);
   if (!e || e.col !== col) {
-    if (onionC.size > 6) onionC.clear();
+    if (onionC.size > 12) onionC.clear();
     e = { col, cv: e ? e.cv : mk() }; const g = e.cv.getContext('2d');
     g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); drawCell(g, c, c.s);
-    g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; onionC.set(c, e);
+    if (col !== 'none') { g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; } onionC.set(c, e);
   }
   vx.globalAlpha = a; vx.drawImage(e.cv, 0, 0); vx.globalAlpha = 1;
 }
@@ -457,6 +463,7 @@ function waveRow(n) {
   r.append(l, c); return r;
 }
 let refV = null;                                    // reference video: shows under your drawing, follows the playhead, never saved or exported
+function drawRefI(g) { if (!refI) return; const im = refI.im, k = Math.min(OW / im.width, OH / im.height), w = im.width * k, h = im.height * k; g.save(); g.globalAlpha = refI.op; g.drawImage(im, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore(); }
 function drawRef(g, live) {
   if (!refV) return; const v = refV.v, tt = (ct - refV.start) / fps;
   if (tt < 0 || tt > (v.duration || 0)) { if (live && !v.paused) v.pause(); return; }
@@ -478,10 +485,11 @@ function render() {
   vx.setTransform(1, 0, 0, 1, MX, MY);
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
-  drawRef(vx);
+  drawRefI(vx); drawRef(vx);
   if (onion) {                                     // onion skin = the neighbouring drawings of THIS layer (red = before, green = after)
     const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
-    [[pi - 1, '#ff9500', .22], [ni + 1, '#1e6bff', .22], [pi, '#e8231c', .4], [ni, '#1fa84a', .4]].forEach(([j, c, a]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, c, a); });
+    const ls = []; for (let k = 0; k < oS.b; k++) ls.push([pi - k, oS.cb, k]); for (let k = 0; k < oS.a; k++) ls.push([ni + k, oS.ca, k]);
+    ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, oS.tint ? c : 'none', oS.op / 100 * (k ? .5 / k : 1)); });
   }
   flat(vx, ct);
   { const ML = layers[lay], mc = ML && ML.mk === 'mask' && cellAt(lay, ct); if (mc) { vx.save(); vx.globalAlpha = .35; drawCell(vx, mc, ct); vx.restore(); } }   // while you edit a mask layer, show its shape faintly
@@ -586,6 +594,7 @@ function drawObj0(ctx, o, t, phase) {
   const pass = (col, w, dx, dy) => {
     ctx.save(); ctx.translate((dx || 0) * e.s, (dy || 0) * e.s); try {
     ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = w * e.s;
+    if (o.gr && col === o.col && q.length > 1) { let a = q[0], z = q[q.length - 1]; if (Math.hypot(z.x - a.x, z.y - a.y) < 6) { const xs = q.map(m => m.x), ys = q.map(m => m.y); a = { x: Math.min(...xs), y: Math.min(...ys) }; z = { x: Math.max(...xs), y: Math.max(...ys) }; } const gd = ctx.createLinearGradient(a.x, a.y, z.x, z.y); gd.addColorStop(0, col); gd.addColorStop(1, o.gr); ctx.strokeStyle = ctx.fillStyle = gd; }
     if (q.length === 1) { ctx.beginPath(); ctx.arc(q[0].x, q[0].y, w * e.s / 2, 0, 7); ctx.fill(); return; }
     ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y);
     for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2);
@@ -781,7 +790,7 @@ function vecEnd(raw) {
   let a = pts; pts = []; if (!a.length) return;
   a = a.length > 1 && !raw ? simplify(a, 5) : a; osnap();
   const pv = { x: a.reduce((n, p) => n + p.x, 0) / a.length, y: a.reduce((n, p) => n + p.y, 0) / a.length };
-  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' || tool === 'pen' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
+  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...($('gsM').value === '1' && tool === 'brush' ? { gr: $('gsC').value } : {}), ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' || tool === 'pen' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
   build(); save(); render();
 }
 let olOn = false;
@@ -1937,7 +1946,9 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataNow = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataCore = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+let scn = { cur: 0, list: [{ name: 'Scene 1' }] };   // scenes: every scene is a full copy of the animation (layers, camera, sound); only the open one is live
+const dataNow = () => { const d = dataCore(); scn.list[scn.cur].data = null; return { ...d, scn: { cur: scn.cur, list: scn.list.map((x, i) => ({ name: x.name, data: i === scn.cur ? null : x.data })) } }; };
 function thumbURL() {                                             // what the camera sees on the first frame
   const c = document.createElement('canvas'); c.width = 192; c.height = Math.round(192 * OH / OW); const x = c.getContext('2d'), m = cam(0), sw = OW / m.z, sh = OH / m.z;
   cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, 192, c.height); x.drawImage(comp, m.x - sw / 2, m.y - sh / 2, sw, sh, 0, 0, 192, c.height);
@@ -1959,6 +1970,7 @@ function migrate(d) {                                            // projects sav
 }
 function loadData(d) {
   if (!d.v || d.v < 3) d = migrate(d);
+  if (d.scn) scn = { cur: d.scn.cur || 0, list: d.scn.list.map(x => ({ name: x.name, data: x.data })) }; else if (!d._sw) scn = { cur: 0, list: [{ name: 'Scene 1' }] };
   if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); }
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
   fxs = d.fx || []; buildFx();
@@ -2053,6 +2065,14 @@ async function soundFromFile(f) {                    // take the sound track of 
 }
 $('rvSnd').onclick = () => { if (refV) { refV.v.muted = !refV.v.muted; rvUI(); } };
 $('rvToProj').onclick = async () => { if (!refV) return; toast('Reading its sound…'); if (await soundFromFile(refV.file)) { refV.v.muted = true; rvUI(); toast('Video sound added to the project (shows in the waveform, exports too)'); } else toast('This video has no sound I can read'); };
+const oUI = () => { $('oB').value = oS.b; $('oA').value = oS.a; $('oOp').value = oS.op; $('oCb').value = oS.cb; $('oCa').value = oS.ca; $('oTint').textContent = '🎨 Tint: ' + (oS.tint ? 'on' : 'off (original colours)'); };
+const oSet = () => { onionC.clear(); try { localStorage.setItem('yinnyOnion', JSON.stringify(oS)); } catch (e) {} oUI(); render(); };
+$('oB').onchange = e => { oS.b = +e.target.value; oSet(); }; $('oA').onchange = e => { oS.a = +e.target.value; oSet(); }; $('oOp').oninput = e => { oS.op = +e.target.value; oSet(); };
+$('oCb').oninput = e => { oS.cb = e.target.value; oSet(); }; $('oCa').oninput = e => { oS.ca = e.target.value; oSet(); }; $('oTint').onclick = () => { oS.tint = !oS.tint; oSet(); }; oUI();
+$('riAdd').onclick = () => { if (!playing) $('riF').click(); };
+$('riF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const im = new Image(); im.onload = () => { refI = { im, op: +$('riOp').value / 100 }; $('riBox').hidden = false; build(); render(); toast('Reference image added (not saved or exported)'); }; im.onerror = () => toast('Could not open that image'); im.src = URL.createObjectURL(f); };
+$('riOp').oninput = e => { if (refI) { refI.op = +e.target.value / 100; render(); } };
+$('riDel').onclick = () => { refI = null; $('riBox').hidden = true; render(); };
 $('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
 $('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (refV) URL.revokeObjectURL(refV.v.src);
   const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
@@ -2081,7 +2101,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 37, NEWS = [
+const APPV = 39, NEWS = [
+  { v: 39, t: 'Scenes + gradient strokes', i: ['🎬 Scenes (top bar): several scenes in one project, each with its own layers, camera and sound. New, copy, rename, delete. Play and export use the open scene', 'Brush: Gradient stroke On = each new vector stroke fades from your colour to an end colour'] },
+  { v: 38, t: 'Onion skin settings + reference image', i: ['Onion skin: choose 0–4 frames before and after, strength, your own colours, or original colours (tint off)', '🖼 Reference image: put a sketch or storyboard under your drawing (not saved or exported)'] },
   { v: 37, t: 'Build mode + remembered tools', i: ['🛠 Build mode (on the projects screen): drag the tools, colour panel, timeline, top bar and canvas where you want them, resize them, then Save. Used in every project', 'Your brush size, colour, brush style and last tool are remembered, even in new projects and after closing the app'] },
   { v: 36, t: 'Bigger timeline', i: ['Frame / layer buttons are now a neat 4-wide grid (scroll it for more)', 'The timeline got much wider and taller so you can see more layers and frames'] },
   { v: 35, t: 'Playback / export range', i: ['Timeline: ⟦ Start and End ⟧ set the part of your animation to play and export (orange bar on the frame numbers). Full resets it', 'Play loops only inside the range; Export starts with that range filled in'] },
@@ -2179,6 +2201,25 @@ applyLayout(layCfg);
   if (o.tool && o.tool !== 'clip' && o.tool !== 'bone' && o.tool !== 'cam' && document.querySelector('[data-t="' + o.tool + '"]')) setTool(o.tool);
   let last = ''; setInterval(() => { const s = JSON.stringify({ size, color, tool, bStyle: $('bStyle').value, dMode: $('dMode').value }); if (s !== last) { last = s; try { localStorage.setItem(K, s); } catch (e) {} } }, 700);
 })();
+// ===== scenes =====
+function scnGo(i, fresh) {
+  scn.list[scn.cur].data = JSON.parse(JSON.stringify(dataCore()));
+  const keep = scn; let d; if (fresh) { d = null; } else d = { ...JSON.parse(JSON.stringify(scn.list[i].data)), _sw: 1 };
+  scn.cur = i; if (fresh) { blank({ fps, ow: OW, oh: OH }); scn = keep; scn.cur = i; } else { loadData(d); scn = keep; scn.cur = i; }
+  scn.list[i].data = null; scnUI(); save();
+}
+function scnUI() {
+  $('scnB').title = 'Scene: ' + scn.list[scn.cur].name; const P = $('scnP'); P.innerHTML = '<b style="font-size:12px">🎬 Scenes (each has its own layers, camera and sound)</b>';
+  scn.list.forEach((x, i) => { const r = document.createElement('div'); r.className = 'r'; const b = document.createElement('button'); b.textContent = (i + 1) + '. ' + x.name; if (i === scn.cur) b.className = 'cur'; b.onclick = () => { if (i !== scn.cur) scnGo(i); P.hidden = true; };
+    const e = document.createElement('button'); e.textContent = '✎'; e.onclick = () => ask('Scene name', x.name, v => { if (v) { x.name = v.slice(0, 24); scnUI(); save(); } });
+    const d = document.createElement('button'); d.textContent = '🗑'; d.onclick = () => { if (scn.list.length < 2) return toast('You need at least one scene'); if (!confirm('Delete scene "' + x.name + '"?')) return; const was = scn.cur === i; scn.list.splice(i, 1); if (was) { scn.cur = Math.min(i, scn.list.length - 1); const d2 = { ...JSON.parse(JSON.stringify(scn.list[scn.cur].data)), _sw: 1 }, k = scn; loadData(d2); scn = k; scn.list[scn.cur].data = null; } else if (i < scn.cur) scn.cur--; scnUI(); save(); };
+    r.append(b, e, d); P.append(r); });
+  const n = document.createElement('div'); n.className = 'r'; const a = document.createElement('button'); a.textContent = '＋ New scene'; a.onclick = () => { scn.list.push({ name: 'Scene ' + (scn.list.length + 1) }); scnGo(scn.list.length - 1, true); P.hidden = true; };
+  const c = document.createElement('button'); c.textContent = '⧉ Copy this scene'; c.onclick = () => { const cp = JSON.parse(JSON.stringify(dataCore())); scn.list.push({ name: scn.list[scn.cur].name + ' copy', data: cp }); scnGo(scn.list.length - 1); P.hidden = true; };
+  n.append(a, c); P.append(n);
+}
+$('scnB').onclick = () => { scnUI(); $('scnP').hidden = !$('scnP').hidden; };
+scnUI();
 orient(); build(); render();
 </script>
 <script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script></body>
