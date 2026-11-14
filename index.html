@@ -23,14 +23,15 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #stage{position:relative}#stage canvas{position:absolute;border-radius:4px;touch-action:none}
 #view{background:transparent}#stage.board{outline:3px solid #4f7cff;outline-offset:-3px}
 #tlw{display:flex;background:#2a2a33;gap:6px;padding:4px 6px;align-items:stretch}
-#tlbtns{display:flex;flex-direction:column;gap:4px;justify-content:center}
-#tlbtns button{padding:5px 8px;font-size:12px}
+#tlbtns{display:grid;grid-template-columns:repeat(4,66px);gap:4px;align-content:start;max-height:158px;overflow-y:auto;padding-right:2px;flex:none}   /* the frame / layer buttons sit in a neat 4-wide grid so the timeline gets the room */
+#tlbtns .trow{display:contents}
+#tlbtns button{padding:6px 0;font-size:10px;letter-spacing:-.2px;min-height:30px;overflow:hidden;text-overflow:ellipsis}
 #tlmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}#scrub{position:relative;width:100%;height:30px;margin:0;border-radius:15px;background:#1d1d24 repeating-linear-gradient(90deg,transparent 0 11px,rgba(255,255,255,.09) 11px 12px);border:1px solid #555;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ew-resize;overflow:hidden;flex:none}#sfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3558c8,#4f7cff);border-radius:15px 0 0 15px;pointer-events:none}#sth{position:absolute;top:2px;bottom:2px;width:40px;border-radius:13px;background:#fff;color:#222;display:flex;align-items:center;justify-content:center;font-size:13px;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.6)}#sth b{font-weight:700}
 #pj{position:fixed;top:0;right:0;bottom:0;left:0;background:#1e1e1e;z-index:40;display:flex;flex-direction:column}#pj[hidden]{display:none}
 #pjh{display:flex;gap:8px;align-items:center;padding:8px;background:#2b2b2b;color:#eee}#pjh span{flex:1;font-size:12px;opacity:.7}
 #pjg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;padding:10px;overflow:auto;flex:1;align-content:start}
 .pc{background:#333;border-radius:4px;padding:6px;color:#eee}.pc img{width:100%;aspect-ratio:16/9;background:#fff;object-fit:cover;display:block;border-radius:2px}.pn{margin:5px 0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pr{display:flex;gap:4px}.pr button{flex:1;padding:6px 2px;font-size:12px}
-#tlscroll{flex:1;min-width:0;overflow:auto;max-height:112px;background:#cfd2d8;border:1px solid #777}
+#tlscroll{flex:1;min-width:0;overflow:auto;max-height:158px;min-height:120px;background:#cfd2d8;border:1px solid #777}
 #ruler,#row{display:flex;width:max-content;min-width:100%}
 .rn{flex:none;width:26px;height:16px;font-size:10px;line-height:16px;color:#333;background:#e9e9ee;border-right:1px solid #aaa;padding-left:2px;cursor:pointer}
 .rn.cur{background:#e8231c;color:#fff}
@@ -86,6 +87,13 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #sizePre{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#sizePre button{padding:6px 4px;width:auto;flex:1 0 44px}#sizePre button.on{background:#4f7cff;color:#fff}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 #tlw{background:#333}
+#app.custom{display:block;position:relative;overflow:hidden}
+#app.custom>#top,#app.custom>#tools,#app.custom>#opts,#app.custom>#tlw{position:absolute;overflow:auto;z-index:5}
+#app.custom>#stage{position:absolute;overflow:hidden;z-index:1}
+.bmo{position:absolute;left:0;top:0;right:0;bottom:0;z-index:60;background:rgba(255,138,47,.22);border:3px dashed #ff8a2f;color:#fff;font:700 15px system-ui;display:flex;align-items:center;justify-content:center;text-align:center;touch-action:none;text-shadow:0 0 4px #000,0 0 8px #000}
+.bmr{position:absolute;right:0;bottom:0;width:46px;height:46px;background:#ff8a2f;border-radius:12px 0 0 0;z-index:61;touch-action:none;color:#000;display:flex;align-items:center;justify-content:center;font-size:20px}
+#bmBar{position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:90;display:flex;gap:6px;align-items:center;background:#1b1b22f2;border:2px solid #ff8a2f;border-radius:10px;padding:6px 10px;color:#fff;font-size:12px;max-width:96%}
+#bmBar span{opacity:.8}#bmBar button{padding:8px 10px;font-size:13px}#bmSave{background:#2e9e4f}
 #tlbtns button{background:var(--cream);color:var(--ink);border-radius:3px;padding:5px 7px;font-size:12px}
 #tlbtns button:disabled{opacity:.4}
 #tlscroll{max-height:100px}
@@ -186,7 +194,8 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   </div>
 </div>
 
-<div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
+<div id="bmBar" hidden><b>🛠 Build mode</b><span>Drag a block to move it · drag its orange corner to resize it</span><button id="bmSave">💾 Save layout</button><button id="bmReset">↺ Default</button><button id="bmNo">✕ Cancel</button></div>
+<div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><button id="pjBuild">🛠 Build mode</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
 <div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
 <div id="cmBar" hidden><b>🎞 Making a symbol</b><button id="cmDone">💾 Save symbol</button><button id="cmNo">✕ Cancel</button></div>
@@ -229,6 +238,7 @@ const vecOn = { brush: true, line: true, eraser: true, outline: true }; const is
 let exporting = false;
 let fxQ = (() => { try { const v = localStorage.getItem('yfxq'); return v == null ? 2 : +v; } catch (e) { return 2; } })();   // editor effects quality: 2 high, 1 medium, 0 none (exports are always full quality)
 const fq = () => exporting ? 1 : fxQ === 2 ? 1 : fxQ === 1 ? .5 : 0;
+let bmOn = false;   // build mode (arranging the screen) is open
 let rng = null;   // export / playback range {a,b}, 0-based frames
 const RG = () => rng && rng.a < len ? { a: rng.a, b: Math.min(rng.b, len - 1) } : null;
 let rigs = [], rigId = 1, bnMode = 'build', bnSt = null, bnSel = null;   // bones (Adobe Animate style armatures)
@@ -1934,7 +1944,7 @@ function thumbURL() {                                             // what the ca
   return c.toDataURL('image/jpeg', .7);
 }
 async function saveNow() {
-  if (clipRet) return;
+  if (clipRet || bmOn) return;
   try { if (!pid) pid = 'p' + Date.now(); await putP({ id: pid, name: pname, t: Date.now(), thumb: thumbURL(), data: dataNow() }); localStorage.setItem('easylast', pid); localStorage.removeItem('easyanim'); } catch (e) {}
 }
 function save() { dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500); }   // never saves in the middle of a stroke or playback
@@ -2071,7 +2081,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 35, NEWS = [
+const APPV = 37, NEWS = [
+  { v: 37, t: 'Build mode + remembered tools', i: ['🛠 Build mode (on the projects screen): drag the tools, colour panel, timeline, top bar and canvas where you want them, resize them, then Save. Used in every project', 'Your brush size, colour, brush style and last tool are remembered, even in new projects and after closing the app'] },
+  { v: 36, t: 'Bigger timeline', i: ['Frame / layer buttons are now a neat 4-wide grid (scroll it for more)', 'The timeline got much wider and taller so you can see more layers and frames'] },
   { v: 35, t: 'Playback / export range', i: ['Timeline: ⟦ Start and End ⟧ set the part of your animation to play and export (orange bar on the frame numbers). Full resets it', 'Play loops only inside the range; Export starts with that range filled in'] },
   { v: 34, t: 'Bone delete + everything since the Pen was removed', i: ['Bone tool: tap a joint in Build mode, then 🗑 Delete selected bone', 'Pen tool removed, simpler 2-step bones, Add Frame holds rigged drawings'] },
   { v: 33, t: 'Rigged drawings stay', i: ['➕ Frame on a rigged layer now holds the drawing instead of making a blank frame', 'Posing on a later frame keeps the rigged drawing visible'] },
@@ -2116,6 +2128,57 @@ setTimeout(() => showNews(false), 900);
 })();
 function orient() { const h = document.documentElement; h.classList.toggle('rot', innerHeight > innerWidth); h.style.setProperty('--pw', innerWidth + 'px'); h.style.setProperty('--ph', innerHeight + 'px'); fit(); if (!playing) render(); }
 addEventListener('resize', orient); addEventListener('orientationchange', () => setTimeout(orient, 200));
+// ===== build mode: you place the blocks of the screen where you like, once, for every project =====
+const PANELS = ['top', 'tools', 'opts', 'tl', 'stage'], PID = { top: 'top', tools: 'tools', opts: 'opts', tl: 'tlw', stage: 'stage' }, PNAME = { top: 'Top bar', tools: 'Tools', opts: 'Colour + size', tl: 'Timeline', stage: 'Canvas' };
+const appEl = $('app'); let layCfg = null; try { layCfg = JSON.parse(localStorage.getItem('yinnyLayout') || 'null'); } catch (e) {}
+function applyLayout(cfg) {
+  PANELS.forEach(k => { const e = $(PID[k]); e.style.left = e.style.top = e.style.width = e.style.height = ''; });
+  if (!cfg) { appEl.classList.remove('custom'); return; }
+  appEl.classList.add('custom');
+  PANELS.forEach(k => { const r = cfg[k], e = $(PID[k]); if (!r) return; e.style.left = r.x + '%'; e.style.top = r.y + '%'; e.style.width = r.w + '%'; e.style.height = r.h + '%'; });
+}
+function snapLayout() {                                            // where every block is right now, as % of the screen (works when the app is turned sideways)
+  const AW = appEl.offsetWidth, AH = appEl.offsetHeight, rot = document.documentElement.classList.contains('rot'), out = {};
+  PANELS.forEach(k => { const r = $(PID[k]).getBoundingClientRect(); let x, y, w, h; if (rot) { x = r.top; y = innerWidth - r.right; w = r.height; h = r.width; } else { x = r.left; y = r.top; w = r.width; h = r.height; }
+    out[k] = { x: +(x / AW * 100).toFixed(2), y: +(y / AH * 100).toFixed(2), w: Math.max(8, +(w / AW * 100).toFixed(2)), h: Math.max(6, +(h / AH * 100).toFixed(2)) }; });
+  return out;
+}
+let bm = null;
+function bmDrag(k, e, mode) {
+  e.preventDefault(); e.stopPropagation(); const el = e.currentTarget; try { el.setPointerCapture(e.pointerId); } catch (x) {}
+  const r0 = { ...bm.cfg[k] }, sx = e.clientX, sy = e.clientY, rot = document.documentElement.classList.contains('rot'), AW = appEl.offsetWidth, AH = appEl.offsetHeight, cl = (v, a, b) => Math.max(a, Math.min(b, v));
+  const move = ev => { const dxc = ev.clientX - sx, dyc = ev.clientY - sy, dx = (rot ? dyc : dxc) / AW * 100, dy = (rot ? -dxc : dyc) / AH * 100, r = bm.cfg[k]; bm.def = false;
+    if (mode === 'move') { r.x = cl(r0.x + dx, 0, 100 - r.w); r.y = cl(r0.y + dy, 0, 100 - r.h); } else { r.w = cl(r0.w + dx, 8, 100 - r.x); r.h = cl(r0.h + dy, 6, 100 - r.y); } applyLayout(bm.cfg); bmOver(); };
+  const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); fit(); if (!playing) render(); };
+  el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+}
+function bmOver() {                                                // the orange "move me" cover on every block
+  document.querySelectorAll('.bmo,.bmr').forEach(x => x.remove());
+  PANELS.forEach(k => { const e = $(PID[k]); const o = document.createElement('div'); o.className = 'bmo'; o.textContent = PNAME[k]; o.onpointerdown = ev => bmDrag(k, ev, 'move');
+    const h = document.createElement('div'); h.className = 'bmr'; h.textContent = '⤡'; h.onpointerdown = ev => bmDrag(k, ev, 'size'); e.append(o, h); });
+}
+function bmExit() { bmOn = false; bm = null; document.querySelectorAll('.bmo,.bmr').forEach(x => x.remove()); $('bmBar').hidden = true; setTool(tool); fit(); $('pjClose').hidden = true; $('pj').hidden = false; drawProjects(); }
+$('pjBuild').onclick = () => {
+  $('pj').hidden = true; bmOn = true; pid = null; pname = 'Build mode'; blank({ fps: 12, ow: 1280, oh: 720 }); setTool('brush');
+  appEl.classList.remove('noopt', 'notl'); const had = layCfg;
+  bm = { prev: had, cfg: had ? JSON.parse(JSON.stringify(had)) : null, def: !had };
+  if (!bm.cfg) { appEl.classList.remove('custom'); bm.cfg = snapLayout(); }
+  applyLayout(bm.cfg); bmOver(); $('bmBar').hidden = false; fit(); render();
+};
+$('bmSave').onclick = () => { layCfg = bm.def ? null : bm.cfg; try { if (layCfg) localStorage.setItem('yinnyLayout', JSON.stringify(layCfg)); else localStorage.removeItem('yinnyLayout'); } catch (e) {} applyLayout(layCfg); bmExit(); toast('Layout saved for all your projects'); };
+$('bmNo').onclick = () => { applyLayout(bm.prev); bmExit(); };
+$('bmReset').onclick = () => { applyLayout(null); bm.cfg = snapLayout(); bm.def = true; applyLayout(bm.cfg); bmOver(); fit(); };
+applyLayout(layCfg);
+// ===== your tools stay the way you left them (size, colour, brush style, last tool) =====
+(() => {
+  const K = 'yinnyTools'; let o = {}; try { o = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {}
+  if (o.size) { $('size').value = o.size; $('size').dispatchEvent(new Event('input')); }
+  if (o.color) setColor(o.color);
+  if (o.bStyle) { $('bStyle').value = o.bStyle; $('bStyle').dispatchEvent(new Event('change')); }
+  if (o.dMode) { $('dMode').value = o.dMode; $('dMode').dispatchEvent(new Event('change')); }
+  if (o.tool && o.tool !== 'clip' && o.tool !== 'bone' && o.tool !== 'cam' && document.querySelector('[data-t="' + o.tool + '"]')) setTool(o.tool);
+  let last = ''; setInterval(() => { const s = JSON.stringify({ size, color, tool, bStyle: $('bStyle').value, dMode: $('dMode').value }); if (s !== last) { last = s; try { localStorage.setItem(K, s); } catch (e) {} } }, 700);
+})();
 orient(); build(); render();
 </script>
 <script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script></body>
