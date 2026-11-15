@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<head><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><script>(function(){var h=document.documentElement,f=function(){h.classList.toggle('rot',innerHeight>innerWidth);h.style.setProperty('--pw',innerWidth+'px');h.style.setProperty('--ph',innerHeight+'px')};f();addEventListener('resize',f);try{var l=function(){try{screen.orientation.lock('landscape').catch(function(){})}catch(e){}};l();addEventListener('pointerdown',l,{once:true})}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Yinny Studios</title>
@@ -486,12 +486,12 @@ function render() {
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
   drawRefI(vx); drawRef(vx);
-  if (onion) {                                     // onion skin = the neighbouring drawings of THIS layer (red = before, green = after)
+  flat(vx, ct);
+  if (onion) {                                     // drawn on top of every layer, pictures and video too: the neighbouring drawings of THIS layer (red = before, green = after)
     const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
     const ls = []; for (let k = 0; k < oS.b; k++) ls.push([pi - k, oS.cb, k]); for (let k = 0; k < oS.a; k++) ls.push([ni + k, oS.ca, k]);
     ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, oS.tint ? c : 'none', oS.op / 100 * (k ? .5 / k : 1)); });
   }
-  flat(vx, ct);
   { const ML = layers[lay], mc = ML && ML.mk === 'mask' && cellAt(lay, ct); if (mc) { vx.save(); vx.globalAlpha = .35; drawCell(vx, mc, ct); vx.restore(); } }   // while you edit a mask layer, show its shape faintly
   overlay();
 }
@@ -2101,7 +2101,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 39, NEWS = [
+const APPV = 40, NEWS = [
+  { v: 40, t: 'Onion skin over pictures + always horizontal', i: ['Onion skin now shows on top of images, video and other layers', 'The opening screen starts sideways right away and asks the phone to stay landscape'] },
   { v: 39, t: 'Scenes + gradient strokes', i: ['🎬 Scenes (top bar): several scenes in one project, each with its own layers, camera and sound. New, copy, rename, delete. Play and export use the open scene', 'Brush: Gradient stroke On = each new vector stroke fades from your colour to an end colour'] },
   { v: 38, t: 'Onion skin settings + reference image', i: ['Onion skin: choose 0–4 frames before and after, strength, your own colours, or original colours (tint off)', '🖼 Reference image: put a sketch or storyboard under your drawing (not saved or exported)'] },
   { v: 37, t: 'Build mode + remembered tools', i: ['🛠 Build mode (on the projects screen): drag the tools, colour panel, timeline, top bar and canvas where you want them, resize them, then Save. Used in every project', 'Your brush size, colour, brush style and last tool are remembered, even in new projects and after closing the app'] },
