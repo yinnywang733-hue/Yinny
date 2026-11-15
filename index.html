@@ -254,7 +254,7 @@ const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
 const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
 const fixLen = () => { len = Math.max(1, ...layers.flatMap(L => L.cells.map(c => c.s + c.d))); };
-const refEnd = () => refV && isFinite(refV.v.duration) ? Math.min(1500, refV.start + Math.ceil(refV.v.duration * fps)) : 0;
+const refEnd = () => refV && isFinite(refV.v.duration) ? Math.min(15000, refV.start + Math.ceil(refV.v.duration * fps)) : 0;
 const cols = () => Math.max(len, refEnd()) + SPARE;
 const cvOf = c => c.cv || (c.cv = mk());
 function ensureCell(k, t) {                                      // drawing on an empty frame makes a keyframe there
@@ -1274,13 +1274,13 @@ tlbox.addEventListener('touchmove', e => { if ((td && td.on) || scrubbing || fDr
 tlbox.addEventListener('contextmenu', e => e.preventDefault());
 
 // ---------- import GIF / video: every frame becomes its own drawing on a new layer ----------
-const mediaIn = document.createElement('input'); mediaIn.type = 'file'; mediaIn.accept = 'image/gif,video/*'; const MAXF = 40;   // each frame is a full-size drawing, so the amount is capped to keep the phone alive
+const mediaIn = document.createElement('input'); mediaIn.type = 'file'; mediaIn.accept = 'image/gif,video/*'; const MAXF = Math.max(40, Math.min(150, Math.floor(((navigator.deviceMemory || 4) >= 8 ? 1100e6 : (navigator.deviceMemory || 4) >= 4 ? 520e6 : 260e6) / (W * H * 4))));   // each frame is a full-size drawing, so the amount is capped to keep the phone alive
 $('mediaBtn').onclick = () => { if (playing) return; mediaIn.value = ''; mediaIn.click(); };
 const fitDraw = (g, src, sw, sh) => { const k = Math.min(W / sw, H / sh); g.drawImage(src, (W - sw * k) / 2, (H - sh * k) / 2, sw * k, sh * k); };
 function addMediaLayer(name, frames) {
   commit(); osnap(); const L = { name: name.slice(0, 16), vis: true, lock: false, op: 1, bm: 'source-over', cells: [] }; let t = 0;
-  frames.forEach(f => { f.cv._has = true; f.cv._dirty = true; L.cells.push({ s: t, d: f.d, cv: f.cv, objs: [] }); t += f.d; });
-  layers.splice(lay + 1, 0, L); lay++; fixLen(); ct = 0; syncCam(); build(); render(); save();
+  let t0 = ct; t = t0; frames.forEach(f => { f.cv._has = true; f.cv._dirty = true; L.cells.push({ s: t, d: f.d, cv: f.cv, objs: [] }); t += f.d; });
+  layers.splice(lay + 1, 0, L); lay++; fixLen(); ct = t0; syncCam(); build(); render(); save();
 }
 async function importGif(f) {
   if (!('ImageDecoder' in window)) return toast('This browser cannot read GIFs. Try Chrome.');
@@ -1292,10 +1292,10 @@ async function importVideo(f) {
   const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f);
   try { await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = rej; }); } catch (e) { return toast('Could not read this video'); }
   const dur = v.duration || 1, cap = MAXF / fps;
-  ask('Seconds of video to import (up to ' + cap.toFixed(1) + ' at ' + fps + ' fps)', Math.min(dur, cap).toFixed(1), async val => {
-    const sec = Math.max(.1, Math.min(+val || 1, dur)), n = Math.min(MAXF, Math.max(1, Math.floor(sec * fps))), frames = [];
+  ask('Video is ' + dur.toFixed(1) + ' s. Type: start length (seconds). Max ' + MAXF + ' frames = ' + cap.toFixed(1) + ' s at once, import again for the next part. Goes in at the playhead.', '0 ' + Math.min(dur, cap).toFixed(1), async val => {
+    const nn = (val.match(/[\d.]+/g) || []).map(Number), st = Math.min(Math.max(0, nn[0] || 0), Math.max(0, dur - .1)), sec = Math.max(.1, Math.min(nn[1] || cap, dur - st)), n = Math.min(MAXF, Math.max(1, Math.floor(sec * fps))), frames = [];
     for (let i = 0; i < n; i++) {
-      v.currentTime = Math.min(dur - .01, i / fps); await new Promise(r => { v.onseeked = r; });
+      v.currentTime = Math.min(dur - .01, st + i / fps); await new Promise(r => { v.onseeked = r; });
       const cv = mk(); fitDraw(cv.getContext('2d'), v, v.videoWidth, v.videoHeight); frames.push({ cv, d: 1 }); if (i % 6 === 5) toast('Reading video… ' + (i + 1) + '/' + n);
     }
     URL.revokeObjectURL(v.src); addMediaLayer('Video', frames); toast('Imported ' + n + ' frames (' + (n / fps).toFixed(1) + ' s)');
@@ -1973,7 +1973,7 @@ function loadData(d) {
   if (d.scn) scn = { cur: d.scn.cur || 0, list: d.scn.list.map(x => ({ name: x.name, data: x.data })) }; else if (!d._sw) scn = { cur: 0, list: [{ name: 'Scene 1' }] };
   if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); }
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
-  fxs = d.fx || []; buildFx();
+  fxs = d.fx || []; buildFx(); setTimeout(rvRestore, 0);
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   rng = d.rng || null; rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
   layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
@@ -2074,12 +2074,17 @@ $('riF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
 $('riOp').oninput = e => { if (refI) { refI.op = +e.target.value / 100; render(); } };
 $('riDel').onclick = () => { refI = null; $('riBox').hidden = true; render(); };
 $('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
-$('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (refV) URL.revokeObjectURL(refV.v.src);
+const rdb = () => new Promise((res, rej) => { const r = indexedDB.open('yinnyref', 1); r.onupgradeneeded = () => r.result.createObjectStore('v', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+async function rvPut() { try { if (!pid || bmOn) return; const d = await rdb(), o = d.transaction('v', 'readwrite').objectStore('v'); if (refV) o.put({ id: pid, file: refV.file, start: refV.start, op: refV.op }); else o.delete(pid); } catch (e) {} }
+async function rvRestore() { try { if (!pid || bmOn) return; const id = pid, d = await rdb(), r = await new Promise(res => { const q = d.transaction('v').objectStore('v').get(id); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); if (r && id === pid && !refV) rvMake(r.file, r.start, r.op, true); } catch (e) {} }
+$('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; rvMake(f, ct, .6); };
+function rvMake(f, start, op, quiet) { if (refV) URL.revokeObjectURL(refV.v.src);
   const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
-  v.onerror = () => { refV = null; rvUI(); toast('Could not open that video'); }; refV = { v, op: .6, start: ct, file: f }; $('rvOp').value = 60; rvUI(); toast('Reference video starts at frame ' + (ct + 1) + ' (not saved or exported)'); };
+  v.onerror = () => { refV = null; rvUI(); toast('Could not open that video'); }; refV = { v, op, start, file: f }; $('rvOp').value = Math.round(op * 100); rvUI(); rvPut(); if (!quiet) toast('Reference video starts at frame ' + (start + 1) + ' (kept with this project, not exported)'); renderSoon(); }
 $('rvOp').oninput = e => { if (refV) { refV.op = +e.target.value / 100; render(); } };
-$('rvStart').onclick = () => { if (refV) ask('Video starts at frame number', String(refV.start + 1), n => { refV.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rvUI(); render(); }); };
-$('rvDel').onclick = () => { if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); render(); } };
+$('rvOp').onchange = () => rvPut();
+$('rvStart').onclick = () => { if (refV) ask('Video starts at frame number', String(refV.start + 1), n => { refV.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rvUI(); rvPut(); render(); }); };
+$('rvDel').onclick = () => { if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); rvPut(); render(); } };
 $('sndDel').onclick = () => { wave = null; build(); audio = null; aEl.pause(); aEl.src = ''; sndUI(); save(); };
 $('pjImp').onclick = () => $('pjF').click(); $('pjF').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -2101,7 +2106,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 40, NEWS = [
+const APPV = 42, NEWS = [
+  { v: 42, t: 'Long reference videos', i: ['Reference video (trace) now works for videos of 10+ minutes (was ~1 min) and is kept with the project when you close and reopen it'] },
+  { v: 41, t: 'Longer video import', i: ['Video import now asks "start length" in seconds (like "0 3") and allows more frames on strong phones. Import the next part at a later playhead frame. Video goes in at the playhead'] },
   { v: 40, t: 'Onion skin over pictures + always horizontal', i: ['Onion skin now shows on top of images, video and other layers', 'The opening screen starts sideways right away and asks the phone to stay landscape'] },
   { v: 39, t: 'Scenes + gradient strokes', i: ['🎬 Scenes (top bar): several scenes in one project, each with its own layers, camera and sound. New, copy, rename, delete. Play and export use the open scene', 'Brush: Gradient stroke On = each new vector stroke fades from your colour to an end colour'] },
   { v: 38, t: 'Onion skin settings + reference image', i: ['Onion skin: choose 0–4 frames before and after, strength, your own colours, or original colours (tint off)', '🖼 Reference image: put a sketch or storyboard under your drawing (not saved or exported)'] },
