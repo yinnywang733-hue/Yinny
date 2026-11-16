@@ -469,8 +469,8 @@ function drawRefI(g) { if (!refI) return; const im = refI.im, k = Math.min(OW / 
 function drawRef(g, live) {
   if (!refV) return; const v = refV.v, tt = (ct - refV.start) / fps;
   if (tt < 0 || tt > (v.duration || 0)) { if (live && !v.paused) v.pause(); return; }
-  if (live) { if (Math.abs(v.currentTime - tt) > .25) { try { v.currentTime = tt; } catch (e) {} } if (v.paused) v.play().catch(() => {}); }
-  else if (Math.abs(v.currentTime - tt) > .0005) { try { v.currentTime = tt + .0005; } catch (e) {} }
+  if (live) { if (!v.seeking && Math.abs(v.currentTime - tt) > .25) { try { v.currentTime = tt; } catch (e) {} } if (v.paused) v.play().catch(() => {}); }
+  else if (!v.seeking && Math.abs(v.currentTime - tt) > .6 / fps) { try { v.currentTime = tt + .0005; } catch (e) {} }   // one seek at a time: stacked seeks made big videos crawl
   if (v.readyState < 2 || !v.videoWidth) return;
   const k = Math.min(OW / v.videoWidth, OH / v.videoHeight), w = v.videoWidth * k, h = v.videoHeight * k;
   g.save(); g.globalAlpha = refV.op; g.drawImage(v, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore();
@@ -2108,7 +2108,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 43, NEWS = [
+const APPV = 45, NEWS = [
+  { v: 45, t: 'Tap anywhere to close', i: ['This "What\'s new" box now closes when you tap anywhere, no need to scroll to Got it'] },
+  { v: 44, t: 'Faster reference video', i: ['Reference video scrubs smoother: it no longer piles up seeks on heavy videos'] },
   { v: 43, t: 'Dark, Light and Classic looks', i: ['🎨 (top bar, or on the projects screen): Dark, Light, or Classic where you pick your own picture and it becomes the app background'] },
   { v: 42, t: 'Long reference videos', i: ['Reference video (trace) now works for videos of 10+ minutes (was ~1 min) and is kept with the project when you close and reopen it'] },
   { v: 41, t: 'Longer video import', i: ['Video import now asks "start length" in seconds (like "0 3") and allows more frames on strong phones. Import the next part at a later playhead frame. Video goes in at the playhead'] },
@@ -2146,7 +2148,7 @@ function showNews(all) {
   list.forEach(n => { const h = document.createElement('h4'); h.textContent = n.t + ' (v' + n.v + ')'; const u = document.createElement('ul'); n.i.forEach(x => { const li = document.createElement('li'); li.textContent = x; u.append(li); }); L.append(h, u); });
   $('nw').hidden = false;
 }
-$('nwOk').onclick = () => { $('nw').hidden = true; try { localStorage.setItem('yinnyVer', APPV); } catch (e) {} };
+$('nw').onclick = $('nwOk').onclick = () => { $('nw').hidden = true; try { localStorage.setItem('yinnyVer', APPV); } catch (e) {} };
 $('nwBtn').onclick = () => showNews(true);
 setTimeout(() => showNews(false), 900);
 { const inApp = () => ['fullscreen', 'standalone'].some(m => matchMedia('(display-mode: ' + m + ')').matches);   // installed app: full screen, always sideways
