@@ -88,6 +88,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #sizePre{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#sizePre button{padding:6px 4px;width:auto;flex:1 0 44px}#sizePre button.on{background:#4f7cff;color:#fff}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 #tlw{background:#333}
+#rfProg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:96;background:#2d2d38;color:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:8px;min-width:240px;text-align:center}#rfBar{height:14px;background:#111;border-radius:8px;overflow:hidden}#rfBar i{display:block;height:100%;width:0;background:#4f7cff}
 #thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
 #app.custom>#top,#app.custom>#tools,#app.custom>#opts,#app.custom>#tlw{position:absolute;overflow:auto;z-index:5}
@@ -182,7 +183,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Sound</label><button id="sndAdd">♫ Import sound</button><button id="sndDel" hidden>✕ Remove sound</button><input type="file" id="sndF" accept="audio/*" hidden></div>
     <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div class="trow"><button data-fx="glow">✨ Glow</button></div><div id="fxL"></div></div>
     <div class="sec"><button id="nwBtn">✨ What's new</button></div>
-    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden></div>
+    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden><button id="rfAdd">🎞 Import video as frames (smooth, like Rough Animator)</button><div id="rfBox" hidden><div class="trow"><button id="rfStart"></button><button id="rfDel">✕ Remove</button></div><label>Frames opacity</label><input type="range" id="rfOp" min="10" max="100" value="60"></div><input type="file" id="rfF" accept="video/*" hidden></div><div id="rfProg" hidden><b id="rfT">Importing…</b><div id="rfBar"><i></i></div><button id="rfCancel">Cancel</button></div>
     <div class="sec"><label>Reference image</label><button id="riAdd">🖼 Add reference image</button><div id="riBox" hidden><button id="riDel">✕ Remove image</button><label>Image opacity</label><input type="range" id="riOp" min="10" max="100" value="50"></div><input type="file" id="riF" accept="image/*" hidden></div>
     <div class="sec"><label>Onion skin</label><div class="trow"><label>Before</label><select id="oB"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select><label>After</label><select id="oA"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div><label>Strength</label><input type="range" id="oOp" min="10" max="90" value="40"><div class="trow"><input type="color" id="oCb" value="#e8231c"><input type="color" id="oCa" value="#1fa84a"></div><button id="oTint">🎨 Tint: on</button></div>
   </div>
@@ -256,7 +257,7 @@ const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
 const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
 const fixLen = () => { len = Math.max(1, ...layers.flatMap(L => L.cells.map(c => c.s + c.d))); };
-const refEnd = () => refV && isFinite(refV.v.duration) ? Math.min(15000, refV.start + Math.ceil(refV.v.duration * fps)) : 0;
+const refEnd = () => Math.max(refV && isFinite(refV.v.duration) ? Math.min(15000, refV.start + Math.ceil(refV.v.duration * fps)) : 0, refF ? Math.min(15000, refF.start + refF.n) : 0);
 const cols = () => Math.max(len, refEnd()) + SPARE;
 const cvOf = c => c.cv || (c.cv = mk());
 function ensureCell(k, t) {                                      // drawing on an empty frame makes a keyframe there
@@ -464,8 +465,21 @@ function waveRow(n) {
   for (let t = 0; t < n; t++) { g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(Math.round(t * CW), 0, 1, 26); }
   r.append(l, c); return r;
 }
+let refF = null;   // reference video as real frames (small JPEGs kept in the phone's database, shown like a picture per frame)
 let refV = null;                                    // reference video: shows under your drawing, follows the playhead, never saved or exported
 function drawRefI(g) { if (!refI) return; const im = refI.im, k = Math.min(OW / im.width, OH / im.height), w = im.width * k, h = im.height * k; g.save(); g.globalAlpha = refI.op; g.drawImage(im, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore(); }
+const rdbF = () => new Promise((res, rej) => { const r = indexedDB.open('yinnyref', 2); r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('v')) d.createObjectStore('v', { keyPath: 'id' }); if (!d.objectStoreNames.contains('m')) d.createObjectStore('m', { keyPath: 'id' }); if (!d.objectStoreNames.contains('f')) d.createObjectStore('f'); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const idbP = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+function rfWant(i) {      // fetch one frame from the database and decode it, in the background
+  const F = refF; if (!F || i < 0 || i >= F.n || F.cache.has(i) || F.pend.has(i)) return; F.pend.add(i);
+  rdbF().then(d => idbP(d.transaction('f').objectStore('f').get(F.id + '|' + i))).then(b => b ? createImageBitmap(b) : null).then(bm => { F.pend.delete(i); if (refF !== F) { bm && bm.close(); return; } if (bm) { F.cache.set(i, bm); const c = ct - F.start; for (const [k, v] of F.cache) if (k < c - 20 || k > c + 40) { v.close(); F.cache.delete(k); } renderSoon(); } }).catch(() => F.pend.delete(i));
+}
+function drawRefF(g) {
+  const F = refF; if (!F) return; const i = ct - F.start; if (i < 0 || i >= F.n) return;
+  for (let k = 0; k < 14; k++) rfWant(i + k); rfWant(i - 1);
+  const bm = F.cache.get(i) || F.last; if (!bm) return; if (F.cache.has(i)) F.last = bm;
+  const k = Math.min(OW / bm.width, OH / bm.height), w = bm.width * k, h = bm.height * k; g.save(); g.globalAlpha = F.op; g.drawImage(bm, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore();
+}
 function drawRef(g, live) {
   if (!refV) return; const v = refV.v, tt = (ct - refV.start) / fps;
   if (tt < 0 || tt > (v.duration || 0)) { if (live && !v.paused) v.pause(); return; }
@@ -480,14 +494,14 @@ function render() {
   ct = Math.max(0, Math.min(cols() - 1, ct));
   if (playing && pcache && pcache[ct] && !refV) { vx.drawImage(pcache[ct], 0, 0, OW, OH); ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return; }
   if (playing) {                                   // play = what the camera sees
-    if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true); flat(cx, ct);
+    if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true); if (refF && !exporting) drawRefF(cx); flat(cx, ct);
     drawCam(vx, ct, OW, OH);
     ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return;
   }
   vx.setTransform(1, 0, 0, 1, MX, MY);
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
-  drawRefI(vx); drawRef(vx);
+  drawRefI(vx); drawRef(vx); drawRefF(vx);
   flat(vx, ct);
   if (onion) {                                     // drawn on top of every layer, pictures and video too: the neighbouring drawings of THIS layer (red = before, green = after)
     const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
@@ -1826,7 +1840,7 @@ $('play').onclick = async () => {
   if (playing) return stop();
   const plen = Math.max(len, refEnd()); if (plen < 2) return;     // with a reference video, Play runs for the whole video even if you have no frames
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
-  try { pcache = refV ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
+  try { pcache = (refV || refF) ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
   $('toast').classList.remove('on');
   const R = RG(), rn = R ? R.b - R.a + 1 : plen, lp = x => R ? R.a + (((x - R.a) % rn) + rn) % rn : x % plen;   // loop inside the range
   let t = R ? ((ct < R.a || ct > R.b) ? R.a : ct) : (ct >= plen ? 0 : ct);
@@ -1974,8 +1988,9 @@ function loadData(d) {
   if (!d.v || d.v < 3) d = migrate(d);
   if (d.scn) scn = { cur: d.scn.cur || 0, list: d.scn.list.map(x => ({ name: x.name, data: x.data })) }; else if (!d._sw) scn = { cur: 0, list: [{ name: 'Scene 1' }] };
   if (refV) { URL.revokeObjectURL(refV.v.src); refV = null; rvUI(); }
+  if (refF) { refF.cache.forEach(b => b.close()); refF = null; rfUI(); }
   applySize(d.ow || 1280, d.oh || 720); try { if (!clipRet) { localStorage.setItem('easysize', OW + 'x' + OH); localStorage.setItem('easyfps', d.fps || 12); } } catch (e) {}
-  fxs = d.fx || []; buildFx(); setTimeout(rvRestore, 0);
+  fxs = d.fx || []; buildFx(); setTimeout(() => { rvRestore(); rfRestore(); }, 0);
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   rng = d.rng || null; rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
   layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
@@ -2076,9 +2091,36 @@ $('riF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
 $('riOp').oninput = e => { if (refI) { refI.op = +e.target.value / 100; render(); } };
 $('riDel').onclick = () => { refI = null; $('riBox').hidden = true; render(); };
 $('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
-const rdb = () => new Promise((res, rej) => { const r = indexedDB.open('yinnyref', 1); r.onupgradeneeded = () => r.result.createObjectStore('v', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const rdb = () => rdbF();
 async function rvPut() { try { if (!pid || bmOn) return; const d = await rdb(), o = d.transaction('v', 'readwrite').objectStore('v'); if (refV) o.put({ id: pid, file: refV.file, start: refV.start, op: refV.op }); else o.delete(pid); } catch (e) {} }
 async function rvRestore() { try { if (!pid || bmOn) return; const id = pid, d = await rdb(), r = await new Promise(res => { const q = d.transaction('v').objectStore('v').get(id); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); if (r && id === pid && !refV) rvMake(r.file, r.start, r.op, true); } catch (e) {} }
+function rfUI() { $('rfBox').hidden = !refF; if (refF) $('rfStart').textContent = 'Frames start at ' + (refF.start + 1) + ' · ' + refF.n + ' frames'; build(); }
+async function rfSaveMeta() { try { if (!refF) return; const d = await rdbF(); d.transaction('m', 'readwrite').objectStore('m').put({ id: refF.id, n: refF.n, w: refF.w, h: refF.h, start: refF.start, op: refF.op }); } catch (e) {} }
+async function rfWipe(id) { try { const d = await rdbF(), t = d.transaction(['m', 'f'], 'readwrite'); t.objectStore('m').delete(id); t.objectStore('f').delete(IDBKeyRange.bound(id + '|', id + '|\uffff')); } catch (e) {} }
+async function rfRestore() { try { if (!pid || bmOn || refF) return; const id = pid, d = await rdbF(), m = await idbP(d.transaction('m').objectStore('m').get(id)); if (m && id === pid && !refF) { refF = { id, n: m.n, w: m.w, h: m.h, start: m.start, op: m.op, cache: new Map(), pend: new Set(), last: null }; $('rfOp').value = Math.round(m.op * 100); rfUI(); renderSoon(); } } catch (e) {} }
+$('rfAdd').onclick = () => { if (!pid) return toast('Open or create a project first'); $('rfF').value = ''; $('rfF').click(); };
+let rfStop = false; $('rfCancel').onclick = () => rfStop = true;
+$('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; const url = URL.createObjectURL(f); v.src = url;
+  v.onerror = () => { URL.revokeObjectURL(url); toast('Could not open that video'); };
+  v.onloadedmetadata = () => ask('Frame width in pixels (smaller = faster and lighter; 640 is good)', '640', async val => {
+    const dur = v.duration, n = Math.min(15000, Math.max(1, Math.floor(dur * fps))), tw = Math.max(160, Math.min(1280, +val.replace(/\D/g, '') || 640)), th = Math.round(tw * v.videoHeight / v.videoWidth), id = pid, start = ct;
+    const c = document.createElement('canvas'); c.width = tw; c.height = th; const g = c.getContext('2d'); rfStop = false; $('rfProg').hidden = false; await rfWipe(id); if (refF) { refF.cache.forEach(b => b.close()); refF = null; }
+    const d = await rdbF(), t0 = performance.now(); let i = 0;
+    for (; i < n && !rfStop; i++) {
+      await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener('seeked', fin); res(); } }; v.addEventListener('seeked', fin); setTimeout(fin, 5000); try { v.currentTime = Math.min(dur - .001, i / fps + .0005); } catch (x) { fin(); } });
+      g.drawImage(v, 0, 0, tw, th); const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .75));
+      await idbP(d.transaction('f', 'readwrite').objectStore('f').put(blob, id + '|' + i));
+      if (i % 4 === 0) { $('rfBar').firstChild.style.width = (i / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = i ? Math.round(el / i * (n - i)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(i / n * 100) + '%  (' + i + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; }
+    }
+    URL.revokeObjectURL(url); $('rfProg').hidden = true;
+    if (i < 1) { await rfWipe(id); return; }
+    refF = { id, n: i, w: tw, h: th, start, op: .6, cache: new Map(), pend: new Set(), last: null }; $('rfOp').value = 60; await rfSaveMeta(); rfUI(); renderSoon(); toast(rfStop ? 'Stopped: kept ' + i + ' frames' : 'Done: ' + i + ' frames ready');
+  }); };
+$('rfOp').oninput = e => { if (refF) { refF.op = +e.target.value / 100; render(); } };
+$('rfOp').onchange = () => rfSaveMeta();
+$('rfStart').onclick = () => { if (refF) ask('Frames start at frame number', String(refF.start + 1), n => { refF.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rfUI(); rfSaveMeta(); render(); }); };
+$('rfDel').onclick = () => { if (refF) { const id = refF.id; refF.cache.forEach(b => b.close()); refF = null; rfWipe(id); rfUI(); render(); } };
 $('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; rvMake(f, ct, .6); };
 function rvMake(f, start, op, quiet) { if (refV) URL.revokeObjectURL(refV.v.src);
   const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
@@ -2108,7 +2150,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 45, NEWS = [
+const APPV = 46, NEWS = [
+  { v: 46, t: 'Smooth video tracing', i: ['🎞 Import video as frames (options panel): turns the video into real frames like Rough Animator, with a progress bar. Plays smoothly, works for long videos, and is kept with the project'] },
   { v: 45, t: 'Tap anywhere to close', i: ['This "What\'s new" box now closes when you tap anywhere, no need to scroll to Got it'] },
   { v: 44, t: 'Faster reference video', i: ['Reference video scrubs smoother: it no longer piles up seeks on heavy videos'] },
   { v: 43, t: 'Dark, Light and Classic looks', i: ['🎨 (top bar, or on the projects screen): Dark, Light, or Classic where you pick your own picture and it becomes the app background'] },
