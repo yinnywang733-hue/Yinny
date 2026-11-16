@@ -88,6 +88,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #sizePre{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#sizePre button{padding:6px 4px;width:auto;flex:1 0 44px}#sizePre button.on{background:#4f7cff;color:#fff}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 #tlw{background:#333}
+#rvAdd,#rvBox{display:none!important}
 #rfProg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:96;background:#2d2d38;color:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:8px;min-width:240px;text-align:center}#rfBar{height:14px;background:#111;border-radius:8px;overflow:hidden}#rfBar i{display:block;height:100%;width:0;background:#4f7cff}
 #thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
@@ -183,7 +184,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><label>Sound</label><button id="sndAdd">♫ Import sound</button><button id="sndDel" hidden>✕ Remove sound</button><input type="file" id="sndF" accept="audio/*" hidden></div>
     <div class="sec"><label>Camera effects (seen in Play / export)</label><div class="trow"><button data-fx="shake">💥 Shake</button><button data-fx="flash">⚡ Flash</button></div><div class="trow"><button data-fx="blur">🌫 Blur</button><button data-fx="punch">🔍 Punch</button></div><div class="trow"><button data-fx="glow">✨ Glow</button></div><div id="fxL"></div></div>
     <div class="sec"><button id="nwBtn">✨ What's new</button></div>
-    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden><button id="rfAdd">🎞 Import video as frames (smooth, like Rough Animator)</button><div id="rfBox" hidden><div class="trow"><button id="rfStart"></button><button id="rfDel">✕ Remove</button></div><label>Frames opacity</label><input type="range" id="rfOp" min="10" max="100" value="60"></div><input type="file" id="rfF" accept="video/*" hidden></div><div id="rfProg" hidden><b id="rfT">Importing…</b><div id="rfBar"><i></i></div><button id="rfCancel">Cancel</button></div>
+    <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden><button id="rfAdd">🎞 Import video as frames (smooth, like Rough Animator)</button><div id="rfBox" hidden><small>Fade or hide it with the Video layer's opacity and 👁 eye. It is a tracing guide and is not exported.</small><div class="trow"><button id="rfStart"></button><button id="rfDel">✕ Remove</button></div></div><input type="file" id="rfF" accept="video/*" hidden></div><div id="rfProg" hidden><b id="rfT">Importing…</b><div id="rfBar"><i></i></div><button id="rfCancel">Cancel</button></div>
     <div class="sec"><label>Reference image</label><button id="riAdd">🖼 Add reference image</button><div id="riBox" hidden><button id="riDel">✕ Remove image</button><label>Image opacity</label><input type="range" id="riOp" min="10" max="100" value="50"></div><input type="file" id="riF" accept="image/*" hidden></div>
     <div class="sec"><label>Onion skin</label><div class="trow"><label>Before</label><select id="oB"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select><label>After</label><select id="oA"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div><label>Strength</label><input type="range" id="oOp" min="10" max="90" value="40"><div class="trow"><input type="color" id="oCb" value="#e8231c"><input type="color" id="oCa" value="#1fa84a"></div><button id="oTint">🎨 Tint: on</button></div>
   </div>
@@ -257,7 +258,8 @@ const LMAX = Infinity, LNW = 112, SPARE = 8; let CW = 26;
 const cellIdx = (L, t) => L.cells.findIndex(c => t >= c.s && t < c.s + c.d);
 const cellAt = (k, t) => { const L = layers[k], i = cellIdx(L, t); return i < 0 ? null : L.cells[i]; };
 const fixLen = () => { len = Math.max(1, ...layers.flatMap(L => L.cells.map(c => c.s + c.d))); };
-const refEnd = () => Math.max(refV && isFinite(refV.v.duration) ? Math.min(15000, refV.start + Math.ceil(refV.v.duration * fps)) : 0, refF ? Math.min(15000, refF.start + refF.n) : 0);
+const rfOn = () => !!refF && layers.some(l => l.vid);
+const refEnd = () => Math.max(refV && isFinite(refV.v.duration) ? Math.min(15000, refV.start + Math.ceil(refV.v.duration * fps)) : 0, rfOn() ? Math.min(15000, refF.start + refF.n) : 0);
 const cols = () => Math.max(len, refEnd()) + SPARE;
 const cvOf = c => c.cv || (c.cv = mk());
 function ensureCell(k, t) {                                      // drawing on an empty frame makes a keyframe there
@@ -294,7 +296,7 @@ function drawShadow(c2, T, L, op) {                                // drop shado
 }
 function flat(ctx, t) {                            // every visible layer at time t, bottom to top; a Mask layer cuts the "masked" layers under it (Flash style)
   const n = layers.length, used = new Uint8Array(n);
-  const one = (c2, k) => { const L = layers[k], c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
+  const one = (c2, k) => { const L = layers[k]; if (L.vid) { if (rfOn() && !exporting) { c2.save(); c2.globalAlpha = L.op == null ? 1 : L.op; drawRefF(c2); c2.restore(); } return; } const c = cellAt(k, t); if (!c) return; const op = L.op == null ? 1 : L.op;
     if (fq() > 0 && (L.bl > 0 || L.gl > 0 || shOn(L))) {                 // Blur / Glow belong to THIS layer only: draw it alone first, then filter it
       const T = lfT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawCell(g, c, t);
       c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; if (shOn(L)) drawShadow(c2, T, L, op);
@@ -324,11 +326,11 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
   if (s.rigs) rigs = JSON.parse(JSON.stringify(s.rigs));
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -478,7 +480,7 @@ function drawRefF(g) {
   const F = refF; if (!F) return; const i = ct - F.start; if (i < 0 || i >= F.n) return;
   for (let k = 0; k < 14; k++) rfWant(i + k); rfWant(i - 1);
   const bm = F.cache.get(i) || F.last; if (!bm) return; if (F.cache.has(i)) F.last = bm;
-  const k = Math.min(OW / bm.width, OH / bm.height), w = bm.width * k, h = bm.height * k; g.save(); g.globalAlpha = F.op; g.drawImage(bm, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore();
+  const k = Math.min(OW / bm.width, OH / bm.height), w = bm.width * k, h = bm.height * k; g.drawImage(bm, W / 2 - w / 2, H / 2 - h / 2, w, h);
 }
 function drawRef(g, live) {
   if (!refV) return; const v = refV.v, tt = (ct - refV.start) / fps;
@@ -494,14 +496,14 @@ function render() {
   ct = Math.max(0, Math.min(cols() - 1, ct));
   if (playing && pcache && pcache[ct] && !refV) { vx.drawImage(pcache[ct], 0, 0, OW, OH); ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return; }
   if (playing) {                                   // play = what the camera sees
-    if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true); if (refF && !exporting) drawRefF(cx); flat(cx, ct);
+    if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true);  flat(cx, ct);
     drawCam(vx, ct, OW, OH);
     ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return;
   }
   vx.setTransform(1, 0, 0, 1, MX, MY);
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
-  drawRefI(vx); drawRef(vx); drawRefF(vx);
+  drawRefI(vx); drawRef(vx);
   flat(vx, ct);
   if (onion) {                                     // drawn on top of every layer, pictures and video too: the neighbouring drawings of THIS layer (red = before, green = after)
     const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
@@ -1840,7 +1842,7 @@ $('play').onclick = async () => {
   if (playing) return stop();
   const plen = Math.max(len, refEnd()); if (plen < 2) return;     // with a reference video, Play runs for the whole video even if you have no frames
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
-  try { pcache = (refV || refF) ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
+  try { pcache = (refV || rfOn()) ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
   $('toast').classList.remove('on');
   const R = RG(), rn = R ? R.b - R.a + 1 : plen, lp = x => R ? R.a + (((x - R.a) % rn) + rn) % rn : x % plen;   // loop inside the range
   let t = R ? ((ct < R.a || ct > R.b) ? R.a : ct) : (ct >= plen ? 0 : ct);
@@ -1962,7 +1964,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataCore = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataCore = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 let scn = { cur: 0, list: [{ name: 'Scene 1' }] };   // scenes: every scene is a full copy of the animation (layers, camera, sound); only the open one is live
 const dataNow = () => { const d = dataCore(); scn.list[scn.cur].data = null; return { ...d, scn: { cur: scn.cur, list: scn.list.map((x, i) => ({ name: x.name, data: i === scn.cur ? null : x.data })) } }; };
 function thumbURL() {                                             // what the camera sees on the first frame
@@ -1993,7 +1995,7 @@ function loadData(d) {
   fxs = d.fx || []; buildFx(); setTimeout(() => { rvRestore(); rfRestore(); }, 0);
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   rng = d.rng || null; rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
-  layers = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  layers = d.layers.map(l => ({ vid: l.vid, name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
     const src = c.png; delete c.png; if (!src) return; pend++;
@@ -2094,10 +2096,11 @@ $('rvAdd').onclick = () => { if (!playing) $('rvF').click(); };
 const rdb = () => rdbF();
 async function rvPut() { try { if (!pid || bmOn) return; const d = await rdb(), o = d.transaction('v', 'readwrite').objectStore('v'); if (refV) o.put({ id: pid, file: refV.file, start: refV.start, op: refV.op }); else o.delete(pid); } catch (e) {} }
 async function rvRestore() { try { if (!pid || bmOn) return; const id = pid, d = await rdb(), r = await new Promise(res => { const q = d.transaction('v').objectStore('v').get(id); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); if (r && id === pid && !refV) rvMake(r.file, r.start, r.op, true); } catch (e) {} }
+function rfEnsureLayer() { if (layers.some(l => l.vid)) return; layers.unshift({ vid: 1, name: 'Video', vis: true, lock: true, op: .6, bm: 'source-over', cells: [] }); lay++; layerCount++; build(); render(); save(); }
 function rfUI() { $('rfBox').hidden = !refF; if (refF) $('rfStart').textContent = 'Frames start at ' + (refF.start + 1) + ' · ' + refF.n + ' frames'; build(); }
 async function rfSaveMeta() { try { if (!refF) return; const d = await rdbF(); d.transaction('m', 'readwrite').objectStore('m').put({ id: refF.id, n: refF.n, w: refF.w, h: refF.h, start: refF.start, op: refF.op }); } catch (e) {} }
 async function rfWipe(id) { try { const d = await rdbF(), t = d.transaction(['m', 'f'], 'readwrite'); t.objectStore('m').delete(id); t.objectStore('f').delete(IDBKeyRange.bound(id + '|', id + '|\uffff')); } catch (e) {} }
-async function rfRestore() { try { if (!pid || bmOn || refF) return; const id = pid, d = await rdbF(), m = await idbP(d.transaction('m').objectStore('m').get(id)); if (m && id === pid && !refF) { refF = { id, n: m.n, w: m.w, h: m.h, start: m.start, op: m.op, cache: new Map(), pend: new Set(), last: null }; $('rfOp').value = Math.round(m.op * 100); rfUI(); renderSoon(); } } catch (e) {} }
+async function rfRestore() { try { if (!pid || bmOn || refF) return; const id = pid, d = await rdbF(), m = await idbP(d.transaction('m').objectStore('m').get(id)); if (m && id === pid && !refF) { refF = { id, n: m.n, w: m.w, h: m.h, start: m.start, op: m.op, cache: new Map(), pend: new Set(), last: null }; rfEnsureLayer(); rfUI(); renderSoon(); } } catch (e) {} }
 $('rfAdd').onclick = () => { if (!pid) return toast('Open or create a project first'); $('rfF').value = ''; $('rfF').click(); };
 let rfStop = false; $('rfCancel').onclick = () => rfStop = true;
 $('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -2107,7 +2110,18 @@ $('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
     const dur = v.duration, n = Math.min(15000, Math.max(1, Math.floor(dur * fps))), tw = Math.max(160, Math.min(1280, +val.replace(/\D/g, '') || 640)), th = Math.round(tw * v.videoHeight / v.videoWidth), id = pid, start = ct;
     const c = document.createElement('canvas'); c.width = tw; c.height = th; const g = c.getContext('2d'); rfStop = false; $('rfProg').hidden = false; await rfWipe(id); if (refF) { refF.cache.forEach(b => b.close()); refF = null; }
     const d = await rdbF(), t0 = performance.now(); let i = 0;
-    for (; i < n && !rfStop; i++) {
+    const prog = () => { $('rfBar').firstChild.style.width = (i / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = i ? Math.round(el / i * (n - i)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(i / n * 100) + '%  (' + i + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; };
+    if ('requestVideoFrameCallback' in v) {            // fast way: let the video play at 4x and grab each frame as it appears
+      await new Promise(done => {
+        let pend = 0, wr = Promise.resolve(), ended = false;
+        const cap = idx => { g.drawImage(v, 0, 0, tw, th); pend++; c.toBlob(b => { wr = wr.then(() => idbP(d.transaction('f', 'readwrite').objectStore('f').put(b, id + '|' + idx))).catch(() => {}).then(() => { pend--; }); }, 'image/jpeg', .75); };
+        const finish = () => { if (ended) return; ended = true; v.pause(); const w = () => pend > 0 ? setTimeout(w, 40) : wr.then(done); w(); };
+        const cb = (now, meta) => { if (ended) return; if (rfStop) return finish(); while (i < n && i / fps <= meta.mediaTime + .5 / fps) { cap(i); i++; } prog(); if (i >= n) return finish(); try { v.playbackRate = pend > 24 ? .1 : 4; } catch (x) {} v.requestVideoFrameCallback(cb); };
+        v.onended = () => { while (i < n && !ended) { cap(i); i++; } finish(); };
+        v.currentTime = 0; try { v.playbackRate = 4; } catch (x) {} v.play().then(() => v.requestVideoFrameCallback(cb)).catch(() => finish());
+      });
+    }
+    for (; i < n && !rfStop; i++) {      // slow but sure way (also finishes anything the fast way missed)
       await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener('seeked', fin); res(); } }; v.addEventListener('seeked', fin); setTimeout(fin, 5000); try { v.currentTime = Math.min(dur - .001, i / fps + .0005); } catch (x) { fin(); } });
       g.drawImage(v, 0, 0, tw, th); const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .75));
       await idbP(d.transaction('f', 'readwrite').objectStore('f').put(blob, id + '|' + i));
@@ -2115,12 +2129,10 @@ $('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
     }
     URL.revokeObjectURL(url); $('rfProg').hidden = true;
     if (i < 1) { await rfWipe(id); return; }
-    refF = { id, n: i, w: tw, h: th, start, op: .6, cache: new Map(), pend: new Set(), last: null }; $('rfOp').value = 60; await rfSaveMeta(); rfUI(); renderSoon(); toast(rfStop ? 'Stopped: kept ' + i + ' frames' : 'Done: ' + i + ' frames ready');
+    refF = { id, n: i, w: tw, h: th, start, op: .6, cache: new Map(), pend: new Set(), last: null }; await rfSaveMeta(); rfEnsureLayer(); rfUI(); renderSoon(); toast(rfStop ? 'Stopped: kept ' + i + ' frames' : 'Done: ' + i + ' frames ready');
   }); };
-$('rfOp').oninput = e => { if (refF) { refF.op = +e.target.value / 100; render(); } };
-$('rfOp').onchange = () => rfSaveMeta();
 $('rfStart').onclick = () => { if (refF) ask('Frames start at frame number', String(refF.start + 1), n => { refF.start = Math.max(0, (+n.replace(/\D/g, '') || 1) - 1); rfUI(); rfSaveMeta(); render(); }); };
-$('rfDel').onclick = () => { if (refF) { const id = refF.id; refF.cache.forEach(b => b.close()); refF = null; rfWipe(id); rfUI(); render(); } };
+$('rfDel').onclick = () => { if (refF) { const id = refF.id; refF.cache.forEach(b => b.close()); refF = null; rfWipe(id); const vi = layers.findIndex(l => l.vid); if (vi >= 0 && layers.length > 1) { layers.splice(vi, 1); lay = Math.max(0, Math.min(lay - (vi < lay ? 1 : 0), layers.length - 1)); } rfUI(); render(); save(); } };
 $('rvF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; rvMake(f, ct, .6); };
 function rvMake(f, start, op, quiet) { if (refV) URL.revokeObjectURL(refV.v.src);
   const v = document.createElement('video'); v.muted = false; v.playsInline = true; v.preload = 'auto'; v.src = URL.createObjectURL(f); v.onseeked = v.onloadeddata = () => renderSoon(); v.onloadedmetadata = () => { build(); renderSoon(); };
@@ -2150,7 +2162,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 46, NEWS = [
+const APPV = 48, NEWS = [
+  { v: 48, t: 'Video frames are a layer', i: ['Imported video frames now sit on their own "Video" layer: use that layer\'s opacity and 👁 eye. The old reference video button is gone'] },
+  { v: 47, t: 'Faster frame import + opacity', i: ['Import video as frames is much faster (grabs frames while the video plays fast)', 'The frames opacity slider is now at the top of its panel and shows the %'] },
   { v: 46, t: 'Smooth video tracing', i: ['🎞 Import video as frames (options panel): turns the video into real frames like Rough Animator, with a progress bar. Plays smoothly, works for long videos, and is kept with the project'] },
   { v: 45, t: 'Tap anywhere to close', i: ['This "What\'s new" box now closes when you tap anywhere, no need to scroll to Got it'] },
   { v: 44, t: 'Faster reference video', i: ['Reference video scrubs smoother: it no longer piles up seeks on heavy videos'] },
