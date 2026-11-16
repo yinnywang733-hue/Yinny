@@ -88,6 +88,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #sizePre{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#sizePre button{padding:6px 4px;width:auto;flex:1 0 44px}#sizePre button.on{background:#4f7cff;color:#fff}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 #tlw{background:#333}
+#thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
 #app.custom>#top,#app.custom>#tools,#app.custom>#opts,#app.custom>#tlw{position:absolute;overflow:auto;z-index:5}
 #app.custom>#stage{position:absolute;overflow:hidden;z-index:1}
@@ -125,7 +126,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="app">
   <div id="top">
     <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
-    <button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
+    <button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
     <span class="qs">Size <input type="range" id="qsz" min="1" max="300" value="6"><b id="qszN">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
   </div>
   <div id="tools">
@@ -198,8 +199,9 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   </div>
 </div>
 
+<div id="thP" hidden><b>🎨 App look</b><div class="r"><button data-m="dark">🌙 Dark</button><button data-m="light">☀️ Light</button><button data-m="classic">🖼 Classic</button></div><div class="r"><button id="thImg">📷 Pick image for Classic</button><button id="thDel">✕ Remove</button></div><small>Classic = your picture behind the whole app (panels turn see-through)</small><button id="thX">Done</button></div>
 <div id="bmBar" hidden><b>🛠 Build mode</b><span>Drag a block to move it · drag its orange corner to resize it</span><button id="bmSave">💾 Save layout</button><button id="bmReset">↺ Default</button><button id="bmNo">✕ Cancel</button></div>
-<div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><button id="pjBuild">🛠 Build mode</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
+<div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><button id="pjBuild">🛠 Build mode</button><button id="pjTheme">🎨 Theme</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
 <div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
 <div id="np" hidden><div id="npb"><b>New project</b><button id="npName"></button><div class="trow"><button id="npW"></button><button id="npH"></button></div><div class="trow"><button data-p="1280x720">16:9</button><button data-p="720x1280">9:16</button><button data-p="720x720">1:1</button><button data-p="960x720">4:3</button></div><div class="trow"><button id="npF"></button><button id="npFa">Auto fps</button></div><div class="drow"><button id="npOk" class="on">Create</button><button id="npNo">Cancel</button></div></div></div>
 <div id="cmBar" hidden><b>🎞 Making a symbol</b><button id="cmDone">💾 Save symbol</button><button id="cmNo">✕ Cancel</button></div>
@@ -2106,7 +2108,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 42, NEWS = [
+const APPV = 43, NEWS = [
+  { v: 43, t: 'Dark, Light and Classic looks', i: ['🎨 (top bar, or on the projects screen): Dark, Light, or Classic where you pick your own picture and it becomes the app background'] },
   { v: 42, t: 'Long reference videos', i: ['Reference video (trace) now works for videos of 10+ minutes (was ~1 min) and is kept with the project when you close and reopen it'] },
   { v: 41, t: 'Longer video import', i: ['Video import now asks "start length" in seconds (like "0 3") and allows more frames on strong phones. Import the next part at a later playhead frame. Video goes in at the playhead'] },
   { v: 40, t: 'Onion skin over pictures + always horizontal', i: ['Onion skin now shows on top of images, video and other layers', 'The opening screen starts sideways right away and asks the phone to stay landscape'] },
@@ -2209,6 +2212,23 @@ applyLayout(layCfg);
   if (o.tool && o.tool !== 'clip' && o.tool !== 'bone' && o.tool !== 'cam' && document.querySelector('[data-t="' + o.tool + '"]')) setTool(o.tool);
   let last = ''; setInterval(() => { const s = JSON.stringify({ size, color, tool, bStyle: $('bStyle').value, dMode: $('dMode').value }); if (s !== last) { last = s; try { localStorage.setItem(K, s); } catch (e) {} } }, 700);
 })();
+// ===== themes: dark / light / classic (your own picture) =====
+const thS = document.createElement('style'); document.head.append(thS);
+const LIGHT = `html,body{background:#e6e7ec;color:#222}:root{--pan:#f1f2f6;--tile:#d9dce5}button,select,#tools button,#top button{color:#222}#tools button.on,#top button.on,#tools button.sel,#top button.sel{color:#fff}button.on,button.sel,button.act,button.cur,button.hi,#play,#bmSave{color:#fff}#tlw,#opts{background:#e9eaf0}#stage{background:#c9ccd6}#pj{background:#dfe1e8}#pjh{background:#f1f2f6;color:#222}.pc{background:#fff;color:#222}#opts label,#fi,#top .qs,#opts{color:#333}#opts input[type=text],#opts input[type=number]{background:#fff;color:#222}.ln{background:#d9dce5;color:#222;border-top-color:#bbb}.ln.corner{background:#e9eaf0}#dbox,#nwb,#npb,#thP,#scnP,#gpop{background:#f3f3f7;color:#222}#dbox input,#kb button,#cf button{background:#dfe1e8;color:#222}#scrub{background-color:#dcdfe8}`;
+const thGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+function applyTheme() {
+  let m = thGet('yinnyTheme') || 'dark', img = thGet('yinnyThemeImg'); if (m === 'classic' && !img) m = 'dark';
+  thS.textContent = m === 'light' ? LIGHT : m === 'classic' ? `#root{background:#111 url("${img}") center/cover no-repeat}:root{--pan:rgba(16,16,22,.55);--tile:rgba(62,62,76,.72)}#top,#tools,#opts,#tlw{background:rgba(16,16,22,.5)}#stage{background:rgba(0,0,0,.28)}#pj{background:#111 url("${img}") center/cover no-repeat}#pjh{background:rgba(16,16,22,.6)}#opts label,#top .qs,#fi{text-shadow:0 1px 3px #000;color:#fff}` : '';
+  document.querySelectorAll('#thP [data-m]').forEach(b => b.classList.toggle('cur', b.dataset.m === m));
+}
+document.querySelectorAll('#thP [data-m]').forEach(b => b.onclick = () => { if (b.dataset.m === 'classic' && !thGet('yinnyThemeImg')) return $('thImg').click(); try { localStorage.setItem('yinnyTheme', b.dataset.m); } catch (e) {} applyTheme(); });
+const thIn = document.createElement('input'); thIn.type = 'file'; thIn.accept = 'image/*';
+$('thImg').onclick = () => { thIn.value = ''; thIn.click(); };
+thIn.onchange = async () => { const f = thIn.files[0]; if (!f) return; try { const b = await createImageBitmap(f), k = Math.min(1, 1400 / Math.max(b.width, b.height)), c = document.createElement('canvas'); c.width = Math.round(b.width * k); c.height = Math.round(b.height * k); c.getContext('2d').drawImage(b, 0, 0, c.width, c.height); localStorage.setItem('yinnyThemeImg', c.toDataURL('image/jpeg', .8)); localStorage.setItem('yinnyTheme', 'classic'); applyTheme(); toast('Classic look set'); } catch (e) { toast('Could not use that picture'); } };
+$('thDel').onclick = () => { try { localStorage.removeItem('yinnyThemeImg'); if (thGet('yinnyTheme') === 'classic') localStorage.setItem('yinnyTheme', 'dark'); } catch (e) {} applyTheme(); };
+$('thB').onclick = $('pjTheme').onclick = () => { applyTheme(); $('thP').hidden = !$('thP').hidden; };
+$('thX').onclick = () => $('thP').hidden = true;
+applyTheme();
 // ===== scenes =====
 function scnGo(i, fresh) {
   scn.list[scn.cur].data = JSON.parse(JSON.stringify(dataCore()));
