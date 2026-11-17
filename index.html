@@ -91,6 +91,8 @@ label{font-size:14px;white-space:nowrap;flex:none}
 #rvAdd,#rvBox{display:none!important}
 .szb{min-width:34px;padding:2px 8px;font-size:16px;font-weight:700}#qszN,#sizeN{cursor:pointer;text-decoration:underline dotted}
 #rfProg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:96;background:#2d2d38;color:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:8px;min-width:240px;text-align:center}#rfBar{height:14px;background:#111;border-radius:8px;overflow:hidden}#rfBar i{display:block;height:100%;width:0;background:#4f7cff}
+#bkP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:94;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#bkP .r{display:flex;gap:6px;align-items:center}#bkP .r button{flex:1}#bkP small{opacity:.75}#bkP select{flex:1}
+#shGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0}#shGrid button{aspect-ratio:1;padding:0;overflow:hidden;background:var(--tile);border:2px dashed #666;border-radius:6px;font-size:16px;position:relative}#shGrid button.f{border:2px solid #4f7cff}#shGrid img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
 #thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
 #app.custom>#top,#app.custom>#tools,#app.custom>#opts,#app.custom>#tlw{position:absolute;overflow:auto;z-index:5}
@@ -135,7 +137,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="app">
   <div id="top">
     <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
-    <button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
+    <button id="bkB" title="Back up this project"><b>💾</b></button><button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
     <span class="qs">Size <button class="szb" data-d="-1">−</button><input type="range" id="qsz" min="1" max="300" value="6"><button class="szb" data-d="1">＋</button><b id="qszN" title="Tap to type a size">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
   </div>
   <div id="tools">
@@ -153,7 +155,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
       <button data-t="cam"><b>🎥</b>Camera</button>
       <button id="reset"><b>⟲</b>Straighten</button>
       <button id="imgBtn"><b>🖼</b>Image</button><button id="mediaBtn"><b>🎞</b>GIF/Video</button>
-      <button data-t="clip"><b>🎞</b>Symbol</button>
+      <button data-t="clip"><b>🎞</b>Clip</button>
     </div>
   </div>
 
@@ -175,6 +177,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
     <div class="box sec" id="bsBox" hidden><label>Gradient stroke (vector brush)</label><select id="gsM"><option value="0">Off</option><option value="1">On: colour → end colour</option></select><input type="color" id="gsC" value="#ff3b8d"><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
+    <div class="box" id="shBox"><label>🔃 Symbol (keep up to 10)</label><div id="shGrid"></div><div class="trow"><button id="shAdd">＋ Save selection</button></div><small>Select with Lasso, V-Select or Objects, then tap ＋ or an empty slot. Tap a slot to place it. Hold a slot to remove it. Kept for every project.</small></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
     <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
     <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
@@ -208,6 +211,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   </div>
 </div>
 
+<div id="bkP" hidden><b id="bkT">💾 Back up your project</b><small id="bkS">A copy lets you go back if something goes wrong.</small><div class="r"><button id="bkDup">⧉ Duplicate project</button><button id="bkExp">⬇ Save file</button></div><div class="r"><label for="bkMin">Remind me every</label><select id="bkMin"><option value="0">Never</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hour</option><option value="120">2 hours</option></select></div><button id="bkX">Not now (ignore)</button></div>
 <div id="thP" hidden><b>🎨 App look</b><div class="r"><button data-m="dark">🌙 Dark</button><button data-m="light">☀️ Light</button><button data-m="classic">🖼 Classic</button></div><div class="r"><button id="thImg">📷 Pick image for Classic</button><button id="thDel">✕ Remove</button></div><small>Classic = your picture behind the whole app (panels turn see-through)</small><button id="thX">Done</button></div>
 <div id="bmBar" hidden><b>🛠 Build mode</b><span>Drag a block to move it · drag its orange corner to resize it</span><button id="bmSave">💾 Save layout</button><button id="bmReset">↺ Default</button><button id="bmNo">✕ Cancel</button></div>
 <div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><button id="pjBuild">🛠 Build mode</button><button id="pjTheme">🎨 Theme</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
@@ -2205,7 +2209,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 53, NEWS = [
+const APPV = 55, NEWS = [
+  { v: 55, t: '🔃 Symbol shelf', i: ['🔃 Symbol (right panel): keep up to 10 lassoed pictures or selected strokes and place any of them anytime, in any project. Tap ＋ or an empty slot to save your selection; hold a slot to remove it','The old animated Symbol tool is now called Clip'] },
+  { v: 54, t: 'Backup button + reminder', i: ['💾 (top bar): Duplicate project or save it as a file. A reminder pops up every 10, 15, 30 min… (you choose, or Never) and you can just ignore it'] },
   { v: 53, t: 'Adobe-style timeline, hold-to-drag layers, easy mask', i: ['Timeline frames look like Adobe Animate: keyframe dots, held frames with an end box', 'Hold a layer name for a moment, then drag it anywhere (also into a group)', '◐ Mask button: one tap makes the layer a mask over the layer under it; drag layers under a mask to mask them too'] },
   { v: 52, t: 'Faster video import', i: ['Import video as frames now uses several helpers at once (up to 4), so it is much quicker and every frame is still exact'] },
   { v: 51, t: 'Move layers anywhere + better onion', i: ['Layer panel: ⇅ Move to… sends the layer to any position number', 'Onion skin now sits behind your own layer (so it never covers your drawing) but above the layers underneath (so the bottom layers and background no longer hide it)'] },
@@ -2319,6 +2325,18 @@ applyLayout(layCfg);
   if (o.tool && o.tool !== 'clip' && o.tool !== 'bone' && o.tool !== 'cam' && document.querySelector('[data-t="' + o.tool + '"]')) setTool(o.tool);
   let last = ''; setInterval(() => { const s = JSON.stringify({ size, color, tool, bStyle: $('bStyle').value, dMode: $('dMode').value }); if (s !== last) { last = s; try { localStorage.setItem(K, s); } catch (e) {} } }, 700);
 })();
+// ===== backup: duplicate project + a reminder you can set or ignore =====
+const bkMinGet = () => { try { const v = localStorage.getItem('yinnyBackupMin'); return v == null ? 30 : +v; } catch (e) { return 30; } };
+let bkLast = Date.now();
+async function bkDup() { if (!pid) return toast('Open a project first'); await flush(); const q = await getP(pid); if (!q) return; q.id = 'p' + Date.now() + Math.random().toString(36).slice(2, 5); const d = new Date(); q.name = (pname + ' backup ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')).slice(0, 40); q.t = Date.now(); await putP(q); bkLast = Date.now(); toast('Copy saved as "' + q.name + '" in your projects'); }
+async function bkExp() { if (!pid) return; await flush(); const q = await getP(pid); download(new Blob([JSON.stringify({ yinny: 1, name: q.name, thumb: q.thumb, data: q.data })], { type: 'application/json' }), q.name.replace(/[^\w\- ]/g, '_') + '.yinny.json'); bkLast = Date.now(); }
+function bkShow(remind) { $('bkT').textContent = remind ? '⏰ Time to back up?' : '💾 Back up your project'; $('bkS').textContent = remind ? 'You have been working for a while. A copy lets you go back if something goes wrong. You can ignore this.' : 'A copy lets you go back if something goes wrong.'; $('bkMin').value = String(bkMinGet()); $('bkP').hidden = false; }
+$('bkB').onclick = () => bkShow(false);
+$('bkDup').onclick = async () => { await bkDup(); $('bkP').hidden = true; };
+$('bkExp').onclick = async () => { await bkExp(); $('bkP').hidden = true; };
+$('bkX').onclick = () => { bkLast = Date.now(); $('bkP').hidden = true; };
+$('bkMin').onchange = () => { try { localStorage.setItem('yinnyBackupMin', $('bkMin').value); } catch (e) {} bkLast = Date.now(); };
+setInterval(() => { const m = bkMinGet(); if (!m || !pid || bmOn || playing || exporting || !$('pj').hidden || !$('bkP').hidden || !$('thP').hidden || document.hidden) return; if (Date.now() - bkLast >= m * 60000) { bkLast = Date.now(); bkShow(true); } }, 20000);
 // ===== themes: dark / light / classic (your own picture) =====
 const thS = document.createElement('style'); document.head.append(thS);
 const LIGHT = `html,body{background:#e6e7ec;color:#222}:root{--pan:#f1f2f6;--tile:#d9dce5}button,select,#tools button,#top button{color:#222}#tools button.on,#top button.on,#tools button.sel,#top button.sel{color:#fff}button.on,button.sel,button.act,button.cur,button.hi,#play,#bmSave{color:#fff}#tlw,#opts{background:#e9eaf0}#stage{background:#c9ccd6}#pj{background:#dfe1e8}#pjh{background:#f1f2f6;color:#222}.pc{background:#fff;color:#222}#opts label,#fi,#top .qs,#opts{color:#333}#opts input[type=text],#opts input[type=number]{background:#fff;color:#222}.ln{background:#d9dce5;color:#222;border-top-color:#bbb}.ln.corner{background:#e9eaf0}#dbox,#nwb,#npb,#thP,#scnP,#gpop{background:#f3f3f7;color:#222}#dbox input,#kb button,#cf button{background:#dfe1e8;color:#222}#scrub{background-color:#dcdfe8}`;
@@ -2336,6 +2354,37 @@ $('thDel').onclick = () => { try { localStorage.removeItem('yinnyThemeImg'); if 
 $('thB').onclick = $('pjTheme').onclick = () => { applyTheme(); $('thP').hidden = !$('thP').hidden; };
 $('thX').onclick = () => $('thP').hidden = true;
 applyTheme();
+// ===== 🔃 Symbol shelf: 10 slots for lassoed pictures or selected strokes, kept for every project =====
+const shDb = () => new Promise((res, rej) => { const r = indexedDB.open('yinnyshelf', 1); r.onupgradeneeded = () => r.result.createObjectStore('s', { keyPath: 'n' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const shAll = async () => { try { const d = await shDb(); return await new Promise(res => { const q = d.transaction('s').objectStore('s').getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => res([]); }); } catch (e) { return []; } };
+const shPut = async r => { const d = await shDb(); return new Promise(res => { const t = d.transaction('s', 'readwrite'); t.objectStore('s').put(r); t.oncomplete = res; t.onerror = res; }); };
+const shDel = async n => { const d = await shDb(); return new Promise(res => { const t = d.transaction('s', 'readwrite'); t.objectStore('s').delete(n); t.oncomplete = res; t.onerror = res; }); };
+function shThumb(objs) { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); let a = 1e9, b = 1e9, z = -1e9, y = -1e9; objs.forEach(o => o.kf[0].pts.forEach(p => { a = Math.min(a, p.x); b = Math.min(b, p.y); z = Math.max(z, p.x); y = Math.max(y, p.y); }));
+  const k = 54 / Math.max(8, z - a, y - b), ox0 = 32 - (a + z) / 2 * k, oy0 = 32 - (b + y) / 2 * k; g.lineCap = g.lineJoin = 'round'; objs.forEach(o => { const pt = o.kf[0].pts; g.strokeStyle = o.col; g.lineWidth = Math.max(1, Math.min(6, o.w * k)); g.beginPath(); pt.forEach((p, i) => i ? g.lineTo(p.x * k + ox0, p.y * k + oy0) : g.moveTo(p.x * k + ox0, p.y * k + oy0)); g.stroke(); }); return c.toDataURL(); }
+function shCapture() {
+  if (sel && sel.cv) return { kind: 'bmp', png: sel.cv.toDataURL(), thumb: sel.cv.toDataURL(), s: sel.s || 1, sx: sel.sx, sy: sel.sy, r: sel.r || 0 };
+  let list = vsel.length ? vsel.map(it => it.o) : (typeof selObj !== 'undefined' && selObj && !selObj.clip && selObj.kf ? [selObj] : []);
+  if (list.length) { const objs = list.map(o => JSON.parse(JSON.stringify(o))); return { kind: 'vec', objs, t: objs[0].kf[0].t, thumb: shThumb(objs) }; }
+  return null;
+}
+async function shDraw() {
+  const all = await shAll(), g = $('shGrid'); g.innerHTML = '';
+  for (let n = 0; n < 10; n++) { const r = all.find(x => x.n === n), b = document.createElement('button'); b.type = 'button';
+    if (r) { b.className = 'f'; const im = new Image(); im.src = r.thumb; im.draggable = false; b.append(im); } else b.textContent = '＋';
+    let held = 0, did = false; b.onpointerdown = () => { did = false; if (r) held = setTimeout(async () => { did = true; if (confirm('Remove this symbol from the shelf?')) { await shDel(n); shDraw(); } }, 600); };
+    b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(held);
+    b.onclick = () => { if (did) return; if (r) shPlace(r); else shSave(n); }; g.append(b); }
+}
+async function shSave(n) { const rec = shCapture(); if (!rec) return toast('Select something first with Lasso, V-Select or Objects'); const all = await shAll(); if (n == null) { for (n = 0; n < 10 && all.some(x => x.n === n); n++); if (n >= 10) return toast('Shelf is full: hold a slot to remove one'); } rec.n = n; await shPut(rec); shDraw(); toast('Saved to symbol ' + (n + 1)); }
+function shPlace(r) {
+  if (playing) return;
+  if (r.kind === 'bmp') { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); commit(); snap(); const m = cam(ct); sel = { cv: c, x: m.x - c.width * (r.s || 1) / 2, y: m.y - c.height * (r.s || 1) / 2, s: r.s || 1, sx: r.sx, sy: r.sy, r: r.r || 0 }; setTool('lasso', true); render(); }; im.src = r.png; return; }
+  if (layers[lay].lock) return toast('This layer is locked'); commit(); osnap(); const dt = ct - r.t, c = cam(ct);
+  let a = 1e9, b = 1e9, z = -1e9, y = -1e9; r.objs.forEach(o => o.kf[0].pts.forEach(p => { a = Math.min(a, p.x); b = Math.min(b, p.y); z = Math.max(z, p.x); y = Math.max(y, p.y); })); const mx = c.x - (a + z) / 2, my = c.y - (b + y) / 2;
+  vsel = r.objs.map(o0 => { const n = JSON.parse(JSON.stringify(o0)); n.id = oid++; n.kf.forEach(f => { f.t += dt; f.pts.forEach(p => { p.x += mx; p.y += my; }); }); if (n.pv) { n.pv.x += mx; n.pv.y += my; } if (n.t0 != null) n.t0 += dt; ensureCell(lay, ct).objs.push(n); return { o: n, k: lay }; });
+  fixLen(); setTool('vsel', true); build(); render(); save();
+}
+$('shAdd').onclick = () => shSave(null); shDraw();
 // ===== scenes =====
 function scnGo(i, fresh) {
   scn.list[scn.cur].data = JSON.parse(JSON.stringify(dataCore()));
