@@ -89,6 +89,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 #tlw{background:#333}
 #rvAdd,#rvBox{display:none!important}
+.szb{min-width:34px;padding:2px 8px;font-size:16px;font-weight:700}#qszN,#sizeN{cursor:pointer;text-decoration:underline dotted}
 #rfProg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:96;background:#2d2d38;color:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:8px;min-width:240px;text-align:center}#rfBar{height:14px;background:#111;border-radius:8px;overflow:hidden}#rfBar i{display:block;height:100%;width:0;background:#4f7cff}
 #thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
@@ -129,7 +130,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="top">
     <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
     <button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
-    <span class="qs">Size <input type="range" id="qsz" min="1" max="300" value="6"><b id="qszN">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
+    <span class="qs">Size <button class="szb" data-d="-1">−</button><input type="range" id="qsz" min="1" max="300" value="6"><button class="szb" data-d="1">＋</button><b id="qszN" title="Tap to type a size">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
   </div>
   <div id="tools">
     <div class="tg">
@@ -153,7 +154,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="opts">
     <div class="sec"><label>Colour</label><input type="color" id="col" value="#000000"><input type="text" id="hex" value="#000000" maxlength="7" autocomplete="off" spellcheck="false"></div>
     <div class="sec"><label>Palette (hold to replace)</label><div id="pal"></div><button id="palAdd">＋ Add this colour</button></div>
-    <div class="sec"><label>Brush size <b id="sizeN">6</b></label><input type="range" id="size" min="1" max="300" value="6"><div id="sizePre"></div><button id="sizeAdd">＋ Save this size</button></div>
+    <div class="sec"><label>Brush size <b id="sizeN">6</b> <small>(tap to type)</small></label><div class="trow"><button class="szb" data-d="-1">−</button><button class="szb" data-d="1">＋</button></div><input type="range" id="size" min="1" max="300" value="6"><div id="sizePre"></div><button id="sizeAdd">＋ Save this size</button></div>
     <div class="box sec" id="olBox" hidden><button id="olTog">Outline: off</button><label>Outline colour · thickness</label><input type="color" id="olc" value="#ffffff"><input type="range" id="olw" min="1" max="60" value="6"><label>Which side</label><div class="two" id="olSides"><button data-s="both" class="on">Both</button><button data-s="left">◀ Left</button><button data-s="right">Right ▶</button><button data-s="top">▲ Top</button><button data-s="bottom">▼ Bottom</button></div><button id="olOff">Remove outline from selected</button></div>
     <div class="box sec" id="clipBox" hidden><label>🎞 Symbols: animate something once (explosion, fire, a walk…), then reuse it anywhere. It plays by itself like a movieclip.</label><button id="cNew">＋ Create new symbol</button><label>Your symbols · tap one to place it</label><div id="lList"></div><button id="cMake" hidden>＋ Make clip from this layer</button><label>Used in this project (🔊 = add sounds)</label><div id="cList"></div><div id="sfx" hidden><label id="sfxT"></label><div class="trow"><select id="sfxK"></select><select id="sfxF"></select></div><div class="trow"><button id="sfxAdd">＋ Add sound</button><button id="sfxTry">▶ Try</button><button id="sfxMine">My own file</button></div><div id="sfxL"></div></div>
 </div>
@@ -195,7 +196,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="tlw">
     <div id="tlbtns">
       <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rgA" title="Playback and export start at this frame">⟦ Start</button><button id="rgB" title="Playback and export end at this frame">End ⟧</button><button id="rgX" title="Use all frames again">Full</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
-      <div class="trow"><button id="addLayer">＋ Layer</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
   </div>
@@ -305,7 +306,9 @@ function flat(ctx, t) {                            // every visible layer at tim
       c2.restore(); return;
     }
     c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
+  let hooked = false;
   for (let k = 0; k < n; k++) {
+    if (k === lay && onionPass && ctx === vx && !hooked) { hooked = true; onionPaint(); }
     if (used[k]) continue; const L = layers[k];
     if (L.mk === 'masked') {
       let m = k; while (m < n && layers[m].mk === 'masked') m++;
@@ -319,6 +322,7 @@ function flat(ctx, t) {                            // every visible layer at tim
     }
     if (L.vis) one(ctx, k);
   }
+  if (onionPass && ctx === vx && !hooked) onionPaint();
 }
 const objsNow = () => { const r = []; layers.forEach((L, k) => { if (!L.vis || L.lock) return; const c = cellAt(k, ct); if (c) c.objs.forEach(o => r.push({ o, k })); }); return r; };
 const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.objs.includes(o)) return c; return null; };
@@ -491,6 +495,12 @@ function drawRef(g, live) {
   const k = Math.min(OW / v.videoWidth, OH / v.videoHeight), w = v.videoWidth * k, h = v.videoHeight * k;
   g.save(); g.globalAlpha = refV.op; g.drawImage(v, W / 2 - w / 2, H / 2 - h / 2, w, h); g.restore();
 }
+let onionPass = false;
+function onionPaint() {                            // the ghosts of the neighbouring drawings of THIS layer (red = before, green = after): above the layers underneath, below your own layer
+  const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
+  const ls = []; for (let k = 0; k < oS.b; k++) ls.push([pi - k, oS.cb, k]); for (let k = 0; k < oS.a; k++) ls.push([ni + k, oS.ca, k]);
+  ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, oS.tint ? c : 'none', oS.op / 100 * (k ? .5 / k : 1)); });
+}
 function render() {
   vx.setTransform(1, 0, 0, 1, 0, 0); vx.clearRect(0, 0, view.width, view.height);
   ct = Math.max(0, Math.min(cols() - 1, ct));
@@ -504,12 +514,7 @@ function render() {
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
   drawRefI(vx); drawRef(vx);
-  flat(vx, ct);
-  if (onion) {                                     // drawn on top of every layer, pictures and video too: the neighbouring drawings of THIS layer (red = before, green = after)
-    const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
-    const ls = []; for (let k = 0; k < oS.b; k++) ls.push([pi - k, oS.cb, k]); for (let k = 0; k < oS.a; k++) ls.push([ni + k, oS.ca, k]);
-    ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, oS.tint ? c : 'none', oS.op / 100 * (k ? .5 / k : 1)); });
-  }
+  onionPass = onion; flat(vx, ct); onionPass = false;
   { const ML = layers[lay], mc = ML && ML.mk === 'mask' && cellAt(lay, ct); if (mc) { vx.save(); vx.globalAlpha = .35; drawCell(vx, mc, ct); vx.restore(); } }   // while you edit a mask layer, show its shape faintly
   overlay();
 }
@@ -1217,6 +1222,7 @@ function moveLayer(d) {
   const j = lay + d; if (playing || j < 0 || j >= layers.length) return; commit(); osnap();
   [layers[lay], layers[j]] = [layers[j], layers[lay]]; lay = j; afterLayer();
 }
+$('toLayer').onclick = () => { const n = layers.length; ask('Move this layer to position (1 = top … ' + n + ' = bottom)', String(n - lay), v => { const q = Math.max(1, Math.min(n, +String(v).replace(/\D/g, '') || 1)), j = n - q; if (j === lay || playing) return; commit(); osnap(); const [L] = layers.splice(lay, 1); layers.splice(j, 0, L); lay = j; afterLayer(); }); };
 $('upLayer').onclick = () => moveLayer(1);
 $('downLayer').onclick = () => moveLayer(-1);
 
@@ -1505,6 +1511,10 @@ function buildPal() {
 $('palAdd').onclick = () => { if (pal.length < 30 && !pal.includes(color)) { pal.push(color); savePal(); buildPal(); } };
 $('hex').onchange = e => { let v = e.target.value.trim().toLowerCase(); if (v[0] !== '#') v = '#' + v; if (/^#[0-9a-f]{6}$/.test(v)) setColor(v); else e.target.value = color; };
 buildPal();
+const setSize = v => { v = Math.max(1, Math.min(300, Math.round(+v) || 1)); $('size').value = v; $('size').oninput({ target: $('size') }); };
+document.querySelectorAll('.szb').forEach(b => { let tm = 0, iv = 0; const stp = () => setSize(size + +b.dataset.d), clr = () => { clearTimeout(tm); clearInterval(iv); };
+  b.onpointerdown = e => { e.preventDefault(); stp(); clr(); tm = setTimeout(() => { iv = setInterval(stp, 70); }, 380); }; b.onpointerup = b.onpointerleave = b.onpointercancel = clr; });
+$('qszN').onclick = $('sizeN').onclick = () => ask('Brush size (1-300)', String(size), v => { if (v) setSize(v.replace(/[^\d.]/g, '')); });
 $('qsz').oninput = e => { $('size').value = e.target.value; $('size').oninput({ target: $('size') }); };
 $('size').oninput = e => { $('qsz').value = e.target.value; $('qszN').textContent = e.target.value; size = +e.target.value; $('sizeN').textContent = size; if (selObj) { selObj.w = size * SK; } sizeShow = true; clearTimeout(sizeT); sizeT = setTimeout(() => { sizeShow = false; if (!playing) overlay(); }, 800); buildSizes(); render(); };
 let sizes = [6, 20, 90]; try { const a = JSON.parse(localStorage.getItem('easysizes')); if (Array.isArray(a) && a.length) sizes = a; } catch (e) {}
@@ -1603,11 +1613,22 @@ function dil(m, g) {                                // grow a mask by g pixels (
   for (let x = 0; x < W; x++) { let c = 0; for (let y = -g; y < H; y++) { if (y + g < H) c += t[(y + g) * W + x]; if (y - g - 1 >= 0) c -= t[(y - g - 1) * W + x]; if (y >= 0 && c > 0) o[y * W + x] = 1; } }
   return o;
 }
+function paintLine(p, wd, wall) {                  // tapping a LINE with the bucket paints that line in your colour
+  const nw = objsNow(); for (let i = nw.length - 1; i >= 0; i--) { const o = nw[i].o; if (!o.clip && hitSeg(o, p, .5)) { osnap(); o.col = color; delete o.gr; if (o.olc) o.olc = color; return true; } }   // vector line
+  const c = cellAt(lay, ct); if (!c || !c.cv || layers[lay].lock) return false;                                        // pixel line: paints the connected line of the same colour
+  const cx = c.cv.getContext('2d'), id = cx.getImageData(0, 0, W, H), d = id.data, x0 = Math.floor(p.x), y0 = Math.floor(p.y), N = W * H;
+  let sq = -1, bd = 1e9; for (let r = 0; r <= 4 && sq < 0; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const x = x0 + dx, y = y0 + dy; if (x < 0 || y < 0 || x >= W || y >= H) continue; const j = (y * W + x) * 4; if (d[j + 3] >= 64 && dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; sq = y * W + x; } }
+  if (sq < 0) return false; const r0 = d[sq * 4], g0 = d[sq * 4 + 1], b0 = d[sq * 4 + 2], seen = new Uint8Array(N), st = [sq]; seen[sq] = 1;
+  const nr = parseInt(color.slice(1, 3), 16), ng = parseInt(color.slice(3, 5), 16), nb = parseInt(color.slice(5, 7), 16);
+  while (st.length) { const q = st.pop(), x = q % W, y = (q / W) | 0, j = q * 4; d[j] = nr; d[j + 1] = ng; d[j + 2] = nb;
+    for (const [ax, ay] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + ax, Y = y + ay; if (X < 0 || Y < 0 || X >= W || Y >= H) continue; const k = Y * W + X; if (seen[k]) continue; const m = k * 4; if (d[m + 3] < 8) continue; if (Math.abs(d[m] - r0) + Math.abs(d[m + 1] - g0) + Math.abs(d[m + 2] - b0) > 120 && d[m + 3] >= 200) continue; seen[k] = 1; st.push(k); } }
+  cx.putImageData(id, 0, 0); c.cv._dirty = true; return true;
+}
 function bucket(p) {                                // fills the area you tap, using every visible layer's lines as walls; an open shape leaks like any normal bucket
   const x0 = Math.floor(p.x), y0 = Math.floor(p.y); if (x0 < 0 || y0 < 0 || x0 >= W || y0 >= H) return;
   fillX.clearRect(0, 0, W, H); flat(fillX, ct); const wd = fillX.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H), N = W * H;
   for (let i = 0; i < N; i++) wall[i] = wd[i * 4 + 3] >= 64 ? 1 : 0;
-  if (wall[y0 * W + x0]) return toast('Tap inside a shape, not on its line');
+  if (wall[y0 * W + x0]) return paintLine(p, wd, wall) || toast('Tap inside a shape to fill it, or tap a line of this layer to paint the line');
   let g = +$('bkG').value, blk = wall; if (g) { blk = dil(wall, g); if (blk[y0 * W + x0]) { g = 0; blk = wall; } }   // "Close gaps": lines closer than this count as joined (tapping right beside a line uses the plain lines)
   const R = new Uint8Array(N), st = [y0 * W + x0]; R[st[0]] = 1;
   while (st.length) { const q = st.pop(), x = q % W;
@@ -2110,23 +2131,17 @@ $('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
     const dur = v.duration, n = Math.min(15000, Math.max(1, Math.floor(dur * fps))), tw = Math.max(160, Math.min(1280, +val.replace(/\D/g, '') || 640)), th = Math.round(tw * v.videoHeight / v.videoWidth), id = pid, start = ct;
     const c = document.createElement('canvas'); c.width = tw; c.height = th; const g = c.getContext('2d'); rfStop = false; $('rfProg').hidden = false; await rfWipe(id); if (refF) { refF.cache.forEach(b => b.close()); refF = null; }
     const d = await rdbF(), t0 = performance.now(); let i = 0;
-    const prog = () => { $('rfBar').firstChild.style.width = (i / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = i ? Math.round(el / i * (n - i)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(i / n * 100) + '%  (' + i + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; };
-    if ('requestVideoFrameCallback' in v) {            // fast way: let the video play at 4x and grab each frame as it appears
-      await new Promise(done => {
-        let pend = 0, wr = Promise.resolve(), ended = false;
-        const cap = idx => { g.drawImage(v, 0, 0, tw, th); pend++; c.toBlob(b => { wr = wr.then(() => idbP(d.transaction('f', 'readwrite').objectStore('f').put(b, id + '|' + idx))).catch(() => {}).then(() => { pend--; }); }, 'image/jpeg', .75); };
-        const finish = () => { if (ended) return; ended = true; v.pause(); const w = () => pend > 0 ? setTimeout(w, 40) : wr.then(done); w(); };
-        const cb = (now, meta) => { if (ended) return; if (rfStop) return finish(); while (i < n && i / fps <= meta.mediaTime + .5 / fps) { cap(i); i++; } prog(); if (i >= n) return finish(); try { v.playbackRate = pend > 24 ? .1 : 4; } catch (x) {} v.requestVideoFrameCallback(cb); };
-        v.onended = () => { while (i < n && !ended) { cap(i); i++; } finish(); };
-        v.currentTime = 0; try { v.playbackRate = 4; } catch (x) {} v.play().then(() => v.requestVideoFrameCallback(cb)).catch(() => finish());
-      });
+    const got = new Uint8Array(n); let cnt = 0, pend = 0, wr = Promise.resolve();
+    const prog = () => { $('rfBar').firstChild.style.width = (cnt / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = cnt ? Math.round(el / cnt * (n - cnt)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(cnt / n * 100) + '%  (' + cnt + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; };
+    const cap = idx => { got[idx] = 1; cnt++; g.drawImage(v, 0, 0, tw, th); pend++; c.toBlob(bl => { wr = wr.then(() => idbP(d.transaction('f', 'readwrite').objectStore('f').put(bl, id + '|' + idx))).catch(() => {}).then(() => { pend--; }); }, 'image/jpeg', .75); };
+    for (i = 0; i < n && !rfStop; i++) {   // jump to each frame in turn: exact, no frame is skipped, shifted or repeated
+      if (got[i]) continue;
+      await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener('seeked', fin); res(); } }; v.addEventListener('seeked', fin); setTimeout(fin, 5000); try { v.currentTime = Math.min(dur - .001, (i + .3) / fps); } catch (x) { fin(); } });
+      await new Promise(r => { let dn = false; const f2 = () => { if (!dn) { dn = true; r(); } }; if ('requestVideoFrameCallback' in v) v.requestVideoFrameCallback(f2); setTimeout(f2, 120); });   // wait until the jumped-to frame is really on screen
+      cap(i); if (cnt % 3 === 0) prog(); await new Promise(r => setTimeout(r, 0));
     }
-    for (; i < n && !rfStop; i++) {      // slow but sure way (also finishes anything the fast way missed)
-      await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener('seeked', fin); res(); } }; v.addEventListener('seeked', fin); setTimeout(fin, 5000); try { v.currentTime = Math.min(dur - .001, i / fps + .0005); } catch (x) { fin(); } });
-      g.drawImage(v, 0, 0, tw, th); const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .75));
-      await idbP(d.transaction('f', 'readwrite').objectStore('f').put(blob, id + '|' + i));
-      if (i % 4 === 0) { $('rfBar').firstChild.style.width = (i / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = i ? Math.round(el / i * (n - i)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(i / n * 100) + '%  (' + i + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; }
-    }
+    while (pend > 0) await new Promise(r => setTimeout(r, 30)); await wr;
+    i = 0; while (i < n && got[i]) i++;                 // frames kept = the unbroken run from the start
     URL.revokeObjectURL(url); $('rfProg').hidden = true;
     if (i < 1) { await rfWipe(id); return; }
     refF = { id, n: i, w: tw, h: th, start, op: .6, cache: new Map(), pend: new Set(), last: null }; await rfSaveMeta(); rfEnsureLayer(); rfUI(); renderSoon(); toast(rfStop ? 'Stopped: kept ' + i + ' frames' : 'Done: ' + i + ' frames ready');
@@ -2162,7 +2177,10 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 48, NEWS = [
+const APPV = 51, NEWS = [
+  { v: 51, t: 'Move layers anywhere + better onion', i: ['Layer panel: ⇅ Move to… sends the layer to any position number', 'Onion skin now sits behind your own layer (so it never covers your drawing) but above the layers underneath (so the bottom layers and background no longer hide it)'] },
+  { v: 50, t: 'Accurate video frames + size buttons', i: ['Import video as frames: every frame is now filed under its own time, so no more jumping from frame 1 to 11', 'Brush size: − and ＋ buttons (hold to speed up) and tap the number to type a size. The slider stays'] },
+  { v: 49, t: 'Paintable lines', i: ['🪣 Bucket: tap a LINE (vector or pixel) of the layer you are on to paint the line in your colour. Tap inside a shape to fill as before'] },
   { v: 48, t: 'Video frames are a layer', i: ['Imported video frames now sit on their own "Video" layer: use that layer\'s opacity and 👁 eye. The old reference video button is gone'] },
   { v: 47, t: 'Faster frame import + opacity', i: ['Import video as frames is much faster (grabs frames while the video plays fast)', 'The frames opacity slider is now at the top of its panel and shows the %'] },
   { v: 46, t: 'Smooth video tracing', i: ['🎞 Import video as frames (options panel): turns the video into real frames like Rough Animator, with a progress bar. Plays smoothly, works for long videos, and is kept with the project'] },
