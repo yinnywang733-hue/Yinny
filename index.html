@@ -2133,13 +2133,19 @@ $('rfF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if 
     const d = await rdbF(), t0 = performance.now(); let i = 0;
     const got = new Uint8Array(n); let cnt = 0, pend = 0, wr = Promise.resolve();
     const prog = () => { $('rfBar').firstChild.style.width = (cnt / n * 100) + '%'; const el = (performance.now() - t0) / 1000, eta = cnt ? Math.round(el / cnt * (n - cnt)) : 0; $('rfT').textContent = 'Importing… ' + Math.round(cnt / n * 100) + '%  (' + cnt + '/' + n + ')  about ' + Math.floor(eta / 60) + 'm ' + (eta % 60) + 's left'; };
-    const cap = idx => { got[idx] = 1; cnt++; g.drawImage(v, 0, 0, tw, th); pend++; c.toBlob(bl => { wr = wr.then(() => idbP(d.transaction('f', 'readwrite').objectStore('f').put(bl, id + '|' + idx))).catch(() => {}).then(() => { pend--; }); }, 'image/jpeg', .75); };
-    for (i = 0; i < n && !rfStop; i++) {   // jump to each frame in turn: exact, no frame is skipped, shifted or repeated
-      if (got[i]) continue;
-      await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; v.removeEventListener('seeked', fin); res(); } }; v.addEventListener('seeked', fin); setTimeout(fin, 5000); try { v.currentTime = Math.min(dur - .001, (i + .3) / fps); } catch (x) { fin(); } });
-      await new Promise(r => { let dn = false; const f2 = () => { if (!dn) { dn = true; r(); } }; if ('requestVideoFrameCallback' in v) v.requestVideoFrameCallback(f2); setTimeout(f2, 120); });   // wait until the jumped-to frame is really on screen
-      cap(i); if (cnt % 3 === 0) prog(); await new Promise(r => setTimeout(r, 0));
-    }
+    const cap = (vid, cv, gx, idx) => { if (!got[idx]) { got[idx] = 1; cnt++; } gx.drawImage(vid, 0, 0, tw, th); pend++; cv.toBlob(bl => { wr = wr.then(() => idbP(d.transaction('f', 'readwrite').objectStore('f').put(bl, id + '|' + idx))).catch(() => {}).then(() => { pend--; }); }, 'image/jpeg', .75); };
+    const work = async (vid, lo, hi) => {                   // one helper = one copy of the video that jumps through its own slice of frames, exactly
+      const cv = vid === v ? c : Object.assign(document.createElement('canvas'), { width: tw, height: th }), gx = cv.getContext('2d');
+      for (let k = lo; k < hi && !rfStop; k++) {
+        await new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; vid.removeEventListener('seeked', fin); res(); } }; vid.addEventListener('seeked', fin); setTimeout(fin, 5000); try { vid.currentTime = Math.min(dur - .001, (k + .3) / fps); } catch (x) { fin(); } });
+        await new Promise(r => { let dn = false; const f2 = () => { if (!dn) { dn = true; r(); } }; if ('requestVideoFrameCallback' in vid) vid.requestVideoFrameCallback(f2); setTimeout(f2, 120); });   // until the frame is really on screen
+        cap(vid, cv, gx, k); if (cnt % 4 === 0) prog(); if (pend > 40) while (pend > 12) await new Promise(r => setTimeout(r, 20));
+      }
+    };
+    const NW = Math.max(1, Math.min(4, Math.floor((navigator.hardwareConcurrency || 4) / 2), Math.ceil(n / 40))), vs = [v];
+    for (let w = 1; w < NW; w++) { const x = document.createElement('video'); x.muted = true; x.playsInline = true; x.preload = 'auto'; x.src = url; await new Promise(r => { x.onloadeddata = r; x.onerror = r; setTimeout(r, 8000); }); vs.push(x); }
+    await Promise.all(vs.map((vid, w) => work(vid, Math.floor(n * w / NW), Math.floor(n * (w + 1) / NW))));
+    vs.slice(1).forEach(x => { x.removeAttribute('src'); x.load(); });
     while (pend > 0) await new Promise(r => setTimeout(r, 30)); await wr;
     i = 0; while (i < n && got[i]) i++;                 // frames kept = the unbroken run from the start
     URL.revokeObjectURL(url); $('rfProg').hidden = true;
@@ -2177,7 +2183,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 51, NEWS = [
+const APPV = 52, NEWS = [
+  { v: 52, t: 'Faster video import', i: ['Import video as frames now uses several helpers at once (up to 4), so it is much quicker and every frame is still exact'] },
   { v: 51, t: 'Move layers anywhere + better onion', i: ['Layer panel: ⇅ Move to… sends the layer to any position number', 'Onion skin now sits behind your own layer (so it never covers your drawing) but above the layers underneath (so the bottom layers and background no longer hide it)'] },
   { v: 50, t: 'Accurate video frames + size buttons', i: ['Import video as frames: every frame is now filed under its own time, so no more jumping from frame 1 to 11', 'Brush size: − and ＋ buttons (hold to speed up) and tap the number to type a size. The slider stays'] },
   { v: 49, t: 'Paintable lines', i: ['🪣 Bucket: tap a LINE (vector or pixel) of the layer you are on to paint the line in your colour. Tap inside a shape to fill as before'] },
