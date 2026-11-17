@@ -113,6 +113,12 @@ label{font-size:14px;white-space:nowrap;flex:none}
 .hd{display:none;position:absolute;right:0;top:0;bottom:0;width:16px;background:#4f7cff;touch-action:none;cursor:ew-resize;z-index:4}
 .hd::after{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:3px;border-radius:2px;background:#fff}
 .cell.cur .hd{display:block}
+/* Adobe-style frames: keyframe = dot (filled when it has a drawing, hollow when blank), held frames are separate cells ending in a small hollow box */
+.cell.hold{background-image:repeating-linear-gradient(90deg,transparent 0,transparent 25px,#c9ccd6 25px,#c9ccd6 26px)}
+.cell.hold::before{content:"";position:absolute;left:auto;right:7px;bottom:6px;top:auto;width:8px;height:11px;border:1.5px solid #222;border-radius:1px;background:#fff;opacity:1}
+.cell.has i{box-shadow:none}
+.cell i{left:8px;bottom:6px}
+.rn{font-weight:600}
 #top{display:flex;gap:4px;align-items:center;padding:3px 4px;background:var(--pan);overflow-x:auto;overflow-y:hidden}
 #top button{height:34px;padding:0 9px;flex:none;font-size:13px;background:var(--tile);color:var(--cream);border-radius:3px;display:flex;align-items:center;gap:4px}
 #top button.on{background:var(--cream);color:var(--ink)}#top #play{background:#e8231c;color:#fff;font-weight:700;min-width:76px;justify-content:center}
@@ -196,7 +202,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="tlw">
     <div id="tlbtns">
       <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rgA" title="Playback and export start at this frame">⟦ Start</button><button id="rgB" title="Playback and export end at this frame">End ⟧</button><button id="rgX" title="Use all frames again">Full</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
-      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="mkBtn" title="Mask: layers under this one only show inside its shape">◐ Mask</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
   </div>
@@ -935,9 +941,10 @@ function build() {
     pg = L.g || null; if (L.g && gcol[L.g]) continue;
     const lr = el('lr'), ln = el('ln'), eye = el('eye', L.vis ? '👁' : '🚫'), lk = el('eye', L.lock ? '🔒' : '🔓');
     lr.dataset.l = k;
-    eye.onclick = e => { e.stopPropagation(); osnap(); const v = !L.vis; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.vis = v; }); build(); render(); save(); };
+        eye.onclick = e => { e.stopPropagation(); osnap(); const v = !L.vis; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.vis = v; }); build(); render(); save(); };
     lk.onclick = e => { e.stopPropagation(); osnap(); const v = !L.lock; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.lock = v; }); build(); render(); save(); };
     const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); ln.append(dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); if (msel.has(L)) ln.classList.add('msel'); ln.onclick = () => { commit(); if (mulOn) { if (msel.has(L)) msel.delete(L); else msel.add(L); lay = k; build(); render(); return; } lay = k; hl(); render(); };
+    ln.onpointerdown = e => lpDrag(e, k);
     lr.append(ln);
     let t = 0;
     const gap = (a, b) => { for (let x = a; x < b; x++) { const g = el('cell gap'); g.dataset.l = k; g.dataset.t = x; g.style.width = CW + 'px'; lr.append(g); } };
@@ -1194,6 +1201,17 @@ $('dupLayer').onclick = () => {
   msel.clear(); lay = Math.min(last, layers.length - 1); if (mulOn) msel.add(layers[lay]); afterLayer();
 };
 const gcol = {};
+function lpDrag(e, k) {                          // hold a layer's name, then drag it to any spot (or into a group)
+  if (playing || (e.target.closest && e.target.closest('.eye'))) return;
+  const pid = e.pointerId, x0 = e.clientX, y0 = e.clientY; let tm = 0;
+  const stop = () => { clearTimeout(tm); removeEventListener('pointermove', mv); removeEventListener('pointerup', stop); removeEventListener('pointercancel', stop); };
+  const mv = ev => { if (ev.pointerId === pid && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) stop(); };
+  tm = setTimeout(() => { stop(); try { navigator.vibrate && navigator.vibrate(15); } catch (x) {}
+    const tmv = ev => ev.preventDefault(), rm = () => { removeEventListener('touchmove', tmv); removeEventListener('pointerup', rm); removeEventListener('pointercancel', rm); };
+    addEventListener('touchmove', tmv, { passive: false }); addEventListener('pointerup', rm); addEventListener('pointercancel', rm);
+    dragLayer({ pointerId: pid, stopPropagation() {}, preventDefault() {} }, k); }, 380);
+  addEventListener('pointermove', mv); addEventListener('pointerup', stop); addEventListener('pointercancel', stop);
+}
 function dragLayer(e, k) {
   if (playing) return; e.stopPropagation(); e.preventDefault(); const pid = e.pointerId; let tgt = null;
   const clr = () => tlbox.querySelectorAll('.dropt').forEach(x => x.classList.remove('dropt'));
@@ -1203,7 +1221,7 @@ function dragLayer(e, k) {
     if (!tgt) return; commit(); osnap(); const L = layers[k], origJ = tgt.dataset.l != null ? +tgt.dataset.l : -1; tgt._T = origJ >= 0 ? layers[origJ] : null; layers.splice(k, 1);
     if (tgt.dataset.gh != null) { const nm = tgt.dataset.gh; L.g = nm; let top = -1; layers.forEach((x, i) => { if (x.g === nm) top = i; }); layers.splice(top + 1, 0, L); }
     else { const T = tgt._T; if (T && T !== L) { L.g = T.g; const ti = layers.indexOf(T); layers.splice(origJ > k ? ti + 1 : ti, 0, L); } else layers.splice(k, 0, L); }
-    lay = layers.indexOf(L); afterLayer();
+    lay = layers.indexOf(L); { const a = layers[lay + 1]; if (L.mk !== 'mask') { if (a && (a.mk === 'mask' || a.mk === 'masked')) L.mk = 'masked'; else if (L.mk === 'masked') L.mk = undefined; } } afterLayer();
   };
   addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
 }
@@ -1222,6 +1240,10 @@ function moveLayer(d) {
   const j = lay + d; if (playing || j < 0 || j >= layers.length) return; commit(); osnap();
   [layers[lay], layers[j]] = [layers[j], layers[lay]]; lay = j; afterLayer();
 }
+$('mkBtn').onclick = () => { osnap(); const L = layers[lay];
+  if (L.mk === 'mask') { L.mk = undefined; for (let j = lay - 1; j >= 0 && layers[j].mk === 'masked'; j--) layers[j].mk = undefined; toast('Mask off'); }
+  else { L.mk = 'mask'; if (lay > 0 && layers[lay - 1].mk !== 'mask') layers[lay - 1].mk = 'masked'; toast('Mask on: the layer under it only shows inside this layer\'s shape. Drag more layers right under it to mask them too'); }
+  build(); render(); save(); };
 $('toLayer').onclick = () => { const n = layers.length; ask('Move this layer to position (1 = top … ' + n + ' = bottom)', String(n - lay), v => { const q = Math.max(1, Math.min(n, +String(v).replace(/\D/g, '') || 1)), j = n - q; if (j === lay || playing) return; commit(); osnap(); const [L] = layers.splice(lay, 1); layers.splice(j, 0, L); lay = j; afterLayer(); }); };
 $('upLayer').onclick = () => moveLayer(1);
 $('downLayer').onclick = () => moveLayer(-1);
@@ -2183,7 +2205,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 52, NEWS = [
+const APPV = 53, NEWS = [
+  { v: 53, t: 'Adobe-style timeline, hold-to-drag layers, easy mask', i: ['Timeline frames look like Adobe Animate: keyframe dots, held frames with an end box', 'Hold a layer name for a moment, then drag it anywhere (also into a group)', '◐ Mask button: one tap makes the layer a mask over the layer under it; drag layers under a mask to mask them too'] },
   { v: 52, t: 'Faster video import', i: ['Import video as frames now uses several helpers at once (up to 4), so it is much quicker and every frame is still exact'] },
   { v: 51, t: 'Move layers anywhere + better onion', i: ['Layer panel: ⇅ Move to… sends the layer to any position number', 'Onion skin now sits behind your own layer (so it never covers your drawing) but above the layers underneath (so the bottom layers and background no longer hide it)'] },
   { v: 50, t: 'Accurate video frames + size buttons', i: ['Import video as frames: every frame is now filed under its own time, so no more jumping from frame 1 to 11', 'Brush size: − and ＋ buttons (hold to speed up) and tap the number to type a size. The slider stays'] },
