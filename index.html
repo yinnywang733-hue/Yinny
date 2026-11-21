@@ -205,7 +205,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="tlw">
     <div id="tlbtns">
       <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rgA" title="Playback and export start at this frame">⟦ Start</button><button id="rgB" title="Playback and export end at this frame">End ⟧</button><button id="rgX" title="Use all frames again">Full</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
-      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="mkBtn" title="Mask: layers under this one only show inside its shape">◐ Mask</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="mkBtn" title="Mask: layers under this one only show inside its shape">◐ Mask</button><button id="miBtn" title="Invert the mask: cut holes instead of cropping">🧀 Holes</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
   </div>
@@ -288,7 +288,8 @@ function drawList(g, list, t) {                    // strokes with an outline th
   }
 }
 const drawCell = (ctx, c, t) => {                  // behind-strokes, then the bitmap, then normal strokes, then inside-strokes (only where something is already painted)
-  const bk = c.objs.filter(o => o.bk), ins = c.objs.filter(o => o.ins && !o.bk), mid = c.objs.filter(o => !o.bk && !o.ins);
+  const all = liveStroke && liveStroke.c === c ? c.objs.concat([liveStroke.o]) : c.objs;
+  const bk = all.filter(o => o.bk), ins = all.filter(o => o.ins && !o.bk), mid = all.filter(o => !o.bk && !o.ins);
   const base = g => { drawList(g, bk, t); if (c.cv) g.drawImage(c.cv, 0, 0); drawList(g, mid, t); };
   if (!ins.length) { base(ctx); return; }
   const T = dcT(), g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H);
@@ -322,11 +323,13 @@ function flat(ctx, t) {                            // every visible layer at tim
     if (used[k]) continue; const L = layers[k];
     if (L.mk === 'masked') {
       let m = k; while (m < n && layers[m].mk === 'masked') m++;
-      if (m < n && layers[m].mk === 'mask' && layers[m].vis) {
+      const mcl = m < n && layers[m].mk === 'mask' ? cellAt(m, t) : null;
+      if (m < n && layers[m].mk === 'mask' && layers[m].vis && mcl && ((mcl.cv && mcl.cv._has) || mcl.objs.length)) {   // a mask with nothing drawn yet hides nothing
         mgx.globalCompositeOperation = 'source-over'; mgx.clearRect(0, 0, W, H);
         for (let j = k; j < m; j++) { used[j] = 1; if (layers[j].vis) one(mgx, j); }
         used[m] = 1; mmx.clearRect(0, 0, W, H); const c = cellAt(m, t); if (c) drawCell(mmx, c, t);
-        mgx.globalCompositeOperation = 'destination-in'; mgx.drawImage(mm, 0, 0); mgx.globalCompositeOperation = 'source-over';
+        if (ctx === vx && lay === m) { ctx.save(); ctx.globalAlpha = .3; ctx.drawImage(mg, 0, 0); ctx.restore(); }   // while you shape the mask, the cropped-away part stays faintly visible
+        mgx.globalCompositeOperation = layers[m].mi ? 'destination-out' : 'destination-in'; mgx.drawImage(mm, 0, 0); mgx.globalCompositeOperation = 'source-over';
         ctx.drawImage(mg, 0, 0); continue;
       }
     }
@@ -340,11 +343,11 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
 function restoreStruct(s) {
   if (s.rigs) rigs = JSON.parse(JSON.stringify(s.rigs));
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -524,9 +527,10 @@ function render() {
   drawBoard(vx);
   vx.fillStyle = bgCol; vx.fillRect(0, 0, W, H);
   drawRefI(vx); drawRef(vx);
+  { const lc = drag && tool === 'brush' && isVec() && pts.length && cellAt(lay, ct); if (lc) { const q = pts.slice(), pv = { x: q.reduce((n, p) => n + p.x, 0) / q.length, y: q.reduce((n, p) => n + p.y, 0) / q.length }; liveStroke = { c: lc, o: mkStroke(q, pv, true) }; } }
   onionPass = onion; flat(vx, ct); onionPass = false;
   { const ML = layers[lay], mc = ML && ML.mk === 'mask' && cellAt(lay, ct); if (mc) { vx.save(); vx.globalAlpha = .35; drawCell(vx, mc, ct); vx.restore(); } }   // while you edit a mask layer, show its shape faintly
-  overlay();
+  overlay(); liveStroke = null;
 }
 let rq = 0; const renderSoon = () => { if (!rq) rq = requestAnimationFrame(() => { rq = 0; render(); }); };   // at most one redraw per screen refresh
 function dash(on) { ox.setLineDash(on ? [8, 6] : []); }
@@ -563,7 +567,7 @@ function overlay() {
   }
   if (selObj && (tool === 'obj' || tool === 'key')) objGizmo(false);
   if (tool === 'vsel') vsGizmo();
-  if (drag && isVec() && pts.length && tool !== 'line') { ox.lineCap = ox.lineJoin = 'round'; const pp = () => { ox.beginPath(); pts.forEach((p, i) => i ? ox.lineTo(p.x, p.y) : ox.moveTo(p.x, p.y)); ox.stroke(); }; if (tool === 'outline') { const g = olGeo(olSide, olW * SK); ox.save(); ox.translate(g.dx, g.dy); ox.strokeStyle = olColor; ox.lineWidth = size * SK + g.w; pp(); ox.restore(); } ox.strokeStyle = color; ox.lineWidth = size * SK; pp(); }
+  if (drag && isVec() && pts.length && tool !== 'line' && !liveStroke) { ox.lineCap = ox.lineJoin = 'round'; const pp = () => { ox.beginPath(); pts.forEach((p, i) => i ? ox.lineTo(p.x, p.y) : ox.moveTo(p.x, p.y)); ox.stroke(); }; if (tool === 'outline') { const g = olGeo(olSide, olW * SK); ox.save(); ox.translate(g.dx, g.dy); ox.strokeStyle = olColor; ox.lineWidth = size * SK + g.w; pp(); ox.restore(); } ox.strokeStyle = color; ox.lineWidth = size * SK; pp(); }
   if (hov && /^(brush|eraser|line|vec|outline)$/.test(tool)) {            // brush preview circle + size number
     const r = size * SK / 2, u = pxw(1);
     ox.beginPath(); ox.arc(hov.x, hov.y, Math.max(r, u), 0, 7); ox.strokeStyle = '#fff'; ox.lineWidth = 3 * u; ox.stroke(); ox.strokeStyle = '#000'; ox.lineWidth = u; ox.stroke();
@@ -819,11 +823,13 @@ function vecErase(p) {                                           // vector erase
   if (!veDone) { osnap(); veDone = true; }
   gone.forEach(x => { const c = cellAt(x.k, ct); c.objs = c.objs.filter(o => o !== x.o); if (x.o === selObj) selObj = null; }); build(); renderSoon(); save();
 }
+let liveStroke = null;                                           // the stroke you are drawing right now, shown in its true layer position (behind upper layers, behind/inside mode...)
+function mkStroke(a, pv, live) { return { id: live ? -1 : oid++, col: color, w: size * SK, ...($('gsM').value === '1' && tool === 'brush' ? { gr: $('gsC').value } : {}), ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' || tool === 'pen' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] }; }
 function vecEnd(raw) {
   let a = pts; pts = []; if (!a.length) return;
   a = a.length > 1 && !raw ? simplify(a, 5) : a; osnap();
   const pv = { x: a.reduce((n, p) => n + p.x, 0) / a.length, y: a.reduce((n, p) => n + p.y, 0) / a.length };
-  ensureCell(lay, ct).objs.push({ id: oid++, col: color, w: size * SK, ...($('gsM').value === '1' && tool === 'brush' ? { gr: $('gsC').value } : {}), ...(olOn || tool === 'outline' ? { ol: olColor, olw: olW * SK, olside: olSide } : {}), ...(tool === 'brush' || tool === 'line' || tool === 'pen' ? ({ 'destination-over': { bk: 1 }, 'source-atop': { ins: 1 } }[$('dMode').value] || {}) : {}), pv, ease: false, tw: 'motion', kf: [{ t: ct, pts: a.map(p => ({ x: p.x, y: p.y })), x: 0, y: 0, r: 0, s: 1 }] });
+  ensureCell(lay, ct).objs.push(mkStroke(a, pv));
   build(); save(); render();
 }
 let olOn = false;
@@ -1244,9 +1250,10 @@ function moveLayer(d) {
   const j = lay + d; if (playing || j < 0 || j >= layers.length) return; commit(); osnap();
   [layers[lay], layers[j]] = [layers[j], layers[lay]]; lay = j; afterLayer();
 }
+$('miBtn').onclick = () => { const L = layers[lay]; if (L.mk !== 'mask') return toast('Tap ◐ Mask first, then draw the shape'); osnap(); L.mi = !L.mi; toast(L.mi ? 'Holes: what you draw on the mask is cut OUT of the layer under it' : 'Crop: the layer under only shows inside what you draw'); render(); save(); };
 $('mkBtn').onclick = () => { osnap(); const L = layers[lay];
   if (L.mk === 'mask') { L.mk = undefined; for (let j = lay - 1; j >= 0 && layers[j].mk === 'masked'; j--) layers[j].mk = undefined; toast('Mask off'); }
-  else { L.mk = 'mask'; if (lay > 0 && layers[lay - 1].mk !== 'mask') layers[lay - 1].mk = 'masked'; toast('Mask on: the layer under it only shows inside this layer\'s shape. Drag more layers right under it to mask them too'); }
+  else { L.mk = 'mask'; if (lay > 0 && layers[lay - 1].mk !== 'mask') layers[lay - 1].mk = 'masked'; toast('Mask on: draw a shape on this layer. The layer under it will only show inside the shape (nothing drawn = nothing hidden). 🧀 Holes cuts it out instead'); }
   build(); render(); save(); };
 $('toLayer').onclick = () => { const n = layers.length; ask('Move this layer to position (1 = top … ' + n + ' = bottom)', String(n - lay), v => { const q = Math.max(1, Math.min(n, +String(v).replace(/\D/g, '') || 1)), j = n - q; if (j === lay || playing) return; commit(); osnap(); const [L] = layers.splice(lay, 1); layers.splice(j, 0, L); lay = j; afterLayer(); }); };
 $('upLayer').onclick = () => moveLayer(1);
@@ -2011,7 +2018,7 @@ const pfile = ext => (pname.replace(/[^\w\- ]/g, '_').trim() || 'Untitled') + ex
 const idb = () => new Promise((res, rej) => { if (pdb) return res(pdb); const r = indexedDB.open('easyanim', 1); r.onupgradeneeded = () => r.result.createObjectStore('projects', { keyPath: 'id' }); r.onsuccess = () => res(pdb = r.result); r.onerror = () => rej(r.error); });
 const idbDo = (mode, fn) => idb().then(db => new Promise((res, rej) => { const t = db.transaction('projects', mode), q = fn(t.objectStore('projects')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
 const putP = p => idbDo('readwrite', x => x.put(p)), getP = id => idbDo('readonly', x => x.get(id)), allP = () => idbDo('readonly', x => x.getAll()), delP = id => idbDo('readwrite', x => x.delete(id));
-const dataCore = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
+const dataCore = () => ({ v: 3, rng, rigs, guides, marks, fx: fxs, ow: OW, oh: OH, fps, len, cams, oid, bg: bgCol, snd: audio, board: [...tiles].map(([k, t]) => ({ k, png: t._dirty || !t._url ? (t._url = t.toDataURL(), t._dirty = false, t._url) : t._url })), clips: clips.map(c => ({ lib: c.lib, sfx: c.sfx || [], id: c.id, name: c.name, x: c.x, y: c.y, w: c.w, h: c.h, n: c.n, m: c.m, u: c.u.map(cv => cv._url || (cv._url = cv.toDataURL())) })), layers: layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, objs: c.objs, png: c.cv && c.cv._has ? (c.cv._dirty || !c.cv._url ? (c.cv._url = c.cv.toDataURL(), c.cv._dirty = false, c.cv._url) : c.cv._url) : null })) })) });
 let scn = { cur: 0, list: [{ name: 'Scene 1' }] };   // scenes: every scene is a full copy of the animation (layers, camera, sound); only the open one is live
 const dataNow = () => { const d = dataCore(); scn.list[scn.cur].data = null; return { ...d, scn: { cur: scn.cur, list: scn.list.map((x, i) => ({ name: x.name, data: i === scn.cur ? null : x.data })) } }; };
 function thumbURL() {                                             // what the camera sees on the first frame
@@ -2042,7 +2049,7 @@ function loadData(d) {
   fxs = d.fx || []; buildFx(); setTimeout(() => { rvRestore(); rfRestore(); }, 0);
   undo = []; redo = []; sel = null; selObj = null; lay = 0; ct = 0;
   rng = d.rng || null; rigs = d.rigs || []; rigId = Math.max(0, ...rigs.map(r => r.id)) + 1; guides = d.guides || []; marks = d.marks || {}; fps = d.fps || 12; $('fps').value = fps; bgCol = d.bg || '#ffffff'; $('bgc').value = bgCol; audio = d.snd || null; aEl.src = audio ? audio.url : ''; sndUI(); decodeWave(); oid = d.oid || 1; len = d.len || 1; cams = camMig(d.cams && d.cams.length ? d.cams : [{ x: W / 2, y: H / 2, z: 1, r: 0, k: 1 }]);
-  layers = d.layers.map(l => ({ vid: l.vid, name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
+  layers = d.layers.map(l => ({ mi: l.mi, vid: l.vid, name: l.name, vis: l.vis !== false, lock: !!l.lock, op: l.op == null ? 1 : l.op, bm: l.bm || 'source-over', mk: l.mk, g: l.g, bl: l.bl, gl: l.gl, glc: l.glc, sh: l.sh, shc: l.shc, shd: l.shd, sha: l.sha, sht: l.sht, cells: l.cells.map(c => ({ s: c.s, d: c.d, cv: null, objs: c.objs || [], png: c.png })) })); layerCount = layers.length;
   let pend = 0; const done = () => { if (--pend === 0) { build(); render(); } };
   layers.forEach(L => L.cells.forEach(c => {
     const src = c.png; delete c.png; if (!src) return; pend++;
@@ -2209,7 +2216,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 55, NEWS = [
+const APPV = 56, NEWS = [
+  { v: 56, t: 'Layer order while drawing + better masks', i: ['While you draw a stroke it now sits in its real place: under the layers above it, behind or inside as chosen', 'Mask: a mask with nothing drawn no longer blanks everything; while you edit it, the cropped-away part stays faintly visible; 🧀 Holes button cuts the shape out instead of cropping'] },
   { v: 55, t: '🔃 Symbol shelf', i: ['🔃 Symbol (right panel): keep up to 10 lassoed pictures or selected strokes and place any of them anytime, in any project. Tap ＋ or an empty slot to save your selection; hold a slot to remove it','The old animated Symbol tool is now called Clip'] },
   { v: 54, t: 'Backup button + reminder', i: ['💾 (top bar): Duplicate project or save it as a file. A reminder pops up every 10, 15, 30 min… (you choose, or Never) and you can just ignore it'] },
   { v: 53, t: 'Adobe-style timeline, hold-to-drag layers, easy mask', i: ['Timeline frames look like Adobe Animate: keyframe dots, held frames with an end box', 'Hold a layer name for a moment, then drag it anywhere (also into a group)', '◐ Mask button: one tap makes the layer a mask over the layer under it; drag layers under a mask to mask them too'] },
