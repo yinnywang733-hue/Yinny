@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><script>(function(){var h=document.documentElement,f=function(){h.classList.toggle('rot',innerHeight>innerWidth);h.style.setProperty('--pw',innerWidth+'px');h.style.setProperty('--ph',innerHeight+'px')};f();addEventListener('resize',f);try{var l=function(){try{screen.orientation.lock('landscape').catch(function(){})}catch(e){}};l();addEventListener('pointerdown',l,{once:true})}catch(e){}})();</script>
+<head>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><script>(function(){var h=document.documentElement,f=function(){h.classList.toggle('rot',innerHeight>innerWidth);h.style.setProperty('--pw',innerWidth+'px');h.style.setProperty('--ph',innerHeight+'px')};f();addEventListener('resize',f);try{var l=function(){try{screen.orientation.lock('landscape').catch(function(){})}catch(e){}};l();addEventListener('pointerdown',l,{once:true})}catch(e){}})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Yinny Studios</title>
@@ -92,7 +93,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 .szb{min-width:34px;padding:2px 8px;font-size:16px;font-weight:700}#qszN,#sizeN{cursor:pointer;text-decoration:underline dotted}
 #rfProg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:96;background:#2d2d38;color:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:8px;min-width:240px;text-align:center}#rfBar{height:14px;background:#111;border-radius:8px;overflow:hidden}#rfBar i{display:block;height:100%;width:0;background:#4f7cff}
 #bkP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:94;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#bkP .r{display:flex;gap:6px;align-items:center}#bkP .r button{flex:1}#bkP small{opacity:.75}#bkP select{flex:1}
-#shGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0}#shGrid button{aspect-ratio:1;padding:0;overflow:hidden;background:var(--tile);border:2px dashed #666;border-radius:6px;font-size:16px;position:relative}#shGrid button.f{border:2px solid #4f7cff}#shGrid img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+#bpGrid{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}#bpGrid button{border:2px solid;padding:4px 8px}#shGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:4px 0}#shGrid button{aspect-ratio:1;padding:0;overflow:hidden;background:var(--tile);border:2px dashed #666;border-radius:6px;font-size:16px;position:relative}#shGrid button.f{border:2px solid #4f7cff}#shGrid img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
 #thP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;flex-direction:column;gap:6px;background:#1b1b22f8;color:#eee;padding:12px;border-radius:12px;border:1px solid #666;min-width:260px;max-width:92%}#thP .r{display:flex;gap:6px}#thP .r button{flex:1}#thP small{opacity:.7}#thP button.cur{background:#4f7cff;color:#fff}
 #app.custom{display:block;position:relative;overflow:hidden}
 #app.custom>#top,#app.custom>#tools,#app.custom>#opts,#app.custom>#tlw{position:absolute;overflow:auto;z-index:5}
@@ -170,14 +171,14 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="penBox" hidden><label>Pen: tap to place points, drag a point to curve it. Tap the first point to close the shape.</label><div class="two"><button id="penOk">✔ Finish line</button><button id="penUndo">↶ Remove last point</button><button id="penClose">Close shape: off</button><button id="penNo">✕ Cancel</button></div></div>
     <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button><button id="shE">⬭ Ellipse</button><button id="shP">⬠ Polygon</button><button id="shT">★ Star</button></div><label>Polygon / star sides <b id="shNn">5</b></label><input type="range" id="shN" min="3" max="12" value="5"><button id="shF">Fill: off</button></div>
     <div class="box sec" id="txtBox" hidden><label>Font</label><select id="font"><option value="'Comic Neue', 'Comic Sans MS', cursive">Comic (bold)</option><option value="'Bangers', Impact, fantasy">Bangers</option><option value="'Pacifico', cursive">Pacifico</option><option value="'Permanent Marker', cursive">Marker</option><option value="'Lobster', Georgia, serif">Lobster</option></select></div>
-    <div class="box sec" id="selBox" hidden><label>Selection</label>
+    <div class="box sec" id="selBox" hidden><label>Selection</label><button id="lfTog">Lasso: Select</button>
       <div class="two"><button id="copy">Copy</button><button id="paste">Paste</button><button id="del">Delete</button><button id="fH">Flip ↔</button><button id="fV">Flip ↕</button><button id="done">Done</button></div>
     </div>
     <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
     <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
-    <div class="box sec" id="bsBox" hidden><label>Gradient stroke (vector brush)</label><select id="gsM"><option value="0">Off</option><option value="1">On: colour → end colour</option></select><input type="color" id="gsC" value="#ff3b8d"><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="s">Sketch (pencil)</option></select></div>
-    <div class="box" id="shBox"><label>🔃 Symbol (keep up to 10)</label><div id="shGrid"></div><div class="trow"><button id="shAdd">＋ Save selection</button></div><small>Select with Lasso, V-Select or Objects, then tap ＋ or an empty slot. Tap a slot to place it. Hold a slot to remove it. Kept for every project.</small></div>
+    <div class="box sec" id="bsBox" hidden><label>Gradient stroke (vector brush)</label><select id="gsM"><option value="0">Off</option><option value="1">On: colour → end colour</option></select><input type="color" id="gsC" value="#ff3b8d"><label>Brush presets (tap = use · hold = delete)</label><div id="bpGrid"></div><button id="bpAdd">＋ Save this brush</button><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="m">Marker (flat, see-through)</option><option value="c">Crayon (grainy)</option><option value="d">Dots</option><option value="s">Sketch (pencil)</option></select></div>
+    <div class="box" id="shBox"><label>🔃 Symbol (keep up to 10)</label><div id="shGrid"></div><div class="trow"><button id="shAdd">🔃 Create symbol</button></div><small>Draw, then tap Create symbol (it takes your selection, or everything on this frame). Tap a slot to place it. Hold a slot to remove it. Kept for every project.</small></div>
     <div class="box sec" id="symBox" hidden><label>Symmetry (normal brush, eraser, line)</label><button id="symB">Symmetry: off</button></div>
     <div class="box sec" id="vecBox" hidden><label>Brush type</label><button id="vToggle">Normal brush</button></div>
     <div class="box sec" id="keyBox" hidden><label>Keyframes (like Flash): 1) tap a stroke  2) go to another frame  3) ◆ Insert keyframe  4) drag it, turn it or resize it with the handles. The frames in between animate by themselves.</label><div class="two"><button id="kAdd">◆ Insert keyframe</button><button id="kDel">◇ Clear keyframe</button></div><button id="kDelAll">⛔ Delete ALL keyframes of this stroke</button><label>Ease <b id="kEzN">0</b> (− starts slow · + ends slow)</label><input type="range" id="kEz" min="-100" max="100" step="10" value="0"></div>
@@ -1595,6 +1596,11 @@ function stroke(a, b) {
         x.save(); x.lineCap = 'round'; x.globalCompositeOperation = dm;
         if (bs === 'a') { const st = Math.max(1, w * .12), n = Math.max(1, Math.ceil(d / st)), r = w / 2 * 1.1, n1 = parseInt(color.slice(1), 16), rgb = (n1 >> 16) + ',' + ((n1 >> 8) & 255) + ',' + (n1 & 255);
           for (let i = 0; i <= n; i++) { const px = a.x + (b.x - a.x) * i / n, py = a.y + (b.y - a.y) * i / n, g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, 'rgba(' + rgb + ',.16)'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, 7); x.fill(); } }
+        else if (bs === 'm') { x.strokeStyle = color; x.globalAlpha = .45; x.lineCap = 'square'; x.lineWidth = w; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
+        else if (bs === 'c' || bs === 'd') { x.fillStyle = color; const n = Math.max(1, Math.ceil(d / 2)), cnt = bs === 'c' ? Math.ceil(w / 2) : 1;
+          for (let i = 0; i <= n; i++) { const px = a.x + (b.x - a.x) * i / n, py = a.y + (b.y - a.y) * i / n;
+            if (bs === 'd') { if (i % Math.max(1, Math.round(w * .9 / 2)) === 0) { x.beginPath(); x.arc(px, py, w / 2, 0, 7); x.fill(); } }
+            else for (let k = 0; k < cnt; k++) { const an = Math.random() * 6.283, rr = Math.sqrt(Math.random()) * w / 2; x.globalAlpha = .35 + Math.random() * .5; x.fillRect(px + Math.cos(an) * rr, py + Math.sin(an) * rr, Math.max(1, w * .08), Math.max(1, w * .08)); } } }
         else { x.strokeStyle = color; for (let k = 0; k < 3; k++) { const j = w * .3, o = () => (Math.random() - .5) * j; x.globalAlpha = .5; x.lineWidth = Math.max(1, w * .28); x.beginPath(); x.moveTo(a.x + o(), a.y + o()); x.lineTo(b.x + o(), b.y + o()); x.stroke(); } }
         x.restore();
       };
@@ -1611,8 +1617,8 @@ function stroke(a, b) {
   if (sym === 3) one({ x: W - a.x, y: H - a.y }, { x: W - b.x, y: H - b.y });
 }
 const mix = (c, t, f) => { const n = parseInt(c.slice(1), 16), m = parseInt(t.slice(1), 16), g = (sh) => Math.round(((n >> sh) & 255) * (1 - f) + ((m >> sh) & 255) * f); return `rgb(${g(16)},${g(8)},${g(0)})`; };
-function drawShape(x, a, b) {                       // rectangle / square: corner to corner · circle / sphere: from the centre out
-  let w = b.x - a.x, h = b.y - a.y; x.save(); x.lineWidth = size * SK; x.lineJoin = 'round'; x.strokeStyle = x.fillStyle = color;
+function drawShape(x, a, b, dm) {                       // rectangle / square: corner to corner · circle / sphere: from the centre out
+  let w = b.x - a.x, h = b.y - a.y; x.save(); x.lineWidth = size * SK; x.lineJoin = 'round'; x.strokeStyle = x.fillStyle = color; if (dm) x.globalCompositeOperation = dm;   // in front / behind / inside
   if (shapeKind === 'square') { const m = Math.max(Math.abs(w), Math.abs(h)); w = (w < 0 ? -1 : 1) * m; h = (h < 0 ? -1 : 1) * m; }
   x.beginPath();
   if (shapeKind === 'rect' || shapeKind === 'square') { x.rect(a.x, a.y, w, h); shapeFill ? x.fill() : x.stroke(); }
@@ -1627,7 +1633,7 @@ function drawShape(x, a, b) {                       // rectangle / square: corne
     if (shapeKind === 'sphere') { const g = x.createRadialGradient(a.x - r * .35, a.y - r * .35, r * .05, a.x, a.y, r); g.addColorStop(0, mix(color, '#ffffff', .8)); g.addColorStop(.4, color); g.addColorStop(1, mix(color, '#000000', .55)); x.fillStyle = g; x.fill(); }
     else shapeFill ? x.fill() : x.stroke();
   }
-  if (olOn) { x.globalCompositeOperation = 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); }
+  if (olOn) { x.globalCompositeOperation = dm === 'source-atop' ? dm : 'destination-over'; x.lineWidth = (size + 2 * olW) * SK; x.strokeStyle = olColor; x.stroke(); }
   x.restore();
 }
 ['R:rect', 'S:square', 'C:circle', 'B:sphere', 'E:ellipse', 'P:poly', 'T:star'].forEach(q => { const [i, k] = q.split(':'); $('sh' + i).onclick = () => { shapeKind = k; ['R', 'S', 'C', 'B', 'E', 'P', 'T'].forEach(j => $('sh' + j).classList.toggle('on', j === i)); }; });
@@ -1688,6 +1694,15 @@ function liftBoard() {                              // lasso in the dark area: c
   bundle = new Map(); boardDraw(x0, y0, x1, y1, g => { g.save(); path(g, 0, 0); g.clip(); g.clearRect(x0 - 2, y0 - 2, w + 4, h + 4); g.restore(); }); pushBundle();
   sel = { cv: c, x: x0, y: y0, s: 1, r: 0, board: true };
 }
+let lassoFill = false;
+function lassoFillGo() {                           // lasso Fill: loop around an area and it fills with the current colour (behind / in front / inside follows Draw mode)
+  if (pts.length < 3) return; if (layers[lay].lock) return toast('This layer is locked');
+  const path = c => { c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)); c.closePath(); };
+  const go = c => { c.save(); c.globalCompositeOperation = $('dMode').value; c.fillStyle = color; path(c); c.fill(); c.restore(); };
+  if (boardMode) boardDraw(-MX, -MY, W + MX, H + MY, go); else { snap(); go(fc()); }
+  pts = []; save(); render();
+}
+$('lfTog').onclick = () => { lassoFill = !lassoFill; $('lfTog').textContent = lassoFill ? 'Lasso: FILL with colour' : 'Lasso: Select'; $('lfTog').style.background = lassoFill ? '#ff8a2f' : ''; };
 function lift() {                                   // cut the lassoed pixels out into a floating piece
   if (pts.length < 3) return; if (boardMode) return liftBoard();
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
@@ -1845,7 +1860,7 @@ function up0(e) {
   if (tool === 'pen') { penD = null; render(); return; }
   if (tool === 'bone') { boneUp(p); return; }
   if (boardMode && /^(brush|eraser|line|shape)$/.test(tool)) {
-    if (tool === 'line') stroke(last, p); else if (tool === 'shape') boardDraw(-MX, -MY, W + MX, H + MY, g => drawShape(g, last, p));
+    if (tool === 'line') stroke(last, p); else if (tool === 'shape') boardDraw(-MX, -MY, W + MX, H + MY, g => drawShape(g, last, p, $('dMode').value));
     pushBundle(); save(); render(); return;
   }
   if (tool === 'text') { addText(last); return; }
@@ -1853,9 +1868,9 @@ function up0(e) {
   if (isVec()) { vecEnd(); return; }
   if (tool === 'vsel') { vsUp(); return; }
   if (tool === 'obj' || tool === 'key') { objUp(); return; }
-  if (tool === 'lasso' && mode === 'draw') lift();
+  if (tool === 'lasso' && mode === 'draw') { if (lassoFill) lassoFillGo(); else lift(); }
   else if (tool === 'line') stroke(last, p);
-  else if (tool === 'shape') drawShape(fc(), last, p);
+  else if (tool === 'shape') drawShape(fc(), last, p, $('dMode').value);
   pts = []; build(); save(); render();
 }
 ov.onpointerup = up; ov.onpointercancel = up; ov.onpointerleave = () => { hov = null; if (!drag && !playing) overlay(); };
@@ -1874,6 +1889,7 @@ $('redo').onclick = () => swap(redo, undo);
 
 // ---------- play + export ----------
 function setPlay(on) { viewPlay = on; view.width = on ? OW : VW; view.height = on ? OH : VH; fit(); }   // playing shows only what the camera sees
+let playFrom = 0;
 function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAnimationFrame(timer); clearInterval(timer); playing = false; setPlay(false); $('play').innerHTML = '<b>▶</b>Play'; render(); hl(); fpsTxt = ''; $('fbadge').style.color = ''; }
 let pcache = null;                                 // play = every frame drawn ONCE up front, then just shown: smooth even on a slow phone
 async function prepare() {
@@ -1893,7 +1909,8 @@ async function prepare() {
   return arr;
 }
 $('play').onclick = async () => {
-  if (playing) return stop();
+  if (playing) { stop(); ct = playFrom; render(); hl(); return; }   // Stop puts you back on the frame you pressed Play on
+  playFrom = ct;
   const plen = Math.max(len, refEnd()); if (plen < 2) return;     // with a reference video, Play runs for the whole video even if you have no frames
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
   try { pcache = (refV || rfOn()) ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
@@ -2216,7 +2233,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 56, NEWS = [
+const APPV = 57, NEWS = [
+  { v: 57, t: 'Create symbol, lasso fill, new brushes', i: ['🔃 Create symbol: draw, tap it, done. It takes your selection, or everything on this frame', 'Lasso: tap “Lasso: Select” to switch to FILL, then loop an area to fill it with your colour', 'New brushes: Marker, Crayon, Dots, plus ＋ Save this brush (tap to reuse, hold to delete)', 'Draw in front / behind / inside now works for shapes too', 'Stop goes back to the frame you pressed Play on'] },
   { v: 56, t: 'Layer order while drawing + better masks', i: ['While you draw a stroke it now sits in its real place: under the layers above it, behind or inside as chosen', 'Mask: a mask with nothing drawn no longer blanks everything; while you edit it, the cropped-away part stays faintly visible; 🧀 Holes button cuts the shape out instead of cropping'] },
   { v: 55, t: '🔃 Symbol shelf', i: ['🔃 Symbol (right panel): keep up to 10 lassoed pictures or selected strokes and place any of them anytime, in any project. Tap ＋ or an empty slot to save your selection; hold a slot to remove it','The old animated Symbol tool is now called Clip'] },
   { v: 54, t: 'Backup button + reminder', i: ['💾 (top bar): Duplicate project or save it as a file. A reminder pops up every 10, 15, 30 min… (you choose, or Never) and you can just ignore it'] },
@@ -2373,6 +2391,11 @@ function shCapture() {
   if (sel && sel.cv) return { kind: 'bmp', png: sel.cv.toDataURL(), thumb: sel.cv.toDataURL(), s: sel.s || 1, sx: sel.sx, sy: sel.sy, r: sel.r || 0 };
   let list = vsel.length ? vsel.map(it => it.o) : (typeof selObj !== 'undefined' && selObj && !selObj.clip && selObj.kf ? [selObj] : []);
   if (list.length) { const objs = list.map(o => JSON.parse(JSON.stringify(o))); return { kind: 'vec', objs, t: objs[0].kf[0].t, thumb: shThumb(objs) }; }
+  const all = objsNow().map(it => it.o).filter(o => o && !o.clip && o.kf);       // nothing selected: take everything on this layer's frame
+  if (all.length) { const objs = all.map(o => JSON.parse(JSON.stringify(o))); return { kind: 'vec', objs, t: objs[0].kf[0].t, thumb: shThumb(objs) }; }
+  const c0 = cellAt(lay, ct); if (c0 && c0.cv) { const d = c0.cv.getContext('2d').getImageData(0, 0, W, H).data; let x0 = W, y0 = H, x1 = -1, y1 = -1;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d[(y * W + x) * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 >= 0) { const c = document.createElement('canvas'); c.width = x1 - x0 + 1; c.height = y1 - y0 + 1; c.getContext('2d').drawImage(c0.cv, -x0, -y0); const u = c.toDataURL(); return { kind: 'bmp', png: u, thumb: u, s: 1, r: 0 }; } }
   return null;
 }
 async function shDraw() {
@@ -2383,7 +2406,7 @@ async function shDraw() {
     b.onpointerup = b.onpointerleave = b.onpointercancel = () => clearTimeout(held);
     b.onclick = () => { if (did) return; if (r) shPlace(r); else shSave(n); }; g.append(b); }
 }
-async function shSave(n) { const rec = shCapture(); if (!rec) return toast('Select something first with Lasso, V-Select or Objects'); const all = await shAll(); if (n == null) { for (n = 0; n < 10 && all.some(x => x.n === n); n++); if (n >= 10) return toast('Shelf is full: hold a slot to remove one'); } rec.n = n; await shPut(rec); shDraw(); toast('Saved to symbol ' + (n + 1)); }
+async function shSave(n) { const rec = shCapture(); if (!rec) return toast('Draw something first, then tap Create symbol'); const all = await shAll(); if (n == null) { for (n = 0; n < 10 && all.some(x => x.n === n); n++); if (n >= 10) return toast('Shelf is full: hold a slot to remove one'); } rec.n = n; await shPut(rec); shDraw(); toast('Saved to symbol ' + (n + 1)); }
 function shPlace(r) {
   if (playing) return;
   if (r.kind === 'bmp') { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); commit(); snap(); const m = cam(ct); sel = { cv: c, x: m.x - c.width * (r.s || 1) / 2, y: m.y - c.height * (r.s || 1) / 2, s: r.s || 1, sx: r.sx, sy: r.sy, r: r.r || 0 }; setTool('lasso', true); render(); }; im.src = r.png; return; }
@@ -2393,6 +2416,13 @@ function shPlace(r) {
   fixLen(); setTool('vsel', true); build(); render(); save();
 }
 $('shAdd').onclick = () => shSave(null); shDraw();
+// ===== brush presets =====
+let bps = []; try { bps = JSON.parse(localStorage.getItem('yinnyBrushes') || '[]'); } catch (e) {}
+function bpDraw() { const g = $('bpGrid'); g.innerHTML = ''; bps.forEach((b, i) => { const e = document.createElement('button'); e.type = 'button'; e.textContent = b.st.toUpperCase() + b.sz; e.style.borderColor = b.col; let h = 0, did = false;
+  e.onpointerdown = () => { did = false; h = setTimeout(() => { did = true; bps.splice(i, 1); try { localStorage.setItem('yinnyBrushes', JSON.stringify(bps)); } catch (x) {} bpDraw(); }, 600); };
+  e.onpointerup = e.onpointerleave = e.onpointercancel = () => clearTimeout(h);
+  e.onclick = () => { if (did) return; $('bStyle').value = b.st; $('bStyle').dispatchEvent(new Event('change')); setColor(b.col); $('size').value = b.sz; $('size').dispatchEvent(new Event('input')); }; g.append(e); }); }
+$('bpAdd').onclick = () => { if (bps.length >= 12) bps.shift(); bps.push({ st: $('bStyle').value, sz: size, col: color }); try { localStorage.setItem('yinnyBrushes', JSON.stringify(bps)); } catch (x) {} bpDraw(); toast('Brush saved'); }; bpDraw();
 // ===== scenes =====
 function scnGo(i, fresh) {
   scn.list[scn.cur].data = JSON.parse(JSON.stringify(dataCore()));
@@ -2414,5 +2444,6 @@ $('scnB').onclick = () => { scnUI(); $('scnP').hidden = !$('scnP').hidden; };
 scnUI();
 orient(); build(); render();
 </script>
-<script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script></body>
+<script>if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(function () {});</script>
+</body>
 </html>
