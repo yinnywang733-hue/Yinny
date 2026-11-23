@@ -138,7 +138,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
 <div id="app">
   <div id="top">
     <button id="projBtn" title="Projects"><b>📁</b></button><button id="undo"><b>↩</b></button><button id="redo"><b>↪</b></button><button id="prevF"><b>◀</b></button><button id="nextF"><b>▶</b></button><button id="play"><b>▶</b>Play</button>
-    <button id="bkB" title="Back up this project"><b>💾</b></button><button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
+    <button id="bkB" title="Back up this project"><b>💾</b></button><button id="thB" title="Theme"><b>🎨</b></button><button id="scnB" title="Scenes"><b>🎬</b></button><button id="tlB" title="Timelapse"><b>⏱</b></button><button id="onion" class="on" title="Onion skin"><b>🧅</b></button><button id="gridB" title="Grid"><b>▦</b></button><button id="full"><b>⛶</b></button><button id="tlToggle" title="Timeline"><b>🎞</b></button><button id="optToggle" title="Tool options"><b>⚙</b></button><button id="exp" title="Export"><b>⬇</b></button>
     <span class="qs">Size <button class="szb" data-d="-1">−</button><input type="range" id="qsz" min="1" max="300" value="6"><button class="szb" data-d="1">＋</button><b id="qszN" title="Tap to type a size">6</b></span><span class="qs"><input type="color" id="qcol" value="#000000"></span>
   </div>
   <div id="tools">
@@ -399,10 +399,12 @@ const P = e => snapPt(P0(e));
 const ptrs = new Map(); let gest = null;
 function gStart() {
   const [a, b] = [...ptrs.values()], c = ctr();
+  if (tool === 'cam' && !playing) { osnap(); const k = camKey(ct); gest = { cam: { z: k.z, r: k.r || 0 }, d: Math.hypot(a.x - b.x, a.y - b.y) || 1, a: Math.atan2(b.y - a.y, b.x - a.x) }; return; }   // Camera tool: two fingers zoom + turn the camera
   gest = { mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, d: Math.hypot(a.x - b.x, a.y - b.y) || 1, a: Math.atan2(b.y - a.y, b.x - a.x), V: { ...V }, cx: c.x - V.x, cy: c.y - V.y };
 }
 function gMove() {
   const [a, b] = [...ptrs.values()], g = gest;
+  if (g.cam) { const k = camKey(ct); k.z = Math.min(3, Math.max(.5, g.cam.z * (Math.hypot(a.x - b.x, a.y - b.y) || 1) / g.d)); let da = Math.atan2(b.y - a.y, b.x - a.x) - g.a; k.r = g.cam.r - da; syncCam(); render(); return; }
   const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
   const s = Math.min(24, Math.max(.3, g.V.s * d / g.d)), r = g.V.r + (Math.atan2(b.y - a.y, b.x - a.x) - g.a);
   const dx = g.mx - g.cx - g.V.x, dy = g.my - g.cy - g.V.y, c0 = Math.cos(-g.V.r), s0 = Math.sin(-g.V.r);
@@ -1855,7 +1857,7 @@ function up(e) { try { up0(e); } finally { if (!(sel && sel.board)) boardMode = 
 function up0(e) {
   ptrs.delete(e.pointerId); if (e.pointerType === 'touch') hov = null;
   if (gDrag != null) { const g = guides[gDrag]; if (g && (g.p < 0 || g.p > (g.o === 'v' ? W : H))) guides.splice(gDrag, 1); gDrag = null; save(); overlay(); return; }
-  if (gest) { if (!ptrs.size) { gest = null; snapV(); } return; }
+  if (gest) { if (!ptrs.size) { if (gest.cam) save(); else snapV(); gest = null; } return; }
   if (!drag) return; drag = false; const p = P(e);
   if (tool === 'pen') { penD = null; render(); return; }
   if (tool === 'bone') { boneUp(p); return; }
@@ -2047,7 +2049,7 @@ async function saveNow() {
   if (clipRet || bmOn) return;
   try { if (!pid) pid = 'p' + Date.now(); await putP({ id: pid, name: pname, t: Date.now(), thumb: thumbURL(), data: dataNow() }); localStorage.setItem('easylast', pid); localStorage.removeItem('easyanim'); } catch (e) {}
 }
-function save() { dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500); }   // never saves in the middle of a stroke or playback
+function save() { try { tlCap(); } catch (e) {} dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500); }   // never saves in the middle of a stroke or playback
 function migrate(d) {                                            // projects saved before layers owned their keyframes
   const L = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: false, cells: [] })), cm = []; let t = 0;
   d.frames.forEach(f => {
@@ -2233,7 +2235,9 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 57, NEWS = [
+const APPV = 59, NEWS = [
+  { v: 59, t: 'Timelapse on/off + camera fingers', i: ['⏱ Timelapse: new ⏺ Recording ON/OFF button (red line under ⏱ = recording), more speeds, ⬇ Save video puts it on your device', 'Camera tool: use two fingers on the canvas to zoom and turn the camera'] },
+  { v: 58, t: '⏱ Timelapse', i: ['⏱ (top bar): every change you make is recorded as a tiny picture. Open it to watch your drawing build up fast, then ⬇ Save video', 'Recording is kept per project and only covers what you draw from this update on'] },
   { v: 57, t: 'Create symbol, lasso fill, new brushes', i: ['🔃 Create symbol: draw, tap it, done. It takes your selection, or everything on this frame', 'Lasso: tap “Lasso: Select” to switch to FILL, then loop an area to fill it with your colour', 'New brushes: Marker, Crayon, Dots, plus ＋ Save this brush (tap to reuse, hold to delete)', 'Draw in front / behind / inside now works for shapes too', 'Stop goes back to the frame you pressed Play on'] },
   { v: 56, t: 'Layer order while drawing + better masks', i: ['While you draw a stroke it now sits in its real place: under the layers above it, behind or inside as chosen', 'Mask: a mask with nothing drawn no longer blanks everything; while you edit it, the cropped-away part stays faintly visible; 🧀 Holes button cuts the shape out instead of cropping'] },
   { v: 55, t: '🔃 Symbol shelf', i: ['🔃 Symbol (right panel): keep up to 10 lassoed pictures or selected strokes and place any of them anytime, in any project. Tap ＋ or an empty slot to save your selection; hold a slot to remove it','The old animated Symbol tool is now called Clip'] },
@@ -2423,6 +2427,42 @@ function bpDraw() { const g = $('bpGrid'); g.innerHTML = ''; bps.forEach((b, i) 
   e.onpointerup = e.onpointerleave = e.onpointercancel = () => clearTimeout(h);
   e.onclick = () => { if (did) return; $('bStyle').value = b.st; $('bStyle').dispatchEvent(new Event('change')); setColor(b.col); $('size').value = b.sz; $('size').dispatchEvent(new Event('input')); }; g.append(e); }); }
 $('bpAdd').onclick = () => { if (bps.length >= 12) bps.shift(); bps.push({ st: $('bStyle').value, sz: size, col: color }); try { localStorage.setItem('yinnyBrushes', JSON.stringify(bps)); } catch (x) {} bpDraw(); toast('Brush saved'); }; bpDraw();
+// ===== ⏱ Timelapse: a small picture of the frame you are on after every change, played back fast / exported as a video =====
+let tlF = [], tlKey = null, tlLast = 0, tlBusy = false, tlSaveT = 0; const TLW = 540, TLMAX = 1200;
+const tlDb = () => new Promise((ok, no) => { const r = indexedDB.open('yinnytl', 1); r.onupgradeneeded = () => r.result.createObjectStore('s'); r.onsuccess = () => ok(r.result); r.onerror = () => no(); });
+async function tlIO(mode, key, val) { try { const d = await tlDb(); return await new Promise(ok => { const t = d.transaction('s', mode === 'g' ? 'readonly' : 'readwrite'), o = t.objectStore('s'), q = mode === 'g' ? o.get(key) : mode === 'p' ? o.put(val, key) : o.delete(key); q.onsuccess = () => ok(q.result); q.onerror = () => ok(null); }); } catch (e) { return null; } }
+async function tlEnsure() { const k = 'p' + (pid || 'tmp'); if (tlKey === k) return; tlKey = k; tlF = (await tlIO('g', k)) || []; }
+let tlOn = true; try { tlOn = localStorage.getItem('yinnyTL') !== '0'; } catch (e) {}
+const tlDot = () => { const b = $('tlB'); if (b) b.style.boxShadow = tlOn ? 'inset 0 -3px 0 #e8231c' : ''; }; tlDot();
+async function tlCap() {
+  if (!tlOn) return; const now = performance.now(); if (tlBusy || playing || drag || now - tlLast < 800) return; tlLast = now; tlBusy = true;
+  try { await tlEnsure(); const c = document.createElement('canvas'); c.width = TLW; c.height = Math.round(TLW * H / W); const x = c.getContext('2d');
+    cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, ct); x.drawImage(cx.canvas, 0, 0, c.width, c.height);
+    const b = await new Promise(r => c.toBlob(r, 'image/jpeg', .6)); if (b) { tlF.push(b); if (tlF.length > TLMAX) tlF = tlF.filter((_, i) => i % 2 === 0 || i === tlF.length - 1);
+      clearTimeout(tlSaveT); tlSaveT = setTimeout(() => tlIO('p', tlKey, tlF), 3000); } } catch (e) {}
+  tlBusy = false;
+}
+$('tlB').onclick = async () => {
+  await tlEnsure(); const o = document.createElement('div'); o.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:12px';
+  o.innerHTML = '<div style="background:#2b2b2b;color:#fff;border-radius:12px;padding:12px;max-width:600px;width:100%;font:14px sans-serif"><b>⏱ Timelapse</b> <span id="tlN"></span><canvas id="tlC" style="width:100%;background:#fff;border-radius:6px;margin:8px 0"></canvas><div>Speed <select id="tlS"><option value="5">Very slow (5/s)</option><option value="10">Slow (10/s)</option><option value="30" selected>Normal (30/s)</option><option value="60">Fast (60/s)</option><option value="120">Super fast (120/s)</option></select></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button id="tlR"></button><button id="tlP">▶ Play</button><button id="tlX">⬇ Save video</button><button id="tlD">🗑 Clear</button><button id="tlQ">Close</button></div><small id="tlM" style="display:block;margin-top:6px;opacity:.7"></small></div>';
+  document.body.append(o); const cv = o.querySelector('#tlC'), g = cv.getContext('2d'); cv.width = TLW; cv.height = Math.round(TLW * H / W);
+  const N = () => o.querySelector('#tlN').textContent = '· ' + tlF.length + ' steps recorded'; N();
+  let run = 0; const show = async i => { const im = await createImageBitmap(tlF[i]); g.drawImage(im, 0, 0, cv.width, cv.height); };
+  if (tlF.length) show(tlF.length - 1); else o.querySelector('#tlM').textContent = 'Nothing yet: draw something and it records itself.';
+  const playIt = async (rec) => { const my = ++run, f = +o.querySelector('#tlS').value; for (let i = 0; i < tlF.length && my === run; i++) { await show(i); await new Promise(r => setTimeout(r, 1000 / f)); } };
+  const R = o.querySelector('#tlR'), RT = () => { R.textContent = tlOn ? '⏺ Recording: ON' : '⏸ Recording: OFF'; R.style.background = tlOn ? '#e8231c' : ''; R.style.color = tlOn ? '#fff' : ''; }; RT();
+  R.onclick = () => { tlOn = !tlOn; try { localStorage.setItem('yinnyTL', tlOn ? '1' : '0'); } catch (e) {} RT(); tlDot(); toast(tlOn ? 'Timelapse recording ON' : 'Timelapse recording OFF'); };
+  o.querySelector('#tlP').onclick = () => { if (tlF.length) playIt(); };
+  o.querySelector('#tlQ').onclick = () => { run++; o.remove(); };
+  o.querySelector('#tlD').onclick = async () => { if (!confirm('Clear the timelapse recording for this project?')) return; tlF = []; await tlIO('p', tlKey, tlF); g.clearRect(0, 0, cv.width, cv.height); N(); };
+  o.querySelector('#tlX').onclick = async () => {
+    if (!tlF.length) return toast('Nothing recorded yet'); if (!window.MediaRecorder) return toast('This browser cannot record video');
+    const my = ++run, f = +o.querySelector('#tlS').value, st = cv.captureStream(f), mr = new MediaRecorder(st, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm', videoBitsPerSecond: 4e6 }), ch = [];
+    mr.ondataavailable = e => e.data.size && ch.push(e.data);
+    mr.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(ch, { type: 'video/webm' })); a.download = (pname || 'timelapse') + '-timelapse.webm'; document.body.append(a); a.click(); a.remove(); o.querySelector('#tlM').textContent = 'Saved ✔'; };
+    mr.start(); for (let i = 0; i < tlF.length && my === run; i++) { o.querySelector('#tlM').textContent = 'Making video ' + Math.round(100 * i / tlF.length) + '%'; await show(i); await new Promise(r => setTimeout(r, 1000 / f)); } await new Promise(r => setTimeout(r, 300)); mr.stop();
+  };
+};
 // ===== scenes =====
 function scnGo(i, fresh) {
   scn.list[scn.cur].data = JSON.parse(JSON.stringify(dataCore()));
