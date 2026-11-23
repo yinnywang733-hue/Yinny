@@ -2235,7 +2235,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 59, NEWS = [
+const APPV = 60, NEWS = [
+  { v: 60, t: 'Timelapse saves as MP4', i: ['⏱ ⬇ Save video now makes an MP4 (plays everywhere). Only if your phone cannot make MP4 does it fall back to WebM'] },
   { v: 59, t: 'Timelapse on/off + camera fingers', i: ['⏱ Timelapse: new ⏺ Recording ON/OFF button (red line under ⏱ = recording), more speeds, ⬇ Save video puts it on your device', 'Camera tool: use two fingers on the canvas to zoom and turn the camera'] },
   { v: 58, t: '⏱ Timelapse', i: ['⏱ (top bar): every change you make is recorded as a tiny picture. Open it to watch your drawing build up fast, then ⬇ Save video', 'Recording is kept per project and only covers what you draw from this update on'] },
   { v: 57, t: 'Create symbol, lasso fill, new brushes', i: ['🔃 Create symbol: draw, tap it, done. It takes your selection, or everything on this frame', 'Lasso: tap “Lasso: Select” to switch to FILL, then loop an area to fill it with your colour', 'New brushes: Marker, Crayon, Dots, plus ＋ Save this brush (tap to reuse, hold to delete)', 'Draw in front / behind / inside now works for shapes too', 'Stop goes back to the frame you pressed Play on'] },
@@ -2457,9 +2458,9 @@ $('tlB').onclick = async () => {
   o.querySelector('#tlD').onclick = async () => { if (!confirm('Clear the timelapse recording for this project?')) return; tlF = []; await tlIO('p', tlKey, tlF); g.clearRect(0, 0, cv.width, cv.height); N(); };
   o.querySelector('#tlX').onclick = async () => {
     if (!tlF.length) return toast('Nothing recorded yet'); if (!window.MediaRecorder) return toast('This browser cannot record video');
-    const my = ++run, f = +o.querySelector('#tlS').value, st = cv.captureStream(f), mr = new MediaRecorder(st, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm', videoBitsPerSecond: 4e6 }), ch = [];
+    const my = ++run, f = +o.querySelector('#tlS').value, st = cv.captureStream(f), mt = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)), isM = /mp4/.test(mt), mr = new MediaRecorder(st, { mimeType: mt, videoBitsPerSecond: 4e6 }), ch = [];   // MP4 first; WebM only if this phone cannot make MP4
     mr.ondataavailable = e => e.data.size && ch.push(e.data);
-    mr.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(ch, { type: 'video/webm' })); a.download = (pname || 'timelapse') + '-timelapse.webm'; document.body.append(a); a.click(); a.remove(); o.querySelector('#tlM').textContent = 'Saved ✔'; };
+    mr.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(ch, { type: isM ? 'video/mp4' : 'video/webm' })); a.download = (pname || 'timelapse') + '-timelapse.' + (isM ? 'mp4' : 'webm'); document.body.append(a); a.click(); a.remove(); o.querySelector('#tlM').textContent = 'Saved ✔'; };
     mr.start(); for (let i = 0; i < tlF.length && my === run; i++) { o.querySelector('#tlM').textContent = 'Making video ' + Math.round(100 * i / tlF.length) + '%'; await show(i); await new Promise(r => setTimeout(r, 1000 / f)); } await new Promise(r => setTimeout(r, 300)); mr.stop();
   };
 };
