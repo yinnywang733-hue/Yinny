@@ -143,11 +143,11 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   </div>
   <div id="tools">
     <div class="tg">
-      <button data-t="brush" class="on"><b>✏️</b>Brush</button>
-      <button data-t="eraser"><b>🧽</b>Eraser</button>
-      <button data-t="line"><b>／</b>Line</button>
+      <button data-t="brush" data-vm="0"><b>✏️</b>Pencil</button><button data-t="brush" data-vm="1" class="on"><b>🖋</b>V-Pen</button>
+      <button data-t="eraser" data-vm="0"><b>🧽</b>Eraser</button><button data-t="eraser" data-vm="1"><b>🧼</b>V-Eraser</button>
+      <button data-t="line" data-vm="0"><b>／</b>Line</button><button data-t="line" data-vm="1"><b>📐</b>V-Line</button>
       <button data-t="shape"><b>▭</b>Shapes</button>
-      <button data-t="lasso"><b>➰</b>Lasso</button>
+      <button data-t="lasso" data-lf="0"><b>➰</b>Lasso</button><button data-t="lasso" data-lf="1"><b>🪄</b>Lasso Fill</button>
       <button data-t="eye"><b>💧</b>Picker</button>
       <button data-t="bucket"><b>🪣</b>Bucket</button>
       <button data-t="text"><b>T</b>Text</button><button data-t="bone"><b>🦴</b>Bone</button>
@@ -918,12 +918,15 @@ $('oDup').onclick = () => { if (!selObj) return; osnap(); const n = JSON.parse(J
 function vecUI() {
   const on = tool === 'brush' || tool === 'line' || tool === 'eraser', v = !!vecOn[tool];
   $('vecBox').hidden = !on; $('symBox').hidden = !on; $('bsBox').hidden = tool !== 'brush'; $('dmBox').hidden = tool !== 'brush' && tool !== 'line'; $('vToggle').textContent = v ? 'Vector (tap: normal)' : 'Normal (tap: vector)';
-  document.querySelectorAll('[data-t="brush"],[data-t="line"],[data-t="eraser"]').forEach(b => b.classList.toggle('v', !!vecOn[b.dataset.t]));
+  document.querySelectorAll('[data-t="brush"],[data-t="line"],[data-t="eraser"]').forEach(b => b.classList.toggle('v', b.dataset.vm != null ? b.dataset.vm === '1' : !!vecOn[b.dataset.t]));
+  document.querySelectorAll('[data-vm]').forEach(b => b.classList.toggle('on', tool === b.dataset.t && !!vecOn[tool] === (b.dataset.vm === '1')));   // Pencil / V-Pen etc. are separate buttons
+  document.querySelectorAll('[data-lf]').forEach(b => b.classList.toggle('on', tool === 'lasso' && lassoFill === (b.dataset.lf === '1')));
 }
 $('gridB').onclick = () => { grid = !grid; $('gridB').classList.toggle('on', grid); render(); }; $('gridN').onchange = () => render();
 $('symB').onclick = () => { sym = (sym + 1) % 4; $('symB').textContent = 'Symmetry: ' + ['off', '↔ left/right', '↕ top/bottom', '✛ both'][sym]; render(); };
 $('vToggle').onclick = () => { vecOn[tool] = !vecOn[tool]; vecUI(); render(); };
-document.querySelectorAll('[data-t="brush"],[data-t="line"],[data-t="eraser"]').forEach(b => { let lt = 0; b.addEventListener('click', () => { const n = Date.now(); if (n - lt < 400) { vecOn[b.dataset.t] = !vecOn[b.dataset.t]; vecUI(); render(); lt = 0; } else lt = n; }); });   // double-tap = switch normal / vector
+document.querySelectorAll('[data-vm]').forEach(b => b.addEventListener('click', () => { vecOn[b.dataset.t] = b.dataset.vm === '1'; vecUI(); render(); }));   // tap Pencil = normal, tap V-Pen = vector
+document.querySelectorAll('[data-lf]').forEach(b => b.addEventListener('click', () => { lassoFill = b.dataset.lf === '1'; $('lfTog').textContent = lassoFill ? 'Lasso: FILL with colour' : 'Lasso: Select'; vecUI(); }));
 
 // ---------- timeline: a row per layer, a column per frame, a red playhead ----------
 const tlbox = $('tlbox');
@@ -1704,7 +1707,7 @@ function lassoFillGo() {                           // lasso Fill: loop around an
   if (boardMode) boardDraw(-MX, -MY, W + MX, H + MY, go); else { snap(); go(fc()); }
   pts = []; save(); render();
 }
-$('lfTog').onclick = () => { lassoFill = !lassoFill; $('lfTog').textContent = lassoFill ? 'Lasso: FILL with colour' : 'Lasso: Select'; $('lfTog').style.background = lassoFill ? '#ff8a2f' : ''; };
+$('lfTog').hidden = true; $('lfTog').onclick = () => { lassoFill = !lassoFill; $('lfTog').textContent = lassoFill ? 'Lasso: FILL with colour' : 'Lasso: Select'; $('lfTog').style.background = lassoFill ? '#ff8a2f' : ''; };
 function lift() {                                   // cut the lassoed pixels out into a floating piece
   if (pts.length < 3) return; if (boardMode) return liftBoard();
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
@@ -2235,7 +2238,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 60, NEWS = [
+const APPV = 61, NEWS = [
+  { v: 61, t: 'Pencil / V-Pen + Lasso Fill buttons', i: ['Tools now have separate buttons: ✏️ Pencil (normal) and 🖋 V-Pen (vector), same for Eraser and Line. One tap, no switching', '🪄 Lasso Fill: loop an area and it fills straight away with your colour. ➰ Lasso is still the normal select'] },
   { v: 60, t: 'Timelapse saves as MP4', i: ['⏱ ⬇ Save video now makes an MP4 (plays everywhere). Only if your phone cannot make MP4 does it fall back to WebM'] },
   { v: 59, t: 'Timelapse on/off + camera fingers', i: ['⏱ Timelapse: new ⏺ Recording ON/OFF button (red line under ⏱ = recording), more speeds, ⬇ Save video puts it on your device', 'Camera tool: use two fingers on the canvas to zoom and turn the camera'] },
   { v: 58, t: '⏱ Timelapse', i: ['⏱ (top bar): every change you make is recorded as a tiny picture. Open it to watch your drawing build up fast, then ⬇ Save video', 'Recording is kept per project and only covers what you draw from this update on'] },
