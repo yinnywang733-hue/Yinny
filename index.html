@@ -49,7 +49,7 @@ label{font-size:14px;white-space:nowrap;flex:none}
 .ln{position:sticky;left:0;z-index:5;flex:none;width:92px;height:26px;display:flex;align-items:center;gap:5px;padding:0 6px;background:#3b3b47;color:#fff;font-size:12px;border-top:1px solid #555;border-right:2px solid #222;cursor:pointer;overflow:hidden}
 .ln.corner{height:16px;background:#2a2a33;border:0;cursor:default}
 .ln.gh{background:#2d5a46;height:22px}.eye.dh{cursor:grab;touch-action:none;opacity:.8}.dropt{outline:2px solid #ffd23f;outline-offset:-2px}.lr.sel .ln{background:#4f7cff}
-.lr .cell{height:26px}
+.lr .cell{height:26px}.ltag{flex:none;width:6px;height:16px;border-radius:2px}
 .lr.sel .cell.cur{background:#ffc2bd}
 .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .trow{display:flex;gap:4px}
@@ -171,11 +171,11 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="box sec" id="penBox" hidden><label>Pen: tap to place points, drag a point to curve it. Tap the first point to close the shape.</label><div class="two"><button id="penOk">✔ Finish line</button><button id="penUndo">↶ Remove last point</button><button id="penClose">Close shape: off</button><button id="penNo">✕ Cancel</button></div></div>
     <div class="box sec" id="shpBox" hidden><label>Shape (drag on the canvas)</label><div class="two"><button id="shR" class="on">▭ Rectangle</button><button id="shS">□ Square</button><button id="shC">○ Circle</button><button id="shB">● Sphere</button><button id="shE">⬭ Ellipse</button><button id="shP">⬠ Polygon</button><button id="shT">★ Star</button></div><label>Polygon / star sides <b id="shNn">5</b></label><input type="range" id="shN" min="3" max="12" value="5"><button id="shF">Fill: off</button></div>
     <div class="box sec" id="txtBox" hidden><label>Font</label><select id="font"><option value="'Comic Neue', 'Comic Sans MS', cursive">Comic (bold)</option><option value="'Bangers', Impact, fantasy">Bangers</option><option value="'Pacifico', cursive">Pacifico</option><option value="'Permanent Marker', cursive">Marker</option><option value="'Lobster', Georgia, serif">Lobster</option></select></div>
-    <div class="box sec" id="selBox" hidden><label>Selection</label><button id="lfTog">Lasso: Select</button>
+    <div class="box sec" id="selBox" hidden><label>Selection · opacity <b id="soN">100</b>%</label><input type="range" id="selOp" min="5" max="100" value="100"><button id="lfTog">Lasso: Select</button>
       <div class="two"><button id="copy">Copy</button><button id="paste">Paste</button><button id="del">Delete</button><button id="fH">Flip ↔</button><button id="fV">Flip ↕</button><button id="done">Done</button></div>
     </div>
-    <div class="box sec" id="bkBox" hidden><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
-    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
+    <div class="box sec" id="bkBox" hidden><label>Fill opacity <b id="boN">100</b>%</label><input type="range" id="bkOp" min="5" max="100" value="100"><label>Fill style</label><select id="bkM"><option value="s">Solid</option><option value="h">Gradient left→right</option><option value="v">Gradient top→bottom</option><option value="r">Gradient centre→edge</option></select><label>Gradient end colour</label><input type="color" id="col2" value="#ffffff"><label>Close gaps in lines</label><select id="bkG"><option value="0">Off</option><option value="4">Small gaps</option><option value="10">Medium gaps</option><option value="20" selected>Large gaps</option></select></div>
+    <div class="box sec" id="vsBox" hidden><label>Vector select: drag a loop around strokes. Drag inside the box to move; the circle turns, the blue square resizes.</label><div class="trow"><button id="vsAll">Select all</button><button id="vsDup">Duplicate</button><button id="vsDel">Delete</button></div><div class="trow"><button id="vsCopy">Copy</button><button id="vsPaste">Paste</button></div><div class="trow"><button id="vsPers">⬚ Perspective</button><button id="vsMesh">▦ Mesh</button></div><label>Opacity of selection <b id="voN">100</b>%</label><input type="range" id="vOp" min="5" max="100" value="100"><label>Blur selection <b id="vbN">0</b></label><input type="range" id="vbl" min="0" max="40" value="0"><label>Glow selection <b id="vgN">0</b></label><input type="range" id="vgl" min="0" max="40" value="0"><div class="two"><input type="color" id="vglc" value="#ffd24a"><button id="vglcA">Glow: stroke colour</button></div><div id="vsN"></div></div>
     <div class="box sec" id="dmBox" hidden><label>Draw mode</label><select id="dMode"><option value="source-over">Draws in front</option><option value="destination-over">Draws behind</option><option value="source-atop">Draws inside</option></select></div>
     <div class="box sec" id="bsBox" hidden><label>Gradient stroke (vector brush)</label><select id="gsM"><option value="0">Off</option><option value="1">On: colour → end colour</option></select><input type="color" id="gsC" value="#ff3b8d"><label>Brush presets (tap = use · hold = delete)</label><div id="bpGrid"></div><button id="bpAdd">＋ Save this brush</button><label>Brush style</label><select id="bStyle"><option value="n">Normal</option><option value="a">Airbrush (soft spray)</option><option value="m">Marker (flat, see-through)</option><option value="c">Crayon (grainy)</option><option value="d">Dots</option><option value="s">Sketch (pencil)</option></select></div>
     <div class="box" id="shBox"><label>🔃 Symbol (keep up to 10)</label><div id="shGrid"></div><div class="trow"><button id="shAdd">🔃 Create symbol</button></div><small>Draw, then tap Create symbol (it takes your selection, or everything on this frame). Tap a slot to place it. Hold a slot to remove it. Kept for every project.</small></div>
@@ -197,7 +197,7 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
     <div class="sec"><button id="nwBtn">✨ What's new</button></div>
     <div class="sec"><label>Reference video</label><button id="rvAdd">🎥 Add reference video</button><div id="rvBox" hidden><div class="trow"><button id="rvStart"></button><button id="rvDel">✕ Remove</button></div><div class="trow"><button id="rvSnd"></button></div><button id="rvToProj">🎵 Use its sound in the project</button><label>Video opacity</label><input type="range" id="rvOp" min="10" max="100" value="60"></div><input type="file" id="rvF" accept="video/*" hidden><button id="rfAdd">🎞 Import video as frames (smooth, like Rough Animator)</button><div id="rfBox" hidden><small>Fade or hide it with the Video layer's opacity and 👁 eye. It is a tracing guide and is not exported.</small><div class="trow"><button id="rfStart"></button><button id="rfDel">✕ Remove</button></div></div><input type="file" id="rfF" accept="video/*" hidden></div><div id="rfProg" hidden><b id="rfT">Importing…</b><div id="rfBar"><i></i></div><button id="rfCancel">Cancel</button></div>
     <div class="sec"><label>Reference image</label><button id="riAdd">🖼 Add reference image</button><div id="riBox" hidden><button id="riDel">✕ Remove image</button><label>Image opacity</label><input type="range" id="riOp" min="10" max="100" value="50"></div><input type="file" id="riF" accept="image/*" hidden></div>
-    <div class="sec"><label>Onion skin</label><div class="trow"><label>Before</label><select id="oB"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select><label>After</label><select id="oA"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div><label>Strength</label><input type="range" id="oOp" min="10" max="90" value="40"><div class="trow"><input type="color" id="oCb" value="#e8231c"><input type="color" id="oCa" value="#1fa84a"></div><button id="oTint">🎨 Tint: on</button></div>
+    <div class="sec"><label>Onion skin</label><div class="trow"><label>Before</label><select id="oB"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select><label>After</label><select id="oA"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div><label>Strength</label><input type="range" id="oOp" min="10" max="90" value="40"><div class="trow"><input type="color" id="oCb" value="#e8231c"><input type="color" id="oCa" value="#1fa84a"></div><label>Onion look</label><select id="oSt"><option value="tint">Tint (red before / green after)</option><option value="plain">Plain (original colours)</option><option value="outline">Outline only</option><option value="soft">Soft glow</option><option value="mono">Grey ghost</option><option value="warm">Warm / cool</option></select></div>
   </div>
 
   <div id="stage"><canvas id="view"></canvas><canvas id="ov"></canvas><div id="fbadge">Frame 1</div><button id="gdq" title="Guides and snapping">📏 Guides</button><div id="scnP" hidden></div>
@@ -206,14 +206,14 @@ html.rot #root{width:var(--ph);height:var(--pw);transform-origin:0 0;transform:t
   <div id="tlw">
     <div id="tlbtns">
       <div class="trow"><button id="add" title="New blank frame after this one">＋Frame</button><button id="hold" title="Show this drawing 1 frame longer">＋Hold</button><button id="rmf" title="Show this drawing 1 frame shorter">－Hold</button><button id="fKey" title="New keyframe (copies the drawing)">◆Key</button><button id="fBlank" title="New blank keyframe">◇Blank</button><button id="dup" title="Duplicate this keyframe after itself">⧉Dup</button><button id="rmR" title="Delete several frames at once">🗑 Range</button><button id="rgA" title="Playback and export start at this frame">⟦ Start</button><button id="rgB" title="Playback and export end at this frame">End ⟧</button><button id="rgX" title="Use all frames again">Full</button><button id="mkLbl" title="Name this frame">🏷 Label</button><button id="mkNext" title="Jump to the next label">🏷▶</button><button id="fSel" title="Select many frames / layers at once, like Rough Animator">⬚ Select</button><button id="fcCopy" hidden>Copy</button><button id="fcCut" hidden>Cut</button><button id="fcPaste" hidden>Paste</button><button id="fcDel" hidden>Clear</button><button id="rm" title="Delete this keyframe">🗑</button></div>
-      <div class="trow"><button id="addLayer">＋ Layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="mkBtn" title="Mask: layers under this one only show inside its shape">◐ Mask</button><button id="miBtn" title="Invert the mask: cut holes instead of cropping">🧀 Holes</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
+      <div class="trow"><button id="addLayer">＋ Layer</button><button id="addBg" title="A locked background layer at the very bottom">🖼 BG layer</button><button id="toLayer" title="Move this layer to any spot">⇅ Move to…</button><button id="mkBtn" title="Mask: layers under this one only show inside its shape">◐ Mask</button><button id="miBtn" title="Invert the mask: cut holes instead of cropping">🧀 Holes</button><button id="renLayer">✎</button><button id="grpLayer" title="Group / ungroup layer">📁</button><button id="dupLayer" title="Duplicate layer">⧉</button><button id="mulLayer" title="Select several layers">☑ Multi</button><button id="upLayer">▲</button><button id="downLayer">▼</button><button id="delLayer">✕</button><button id="zout" title="Zoom timeline out">－</button><button id="zin" title="Zoom timeline in">＋</button><span id="fi"></span></div>
     </div>
     <div id="tlmain"><div id="scrub"><div id="sfill"></div><div id="sth"><b>1</b></div></div><div id="tlscroll"><div id="tlbox"></div></div></div>
   </div>
 </div>
 
 <div id="bkP" hidden><b id="bkT">💾 Back up your project</b><small id="bkS">A copy lets you go back if something goes wrong.</small><div class="r"><button id="bkDup">⧉ Duplicate project</button><button id="bkExp">⬇ Save file</button></div><div class="r"><label for="bkMin">Remind me every</label><select id="bkMin"><option value="0">Never</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 hour</option><option value="120">2 hours</option></select></div><button id="bkX">Not now (ignore)</button></div>
-<div id="thP" hidden><b>🎨 App look</b><div class="r"><button data-m="dark">🌙 Dark</button><button data-m="light">☀️ Light</button><button data-m="classic">🖼 Classic</button></div><div class="r"><button id="thImg">📷 Pick image for Classic</button><button id="thDel">✕ Remove</button></div><small>Classic = your picture behind the whole app (panels turn see-through)</small><button id="thX">Done</button></div>
+<div id="thP" hidden><b>🎨 App look</b><div class="r"><button data-m="dark">🌙 Dark</button><button data-m="light">☀️ Light</button><button data-m="animate">🅰 Animate</button><button data-m="classic">🖼 Classic</button></div><div class="r"><button id="thImg">📷 Pick image for Classic</button><button id="thDel">✕ Remove</button></div><small>Classic = your picture behind the whole app (panels turn see-through)</small><button id="thX">Done</button></div>
 <div id="bmBar" hidden><b>🛠 Build mode</b><span>Drag a block to move it · drag its orange corner to resize it</span><button id="bmSave">💾 Save layout</button><button id="bmReset">↺ Default</button><button id="bmNo">✕ Cancel</button></div>
 <div id="pj" hidden><div id="pjh"><b style="font-size:20px">Yinny Studios</b><span id="pjn"></span><button id="pjNew">＋ New project</button><button id="pjImp">⬆ Import file</button><button id="pjBuild">🛠 Build mode</button><button id="pjTheme">🎨 Theme</button><input type="file" id="pjF" accept=".json,.yinny,application/json" hidden><button id="pjClose">✕ Close</button></div><div id="pjg"></div></div>
 <div id="xp" hidden><div id="xbox"><b>Export</b><div id="xst">Choose a format</div><button id="xGif">🎞 GIF</button><button id="xMp4">🎬 MP4 video</button><button id="xWebm">📹 WebM video</button><button id="xPng">🖼 PNG frames (.zip)</button><select id="xRes"></select><label><input type="checkbox" id="xA"> Transparent background (PNG only)</label><label>Export only frames <input type="number" id="xFrom" min="1" value="1" style="width:60px"> to <input type="number" id="xTo" min="1" value="1" style="width:60px"></label><button id="xNo">Close</button></div></div>
@@ -320,7 +320,7 @@ function flat(ctx, t) {                            // every visible layer at tim
     c2.save(); c2.globalAlpha = op; c2.globalCompositeOperation = L.bm || 'source-over'; drawCell(c2, c, t); c2.restore(); };
   let hooked = false;
   for (let k = 0; k < n; k++) {
-    if (k === lay && onionPass && ctx === vx && !hooked) { hooked = true; onionPaint(); }
+    if (k === lay && onionPass && ctx === (onionTO || vx) && !hooked) { hooked = true; onionPaint(); }
     if (used[k]) continue; const L = layers[k];
     if (L.mk === 'masked') {
       let m = k; while (m < n && layers[m].mk === 'masked') m++;
@@ -336,7 +336,7 @@ function flat(ctx, t) {                            // every visible layer at tim
     }
     if (L.vis) one(ctx, k);
   }
-  if (onionPass && ctx === vx && !hooked) onionPaint();
+  if (onionPass && ctx === (onionTO || vx) && !hooked) onionPaint();
 }
 const objsNow = () => { const r = []; layers.forEach((L, k) => { if (!L.vis || L.lock) return; const c = cellAt(k, ct); if (c) c.objs.forEach(o => r.push({ o, k })); }); return r; };
 const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.objs.includes(o)) return c; return null; };
@@ -447,15 +447,24 @@ function applySize(ow, oh) {
 let oS = { b: 2, a: 2, op: 40, cb: '#e8231c', ca: '#1fa84a', tint: true }; try { Object.assign(oS, JSON.parse(localStorage.getItem('yinnyOnion') || '{}')); } catch (e) {}
 let refI = null;   // reference picture: sits under your drawing, never saved or exported
 const onionC = new Map(); const dirtyOnion = () => onionC.clear();
-function onionDraw(c, col, a) {                    // the coloured ghost of a neighbour frame is drawn once and reused until something is edited
-  let e = onionC.get(c);
-  if (!e || e.col !== col) {
+let onionTO = null;                                 // where the ghosts go: the screen, or the timelapse picture
+function onionDraw(c, col, a, st) {                // the ghost of a neighbour frame is drawn once and reused until something is edited
+  const key = col + '|' + st; let e = onionC.get(c);
+  if (!e || e.col !== key) {
     if (onionC.size > 12) onionC.clear();
-    e = { col, cv: e ? e.cv : mk() }; const g = e.cv.getContext('2d');
-    g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); drawCell(g, c, c.s);
-    if (col !== 'none') { g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; } onionC.set(c, e);
+    e = { col: key, cv: e ? e.cv : mk() }; const g = e.cv.getContext('2d');
+    g.globalCompositeOperation = 'source-over'; g.filter = 'none'; g.clearRect(0, 0, W, H); drawCell(g, c, c.s);
+    if (col !== 'none') { g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; }
+    if (st === 'outline') {                        // keep only the edge of the drawing: shape minus a shrunk copy of itself
+      const o = mk(), og = o.getContext('2d'), er = mk(), eg = er.getContext('2d'); og.drawImage(e.cv, 0, 0); eg.drawImage(e.cv, 0, 0); const d = Math.max(2, Math.round(W / 400));
+      [[d, 0], [-d, 0], [0, d], [0, -d]].forEach(([dx, dy]) => { eg.globalCompositeOperation = 'destination-in'; eg.drawImage(o, dx, dy); });
+      g.globalCompositeOperation = 'destination-out'; g.drawImage(er, 0, 0); g.globalCompositeOperation = 'source-over';
+    } else if (st === 'soft') {                    // blurred glow
+      const o = mk(); o.getContext('2d').drawImage(e.cv, 0, 0); g.clearRect(0, 0, W, H); g.filter = 'blur(' + Math.max(3, Math.round(W / 140)) + 'px)'; g.drawImage(o, 0, 0); g.drawImage(o, 0, 0); g.filter = 'none';
+    }
+    onionC.set(c, e);
   }
-  vx.globalAlpha = a; vx.drawImage(e.cv, 0, 0); vx.globalAlpha = 1;
+  const T = onionTO || vx; T.globalAlpha = a; T.drawImage(e.cv, 0, 0); T.globalAlpha = 1;
 }
 let fxs = [];                                       // camera effects: { k: 'shake'|'flash'|'blur'|'punch', t: first frame, d: frames, a: power } (seen when you Play or export)
 const rnd = (t, k) => { const x = Math.sin(t * 127.1 + k * 311.7) * 43758.5453; return (x - Math.floor(x)) * 2 - 1; };
@@ -515,7 +524,7 @@ let onionPass = false;
 function onionPaint() {                            // the ghosts of the neighbouring drawings of THIS layer (red = before, green = after): above the layers underneath, below your own layer
   const L = layers[lay], i = cellIdx(L, ct), pi = i >= 0 ? i - 1 : L.cells.filter(c => c.s < ct).length - 1, ni = i >= 0 ? i + 1 : pi + 1;
   const ls = []; for (let k = 0; k < oS.b; k++) ls.push([pi - k, oS.cb, k]); for (let k = 0; k < oS.a; k++) ls.push([ni + k, oS.ca, k]);
-  ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; onionDraw(cl, oS.tint ? c : 'none', oS.op / 100 * (k ? .5 / k : 1)); });
+  ls.reverse().forEach(([j, c, k]) => { const cl = L.cells[j]; if (!cl || (drag && Math.abs(j - (pi + ni) / 2) > 1)) return; { const st = oS.st || (oS.tint ? 'tint' : 'plain'), cc = st === 'plain' ? 'none' : st === 'mono' ? '#8a8a8a' : st === 'warm' ? (c === oS.cb ? '#ff9a3c' : '#3c9aff') : c; onionDraw(cl, cc, oS.op / 100 * (k ? .5 / k : 1), st); } });
 }
 function render() {
   vx.setTransform(1, 0, 0, 1, 0, 0); vx.clearRect(0, 0, view.width, view.height);
@@ -620,11 +629,12 @@ const olGeo = (side, k) => side === 'both' || !side ? { w: 2 * k, dx: 0, dy: 0 }
 let objTmp = null; const tintC = (src, col) => { const c = objTmp2(), g = c.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; return c; };
 let objTmp2c = null; const objTmp2 = () => (!objTmp2c || objTmp2c.width !== W || objTmp2c.height !== H) ? (objTmp2c = mk()) : objTmp2c;
 function drawObj(ctx, o, t, phase) {
-  if (o.clip || fq() === 0 || !(o.bl > 0 || o.gl > 0) || phase === 'ol') return drawObj0(ctx, o, t, phase);   // blur / glow belong to this one stroke only
+  const A = o.al == null ? 1 : o.al, bl = phase === 'ol' ? 0 : o.bl, gl = phase === 'ol' ? 0 : o.gl;
+  if (o.clip || (fq() === 0 && A >= 1) || !(bl > 0 || gl > 0 || A < 1)) return drawObj0(ctx, o, t, phase);   // blur / glow / opacity belong to this one stroke only
   if (!objTmp || objTmp.width !== W || objTmp.height !== H) objTmp = mk();
   const T = objTmp, g = T.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, W, H); drawObj0(g, o, t, phase);
-  ctx.save(); if (o.bl > 0) ctx.filter = 'blur(' + o.bl * fq() + 'px)'; ctx.drawImage(T, 0, 0); ctx.filter = 'none';
-  if (o.gl > 0) { const G = o.glc ? tintC(T, o.glc) : T; ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(' + o.gl * 1.5 * fq() + 'px)' + (o.glc ? '' : ' brightness(1.4)'); ctx.drawImage(G, 0, 0); if (fq() === 1) ctx.drawImage(G, 0, 0); ctx.filter = 'none'; }
+  ctx.save(); ctx.globalAlpha = A; if (bl > 0 && fq() > 0) ctx.filter = 'blur(' + bl * fq() + 'px)'; ctx.drawImage(T, 0, 0); ctx.filter = 'none';
+  if (gl > 0 && fq() > 0) { const G = o.glc ? tintC(T, o.glc) : T; ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(' + o.gl * 1.5 * fq() + 'px)' + (o.glc ? '' : ' brightness(1.4)'); ctx.drawImage(G, 0, 0); if (fq() === 1) ctx.drawImage(G, 0, 0); ctx.filter = 'none'; }
   ctx.restore();
 }
 function drawObj0(ctx, o, t, phase) {
@@ -802,7 +812,7 @@ function vsUp() {
     const nw = objsNow(), xs = vpoly.map(p => p.x), ys = vpoly.map(p => p.y), small = vpoly.length < 4 || Math.max(...xs) - Math.min(...xs) < pxw(14) && Math.max(...ys) - Math.min(...ys) < pxw(14);
     if (small) { let h = null; for (let i = nw.length - 1; i >= 0 && !h; i--) if (hitSeg(nw[i].o, vpoly[0])) h = nw[i]; vsel = h ? [h] : []; }
     else vsel = nw.filter(it => { const q = vsWorld(it); return q.filter(p => vsInside(p, vpoly)).length >= q.length * .5; });
-    vpoly = []; const f = vsel[0] && vsel[0].o; $('vbl').value = f && f.bl || 0; $('vbN').textContent = $('vbl').value; $('vgl').value = f && f.gl || 0; $('vgN').textContent = $('vgl').value;
+    vpoly = []; const f = vsel[0] && vsel[0].o; $('vOp').value = Math.round((f && f.al != null ? f.al : 1) * 100); $('voN').textContent = $('vOp').value; $('vbl').value = f && f.bl || 0; $('vbN').textContent = $('vbl').value; $('vgl').value = f && f.gl || 0; $('vgN').textContent = $('vgl').value;
   } else if (moved) { build(); save(); }
   render();
 }
@@ -930,6 +940,7 @@ document.querySelectorAll('[data-lf]').forEach(b => b.addEventListener('click', 
 
 // ---------- timeline: a row per layer, a column per frame, a red playhead ----------
 const tlbox = $('tlbox');
+const TAGS = ['#2d8ceb', '#e8a23a', '#4cc38a', '#c05cf0', '#e8523a', '#3ad1d1', '#e86aa6', '#9aa7b8']; let tagN = 0;
 const el = (cls, txt) => { const d = document.createElement('div'); d.className = cls; if (txt != null) d.textContent = txt; return d; };
 const colAt = x => { const r = tlbox.getBoundingClientRect(); return Math.max(0, Math.min(cols() - 1, Math.floor((x - S(r.left, r.top).x - LNW) / CW))); };
 let scrubbing = false;
@@ -959,7 +970,7 @@ function build() {
     lr.dataset.l = k;
         eye.onclick = e => { e.stopPropagation(); osnap(); const v = !L.vis; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.vis = v; }); build(); render(); save(); };
     lk.onclick = e => { e.stopPropagation(); osnap(); const v = !L.lock; (mulOn && msel.has(L) ? [...msel] : [L]).forEach(x => { x.lock = v; }); build(); render(); save(); };
-    const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); ln.append(dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); if (msel.has(L)) ln.classList.add('msel'); ln.onclick = () => { commit(); if (mulOn) { if (msel.has(L)) msel.delete(L); else msel.add(L); lay = k; build(); render(); return; } lay = k; hl(); render(); };
+    const dh = el('eye dh', '≡'); dh.onpointerdown = e => dragLayer(e, k); const tg = el('ltag'); L.tag = L.tag || TAGS[(tagN++) % TAGS.length]; tg.style.background = L.tag; ln.append(tg, dh, eye, lk, el('nm', (L.mk === 'mask' ? '◐ ' : L.mk === 'masked' ? '↳ ' : '') + L.name)); if (msel.has(L)) ln.classList.add('msel'); ln.onclick = () => { commit(); if (mulOn) { if (msel.has(L)) msel.delete(L); else msel.add(L); lay = k; build(); render(); return; } lay = k; hl(); render(); };
     ln.onpointerdown = e => lpDrag(e, k);
     lr.append(ln);
     let t = 0;
@@ -1208,6 +1219,12 @@ const afterLayer = () => { selObj = null; build(); render(); save(); };
 $('addLayer').onclick = () => {
   if (playing || layers.length >= LMAX) return; commit(); osnap();
   layers.splice(lay + 1, 0, { name: 'Layer ' + (++layerCount), vis: true, lock: false, cells: [] }); lay++; afterLayer();
+};
+$('addBg').onclick = () => {                         // background layer: sits at the very bottom, covers the whole timeline, locked
+  if (playing || layers.length >= LMAX) return; if (layers.some(l => l.bg)) return toast('You already have a Background layer');
+  commit(); osnap(); layers.unshift({ name: 'Background', bg: 1, vis: true, lock: false, cells: [] }); lay++; layerCount++;
+  const c = ensureCell(0, 0), g = cvOf(c).getContext('2d'); g.fillStyle = bgCol; g.fillRect(0, 0, W, H); c.cv._has = true; c.cv._dirty = true; c.d = Math.max(len, 1); layers[0].lock = true; fixLen();
+  afterLayer(); toast('Background layer added at the bottom (locked). Unlock it to repaint it');
 };
 const mulTargets = () => mulOn && msel.size ? layers.filter(L => msel.has(L)) : [layers[lay]];
 $('mulLayer').onclick = () => { mulOn = !mulOn; msel.clear(); if (mulOn) msel.add(layers[lay]); $('mulLayer').textContent = mulOn ? '☑ Multi: ON' : '☑ Multi'; $('mulLayer').style.background = mulOn ? '#ff8a2f' : ''; build(); };
@@ -1670,9 +1687,12 @@ function paintLine(p, wd, wall) {                  // tapping a LINE with the bu
 }
 function bucket(p) {                                // fills the area you tap, using every visible layer's lines as walls; an open shape leaks like any normal bucket
   const x0 = Math.floor(p.x), y0 = Math.floor(p.y); if (x0 < 0 || y0 < 0 || x0 >= W || y0 >= H) return;
-  fillX.clearRect(0, 0, W, H); flat(fillX, ct); const wd = fillX.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H), N = W * H;
-  for (let i = 0; i < N; i++) wall[i] = wd[i * 4 + 3] >= 64 ? 1 : 0;
-  if (wall[y0 * W + x0]) return paintLine(p, wd, wall) || toast('Tap inside a shape to fill it, or tap a line of this layer to paint the line');
+  const N = W * H, walls = mode => {                       // 'all' = every layer except a traced video · 'cur' = only the layer you are on (so a filled background or a video never blocks the bucket)
+    const hid = []; layers.forEach((L, k) => { if ((mode === 'cur' ? k !== lay : L.vid) && L.vis) { hid.push(L); L.vis = false; } });
+    try { fillX.clearRect(0, 0, W, H); flat(fillX, ct); } finally { hid.forEach(L => { L.vis = true; }); }
+    const wd = fillX.getImageData(0, 0, W, H).data, wall = new Uint8Array(N); for (let i = 0; i < N; i++) wall[i] = wd[i * 4 + 3] >= 28 ? 1 : 0; return { wd, wall }; };   // 28 so soft airbrush / crayon edges count as lines too
+  let { wd, wall } = walls('all');
+  if (wall[y0 * W + x0]) { if (paintLine(p, wd, wall)) return; ({ wd, wall } = walls('cur')); if (wall[y0 * W + x0]) return paintLine(p, wd, wall) || toast('Tap inside a shape to fill it, or tap a line of this layer to paint the line'); }
   let g = +$('bkG').value, blk = wall; if (g) { blk = dil(wall, g); if (blk[y0 * W + x0]) { g = 0; blk = wall; } }   // "Close gaps": lines closer than this count as joined (tapping right beside a line uses the plain lines)
   const R = new Uint8Array(N), st = [y0 * W + x0]; R[st[0]] = 1;
   while (st.length) { const q = st.pop(), x = q % W;
@@ -1685,7 +1705,7 @@ function bucket(p) {                                // fills the area you tap, u
   for (let i = 0; i < N; i++) if (F[i] && !wall[i]) {
     let t = 0; const x = i % W, y = (i / W) | 0;
     if (gm === 'h') t = (x - mnx) / ((mxx - mnx) || 1); else if (gm === 'v') t = (y - mny) / ((mxy - mny) || 1); else if (gm === 'r') t = Math.hypot(x - cxm, y - cym) / rad;
-    const j = i * 4; for (let c = 0, sh = 16; c < 3; c++, sh -= 8) d[j + c] = Math.round(((n1 >> sh) & 255) * (1 - t) + ((n2 >> sh) & 255) * t); d[j + 3] = 255;
+    const j = i * 4; for (let c = 0, sh = 16; c < 3; c++, sh -= 8) d[j + c] = Math.round(((n1 >> sh) & 255) * (1 - t) + ((n2 >> sh) & 255) * t); d[j + 3] = Math.round(255 * fillOp);
   }
   f.putImageData(id, 0, 0);
 }
@@ -1699,14 +1719,17 @@ function liftBoard() {                              // lasso in the dark area: c
   bundle = new Map(); boardDraw(x0, y0, x1, y1, g => { g.save(); path(g, 0, 0); g.clip(); g.clearRect(x0 - 2, y0 - 2, w + 4, h + 4); g.restore(); }); pushBundle();
   sel = { cv: c, x: x0, y: y0, s: 1, r: 0, board: true };
 }
-let lassoFill = false;
-function lassoFillGo() {                           // lasso Fill: loop around an area and it fills with the current colour (behind / in front / inside follows Draw mode)
+let lassoFill = false, fillOp = 1;
+function lassoFillGo() {                           // lasso Fill: loop an area and it fills at once (the loop closes itself and is smoothed)
   if (pts.length < 3) return; if (layers[lay].lock) return toast('This layer is locked');
-  const path = c => { c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)); c.closePath(); };
-  const go = c => { c.save(); c.globalCompositeOperation = $('dMode').value; c.fillStyle = color; path(c); c.fill(); c.restore(); };
+  const path = c => { c.beginPath(); const q = pts; c.moveTo((q[0].x + q[1].x) / 2, (q[0].y + q[1].y) / 2); for (let i = 1; i < q.length; i++) { const n = q[(i + 1) % q.length]; c.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + n.x) / 2, (q[i].y + n.y) / 2); } c.closePath(); };
+  const go = c => { c.save(); c.globalCompositeOperation = $('dMode').value; c.globalAlpha = fillOp; c.fillStyle = color; path(c); c.fill(); c.restore(); };
   if (boardMode) boardDraw(-MX, -MY, W + MX, H + MY, go); else { snap(); go(fc()); }
-  pts = []; save(); render();
+  pts = []; build(); save(); render();
 }
+const opSync = v => { fillOp = v / 100; ['selOp', 'bkOp'].forEach(i => { $(i).value = v; }); $('soN').textContent = $('boN').textContent = v; if (sel) { sel.al = fillOp; render(); } };
+$('selOp').oninput = e => opSync(+e.target.value); $('bkOp').oninput = e => opSync(+e.target.value);
+$('vOp').onpointerdown = () => { if (vsel.length) osnap(); }; $('vOp').oninput = e => { const v = +e.target.value / 100; vsel.forEach(it => { if (!it.o.clip) it.o.al = v < 1 ? v : undefined; }); if (selObj && !selObj.clip) selObj.al = v < 1 ? v : undefined; $('voN').textContent = e.target.value; render(); save(); };
 $('lfTog').hidden = true; $('lfTog').onclick = () => { lassoFill = !lassoFill; $('lfTog').textContent = lassoFill ? 'Lasso: FILL with colour' : 'Lasso: Select'; $('lfTog').style.background = lassoFill ? '#ff8a2f' : ''; };
 function lift() {                                   // cut the lassoed pixels out into a floating piece
   if (pts.length < 3) return; if (boardMode) return liftBoard();
@@ -1723,7 +1746,7 @@ function lift() {                                   // cut the lassoed pixels ou
 }
 function drawSel(c) {                               // the piece, scaled and turned around its centre
   const w = sel.cv.width, h = sel.cv.height, k = sel.s || 1;
-  c.save(); c.translate(sel.x + w / 2, sel.y + h / 2); c.rotate(sel.r || 0); c.scale(k * (sel.sx || 1), k * (sel.sy || 1)); c.drawImage(sel.cv, -w / 2, -h / 2); c.restore();
+  c.save(); c.translate(sel.x + w / 2, sel.y + h / 2); c.rotate(sel.r || 0); c.scale(k * (sel.sx || 1), k * (sel.sy || 1)); c.globalAlpha *= sel.al == null ? 1 : sel.al; c.drawImage(sel.cv, -w / 2, -h / 2); c.restore();
 }
 function selGeo() {                                 // centre + the two handles (kept inside the canvas so you can always reach them)
   const w = sel.cv.width, h = sel.cv.height, s = sel.s || 1, r = sel.r || 0, cx0 = sel.x + w / 2, cy0 = sel.y + h / 2;
@@ -2160,10 +2183,10 @@ async function soundFromFile(f) {                    // take the sound track of 
 }
 $('rvSnd').onclick = () => { if (refV) { refV.v.muted = !refV.v.muted; rvUI(); } };
 $('rvToProj').onclick = async () => { if (!refV) return; toast('Reading its sound…'); if (await soundFromFile(refV.file)) { refV.v.muted = true; rvUI(); toast('Video sound added to the project (shows in the waveform, exports too)'); } else toast('This video has no sound I can read'); };
-const oUI = () => { $('oB').value = oS.b; $('oA').value = oS.a; $('oOp').value = oS.op; $('oCb').value = oS.cb; $('oCa').value = oS.ca; $('oTint').textContent = '🎨 Tint: ' + (oS.tint ? 'on' : 'off (original colours)'); };
+const oUI = () => { $('oB').value = oS.b; $('oA').value = oS.a; $('oOp').value = oS.op; $('oCb').value = oS.cb; $('oCa').value = oS.ca; $('oSt').value = oS.st || (oS.tint ? 'tint' : 'plain'); };
 const oSet = () => { onionC.clear(); try { localStorage.setItem('yinnyOnion', JSON.stringify(oS)); } catch (e) {} oUI(); render(); };
 $('oB').onchange = e => { oS.b = +e.target.value; oSet(); }; $('oA').onchange = e => { oS.a = +e.target.value; oSet(); }; $('oOp').oninput = e => { oS.op = +e.target.value; oSet(); };
-$('oCb').oninput = e => { oS.cb = e.target.value; oSet(); }; $('oCa').oninput = e => { oS.ca = e.target.value; oSet(); }; $('oTint').onclick = () => { oS.tint = !oS.tint; oSet(); }; oUI();
+$('oCb').oninput = e => { oS.cb = e.target.value; oSet(); }; $('oCa').oninput = e => { oS.ca = e.target.value; oSet(); }; $('oSt').onchange = e => { oS.st = e.target.value; oS.tint = oS.st !== 'plain'; oSet(); }; oUI();
 $('riAdd').onclick = () => { if (!playing) $('riF').click(); };
 $('riF').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const im = new Image(); im.onload = () => { refI = { im, op: +$('riOp').value / 100 }; $('riBox').hidden = false; build(); render(); toast('Reference image added (not saved or exported)'); }; im.onerror = () => toast('Could not open that image'); im.src = URL.createObjectURL(f); };
 $('riOp').oninput = e => { if (refI) { refI.op = +e.target.value / 100; render(); } };
@@ -2238,7 +2261,10 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 61, NEWS = [
+const APPV = 64, NEWS = [
+  { v: 64, t: 'Onion skin styles + onion in timelapse', i: ['Onion skin looks (layer panel): Tint, Plain, Outline only, Soft glow, Grey ghost, Warm / cool', '⏱ Timelapse now records the onion skin too. Switch it with 🧅 Onion skin in video (new pictures only)'] },
+  { v: 63, t: 'Animate look + Background layer', i: ['🅰 New Animate look (🎨 button): charcoal panels, blue highlights, dark timeline like Adobe Animate. It turns on once; switch back any time in 🎨', '🖼 BG layer (layer panel): a locked background layer at the very bottom that covers the whole timeline', 'Every layer has a small colour tag, like Animate'] },
+  { v: 62, t: 'Bucket fix + opacity', i: ['🪣 Bucket now works with any brush, even with a video, picture or filled background on other layers (it uses your own layer if those block it)', 'Opacity slider: 🪣 Bucket (fill opacity), ➰ Lasso / 🪄 Lasso Fill, and V-Select (opacity of the selected strokes)', '🪄 Lasso Fill: the loop closes itself, is smoothed and fills right when you lift your finger'] },
   { v: 61, t: 'Pencil / V-Pen + Lasso Fill buttons', i: ['Tools now have separate buttons: ✏️ Pencil (normal) and 🖋 V-Pen (vector), same for Eraser and Line. One tap, no switching', '🪄 Lasso Fill: loop an area and it fills straight away with your colour. ➰ Lasso is still the normal select'] },
   { v: 60, t: 'Timelapse saves as MP4', i: ['⏱ ⬇ Save video now makes an MP4 (plays everywhere). Only if your phone cannot make MP4 does it fall back to WebM'] },
   { v: 59, t: 'Timelapse on/off + camera fingers', i: ['⏱ Timelapse: new ⏺ Recording ON/OFF button (red line under ⏱ = recording), more speeds, ⬇ Save video puts it on your device', 'Camera tool: use two fingers on the canvas to zoom and turn the camera'] },
@@ -2375,10 +2401,12 @@ setInterval(() => { const m = bkMinGet(); if (!m || !pid || bmOn || playing || e
 // ===== themes: dark / light / classic (your own picture) =====
 const thS = document.createElement('style'); document.head.append(thS);
 const LIGHT = `html,body{background:#e6e7ec;color:#222}:root{--pan:#f1f2f6;--tile:#d9dce5}button,select,#tools button,#top button{color:#222}#tools button.on,#top button.on,#tools button.sel,#top button.sel{color:#fff}button.on,button.sel,button.act,button.cur,button.hi,#play,#bmSave{color:#fff}#tlw,#opts{background:#e9eaf0}#stage{background:#c9ccd6}#pj{background:#dfe1e8}#pjh{background:#f1f2f6;color:#222}.pc{background:#fff;color:#222}#opts label,#fi,#top .qs,#opts{color:#333}#opts input[type=text],#opts input[type=number]{background:#fff;color:#222}.ln{background:#d9dce5;color:#222;border-top-color:#bbb}.ln.corner{background:#e9eaf0}#dbox,#nwb,#npb,#thP,#scnP,#gpop{background:#f3f3f7;color:#222}#dbox input,#kb button,#cf button{background:#dfe1e8;color:#222}#scrub{background-color:#dcdfe8}`;
+const ANIM = `html,body{background:#1e1e1e;color:#d6d6d6}:root{--pan:#323232;--tile:#3f3f3f;--hi:#2d8ceb;--cream:#3f3f3f;--ink:#e6e6e6}#top,#tools,#opts{background:#323232}#tlw{background:#2b2b2b}#stage{background:#1a1a1a}#pj{background:#1e1e1e}#pjh{background:#323232}button,select{background:#3f3f3f;color:#e6e6e6;border-color:#555}#tools button{color:#d6d6d6;background:#323232;border-radius:3px}#tools button.on,#tools button.cr,#top button.on{background:#2d8ceb;color:#fff}button.on,button.sel,button.act,button.cur,button.hi{background:#2d8ceb;color:#fff}#tlscroll{background:#262626;border-color:#111}.cell{background:#2f2f2f;border-color:#1c1c1c}.cell.five{background:#383838}.cell.gap,.cell.hold{background-color:#2a2a2a}.cell.cur{background:#3a4a63}.cell i{border-color:#e6e6e6}.cell.has i{background:#e6e6e6}.rn{background:#2b2b2b;color:#aaa;border-color:#1c1c1c}.rn.cur{background:#2d8ceb;color:#fff}.cell.cur::after,.rn.cur{box-shadow:none}.cell.cur::after{background:#2d8ceb}.ln{background:#323232;color:#ddd}.ln.corner{background:#262626}.lr.sel .ln{background:#2d6cb5}.lr.sel .cell.cur{background:#4a6a9a}#top #play{background:#e8231c;color:#fff}#opts button.on,#opts button.sel,#tlbtns button.on{background:#2d8ceb;color:#fff}#top button{color:#e6e6e6}`;
 const thGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 function applyTheme() {
+  if (thGet('yinnyAnim') !== '1') { try { localStorage.setItem('yinnyAnim', '1'); localStorage.setItem('yinnyTheme', 'animate'); } catch (e) {} }   // v63: the Animate look is on once; change it any time in 🎨
   let m = thGet('yinnyTheme') || 'dark', img = thGet('yinnyThemeImg'); if (m === 'classic' && !img) m = 'dark';
-  thS.textContent = m === 'light' ? LIGHT : m === 'classic' ? `#root{background:#111 url("${img}") center/cover no-repeat}:root{--pan:rgba(16,16,22,.55);--tile:rgba(62,62,76,.72)}#top,#tools,#opts,#tlw{background:rgba(16,16,22,.5)}#stage{background:rgba(0,0,0,.28)}#pj{background:#111 url("${img}") center/cover no-repeat}#pjh{background:rgba(16,16,22,.6)}#opts label,#top .qs,#fi{text-shadow:0 1px 3px #000;color:#fff}` : '';
+  thS.textContent = m === 'animate' ? ANIM : m === 'light' ? LIGHT : m === 'classic' ? `#root{background:#111 url("${img}") center/cover no-repeat}:root{--pan:rgba(16,16,22,.55);--tile:rgba(62,62,76,.72)}#top,#tools,#opts,#tlw{background:rgba(16,16,22,.5)}#stage{background:rgba(0,0,0,.28)}#pj{background:#111 url("${img}") center/cover no-repeat}#pjh{background:rgba(16,16,22,.6)}#opts label,#top .qs,#fi{text-shadow:0 1px 3px #000;color:#fff}` : '';
   document.querySelectorAll('#thP [data-m]').forEach(b => b.classList.toggle('cur', b.dataset.m === m));
 }
 document.querySelectorAll('#thP [data-m]').forEach(b => b.onclick = () => { if (b.dataset.m === 'classic' && !thGet('yinnyThemeImg')) return $('thImg').click(); try { localStorage.setItem('yinnyTheme', b.dataset.m); } catch (e) {} applyTheme(); });
@@ -2437,25 +2465,30 @@ let tlF = [], tlKey = null, tlLast = 0, tlBusy = false, tlSaveT = 0; const TLW =
 const tlDb = () => new Promise((ok, no) => { const r = indexedDB.open('yinnytl', 1); r.onupgradeneeded = () => r.result.createObjectStore('s'); r.onsuccess = () => ok(r.result); r.onerror = () => no(); });
 async function tlIO(mode, key, val) { try { const d = await tlDb(); return await new Promise(ok => { const t = d.transaction('s', mode === 'g' ? 'readonly' : 'readwrite'), o = t.objectStore('s'), q = mode === 'g' ? o.get(key) : mode === 'p' ? o.put(val, key) : o.delete(key); q.onsuccess = () => ok(q.result); q.onerror = () => ok(null); }); } catch (e) { return null; } }
 async function tlEnsure() { const k = 'p' + (pid || 'tmp'); if (tlKey === k) return; tlKey = k; tlF = (await tlIO('g', k)) || []; }
+let tlOnion = true; try { tlOnion = localStorage.getItem('yinnyTLO') !== '0'; } catch (e) {}
 let tlOn = true; try { tlOn = localStorage.getItem('yinnyTL') !== '0'; } catch (e) {}
 const tlDot = () => { const b = $('tlB'); if (b) b.style.boxShadow = tlOn ? 'inset 0 -3px 0 #e8231c' : ''; }; tlDot();
 async function tlCap() {
   if (!tlOn) return; const now = performance.now(); if (tlBusy || playing || drag || now - tlLast < 800) return; tlLast = now; tlBusy = true;
   try { await tlEnsure(); const c = document.createElement('canvas'); c.width = TLW; c.height = Math.round(TLW * H / W); const x = c.getContext('2d');
-    cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); flat(cx, ct); x.drawImage(cx.canvas, 0, 0, c.width, c.height);
+    cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H);
+    if (tlOnion) { onionTO = cx; onionPass = true; } try { flat(cx, ct); } finally { onionTO = null; onionPass = false; }   // the timelapse shows the onion skin too
+    x.drawImage(cx.canvas, 0, 0, c.width, c.height);
     const b = await new Promise(r => c.toBlob(r, 'image/jpeg', .6)); if (b) { tlF.push(b); if (tlF.length > TLMAX) tlF = tlF.filter((_, i) => i % 2 === 0 || i === tlF.length - 1);
       clearTimeout(tlSaveT); tlSaveT = setTimeout(() => tlIO('p', tlKey, tlF), 3000); } } catch (e) {}
   tlBusy = false;
 }
 $('tlB').onclick = async () => {
   await tlEnsure(); const o = document.createElement('div'); o.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:12px';
-  o.innerHTML = '<div style="background:#2b2b2b;color:#fff;border-radius:12px;padding:12px;max-width:600px;width:100%;font:14px sans-serif"><b>⏱ Timelapse</b> <span id="tlN"></span><canvas id="tlC" style="width:100%;background:#fff;border-radius:6px;margin:8px 0"></canvas><div>Speed <select id="tlS"><option value="5">Very slow (5/s)</option><option value="10">Slow (10/s)</option><option value="30" selected>Normal (30/s)</option><option value="60">Fast (60/s)</option><option value="120">Super fast (120/s)</option></select></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button id="tlR"></button><button id="tlP">▶ Play</button><button id="tlX">⬇ Save video</button><button id="tlD">🗑 Clear</button><button id="tlQ">Close</button></div><small id="tlM" style="display:block;margin-top:6px;opacity:.7"></small></div>';
+  o.innerHTML = '<div style="background:#2b2b2b;color:#fff;border-radius:12px;padding:12px;max-width:600px;width:100%;font:14px sans-serif"><b>⏱ Timelapse</b> <span id="tlN"></span><canvas id="tlC" style="width:100%;background:#fff;border-radius:6px;margin:8px 0"></canvas><div>Speed <select id="tlS"><option value="5">Very slow (5/s)</option><option value="10">Slow (10/s)</option><option value="30" selected>Normal (30/s)</option><option value="60">Fast (60/s)</option><option value="120">Super fast (120/s)</option></select></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button id="tlR"></button><button id="tlO"></button><button id="tlP">▶ Play</button><button id="tlX">⬇ Save video</button><button id="tlD">🗑 Clear</button><button id="tlQ">Close</button></div><small id="tlM" style="display:block;margin-top:6px;opacity:.7"></small></div>';
   document.body.append(o); const cv = o.querySelector('#tlC'), g = cv.getContext('2d'); cv.width = TLW; cv.height = Math.round(TLW * H / W);
   const N = () => o.querySelector('#tlN').textContent = '· ' + tlF.length + ' steps recorded'; N();
   let run = 0; const show = async i => { const im = await createImageBitmap(tlF[i]); g.drawImage(im, 0, 0, cv.width, cv.height); };
   if (tlF.length) show(tlF.length - 1); else o.querySelector('#tlM').textContent = 'Nothing yet: draw something and it records itself.';
   const playIt = async (rec) => { const my = ++run, f = +o.querySelector('#tlS').value; for (let i = 0; i < tlF.length && my === run; i++) { await show(i); await new Promise(r => setTimeout(r, 1000 / f)); } };
   const R = o.querySelector('#tlR'), RT = () => { R.textContent = tlOn ? '⏺ Recording: ON' : '⏸ Recording: OFF'; R.style.background = tlOn ? '#e8231c' : ''; R.style.color = tlOn ? '#fff' : ''; }; RT();
+  const OB = o.querySelector('#tlO'), OT = () => { OB.textContent = tlOnion ? '🧅 Onion skin in video: ON' : '🧅 Onion skin in video: OFF'; }; OT();
+  OB.onclick = () => { tlOnion = !tlOnion; try { localStorage.setItem('yinnyTLO', tlOnion ? '1' : '0'); } catch (e) {} OT(); toast(tlOnion ? 'New timelapse pictures show the onion skin' : 'New timelapse pictures: no onion skin'); };
   R.onclick = () => { tlOn = !tlOn; try { localStorage.setItem('yinnyTL', tlOn ? '1' : '0'); } catch (e) {} RT(); tlDot(); toast(tlOn ? 'Timelapse recording ON' : 'Timelapse recording OFF'); };
   o.querySelector('#tlP').onclick = () => { if (tlF.length) playIt(); };
   o.querySelector('#tlQ').onclick = () => { run++; o.remove(); };
