@@ -232,7 +232,7 @@ const $ = id => document.getElementById(id);
 // W x H = the whole drawing area (bigger than the camera, so you can draw outside it)
 // OW x OH = what the camera sees (the size of the video you play / export)
 let W = 1920, H = 1080, OW = 1280, OH = 720, SK = W / OW;   // SK keeps brush sizes looking the same on the bigger area
-let MX = 1280, MY = 720, VW = W + 2 * MX, VH = H + 2 * MY;       // the screen shows the canvas plus a dark border (MX / MY) you can also draw in
+let MX = 512, MY = 288, VW = W + 2 * MX, VH = H + 2 * MY;       // the screen shows the canvas plus a dark border (MX / MY) you can also draw in
 const view = $('view'), ov = $('ov'), vx = view.getContext('2d'), ox = ov.getContext('2d');
 view.width = ov.width = VW; view.height = ov.height = VH;
 const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
@@ -344,11 +344,11 @@ const findCell = o => { for (const L of layers) for (const c of L.cells) if (c.o
 const UBUDGET = 360e6, UMAX = 300;
 function ubytes(e) { if (e.d) return e.d.data.length; if (e.bd) { let n = 0; e.bd.forEach(i => { if (i) n += i.data.length; }); return n; } return 2000; }
 function trimUndo() { let b = 0; for (const e of undo) b += ubytes(e); while (undo.length > 1 && (undo.length > UMAX || b > UBUDGET)) b -= ubytes(undo.shift()); }
-const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) })) });
+const structNow = () => ({ rigs: JSON.parse(JSON.stringify(rigs)), len, lay, ct, cams: cams.map(c => ({ ...c })), layers: layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: c.objs.length ? JSON.parse(JSON.stringify(c.objs)) : [] })) })) });
 function restoreStruct(s) {
   if (s.rigs) rigs = JSON.parse(JSON.stringify(s.rigs));
   len = s.len; cams = s.cams.map(c => ({ ...c }));
-  layers = s.layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: JSON.parse(JSON.stringify(c.objs)) })) }));
+  layers = s.layers.map(L => ({ mi: L.mi, vid: L.vid, name: L.name, vis: L.vis, lock: L.lock, op: L.op, bm: L.bm, mk: L.mk, g: L.g, bl: L.bl, gl: L.gl, glc: L.glc, sh: L.sh, shc: L.shc, shd: L.shd, sha: L.sha, sht: L.sht, cells: L.cells.map(c => ({ s: c.s, d: c.d, cv: c.cv, objs: c.objs.length ? JSON.parse(JSON.stringify(c.objs)) : [] })) }));
   lay = Math.min(s.lay, layers.length - 1); ct = s.ct; selObj = null;
 }
 function osnap() { dirtyOnion(); undo.push({ st: structNow() }); trimUndo(); redo = []; }
@@ -441,7 +441,7 @@ function clampSize(w, h) {                          // camera size: even numbers
   return [Math.max(100, w - w % 2), Math.max(100, h - h % 2)];
 }
 function applySize(ow, oh) {
-  if (ow === OW && oh === OH) return; OW = ow; OH = oh; W = Math.round(ow * 1.5); H = Math.round(oh * 1.5); SK = W / OW; MX = OW; MY = OH; VW = W + 2 * MX; VH = H + 2 * MY;
+  if (ow === OW && oh === OH) return; OW = ow; OH = oh; W = Math.round(ow * 1.5); H = Math.round(oh * 1.5); SK = W / OW; MX = Math.round(OW * .4); MY = Math.round(OH * .4); VW = W + 2 * MX; VH = H + 2 * MY;
   view.width = ov.width = VW; view.height = ov.height = VH; [comp, mg, mm, oc, fillCv].forEach(c => { c.width = W; c.height = H; }); onionC.clear(); tiles.clear(); V.x = V.y = 0; V.s = 1; V.r = 0; applyV(); fit();
 }
 let oS = { b: 2, a: 2, op: 40, cb: '#e8231c', ca: '#1fa84a', tint: true }; try { Object.assign(oS, JSON.parse(localStorage.getItem('yinnyOnion') || '{}')); } catch (e) {}
@@ -529,11 +529,10 @@ function onionPaint() {                            // the ghosts of the neighbou
 function render() {
   vx.setTransform(1, 0, 0, 1, 0, 0); vx.clearRect(0, 0, view.width, view.height);
   ct = Math.max(0, Math.min(cols() - 1, ct));
-  if (playing && pcache && pcache[ct] && !refV) { vx.drawImage(pcache[ct], 0, 0, OW, OH); ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return; }
+  if (playing && pcache && !refV) { const f = pcache.arr[ct] || pcache.ensure(ct); vx.drawImage(f, 0, 0, OW, OH); return; }   // the picture is already made (or made now if it is not ready yet)
   if (playing) {                                   // play = what the camera sees
     if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } if (refV && !exporting) drawRef(cx, true);  flat(cx, ct);
-    drawCam(vx, ct, OW, OH);
-    ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, ov.width, ov.height); return;
+    drawCam(vx, ct, OW, OH); return;
   }
   vx.setTransform(1, 0, 0, 1, MX, MY);
   drawBoard(vx);
@@ -949,7 +948,7 @@ function moveTo(t, soft) {                         // move the playhead (everyth
 }
 function build() {
   if (layers[lay]) { $('lop').value = Math.round((layers[lay].op == null ? 1 : layers[lay].op) * 100); $('lopN').textContent = $('lop').value; if (layers[lay].glc) $('lglc').value = layers[lay].glc; $('lsh').value = layers[lay].sh || 0; $('lshN').textContent = layers[lay].sh || 0; if (layers[lay].shc) $('lshc').value = layers[lay].shc; [['lshd', 'shd', 'lshdN', 0], ['lsha', 'sha', 'lshaN', 45], ['lsht', 'sht', 'lshtN', 0]].forEach(([i, k, n, d]) => { const v = layers[lay][k] == null ? (k === 'shd' ? (layers[lay].sh ? Math.round(layers[lay].sh * .6) : 0) : d) : layers[lay][k]; $(i).value = v; $(n).textContent = v; }); $('lbm').value = layers[lay].bm || 'source-over'; $('lbl').value = layers[lay].bl || 0; $('lblN').textContent = layers[lay].bl || 0; $('lgl').value = layers[lay].gl || 0; $('lglN').textContent = layers[lay].gl || 0; $('lmk').value = layers[lay].mk || ''; }
-  tlbox.innerHTML = ''; const n = cols();
+  tlbox.textContent = ''; const n = cols(); const cellP = el('cell'); cellP.innerHTML = '<i></i><b class="hd"></b>'; const gapP = el('cell gap'); gapP.style.width = CW + 'px';
   const rr = el('lr rr'); rr.append(el('ln corner'));
   for (let t = 0; t < n; t++) { const kfOn = selObj && selObj.kf.some(k => k.t === t), r = el('rn' + (kfOn ? ' kf' : ''), kfOn ? '◆' : marks[t] ? '🏷' : fxs.some(e => e.t === t) ? '✦' : (tool === 'cam' && t > 0 && cams[t] && cams[t].k) ? '📷' : (t === 0 || (t + 1) % 5 === 0) ? t + 1 : ''); r.dataset.t = t; if (marks[t]) r.title = marks[t]; { const R = RG(); if (R) r.classList.add(t >= R.a && t <= R.b ? 'rg' : 'out'); } r.style.width = CW + 'px'; rr.append(r); }
   tlbox.append(rr);
@@ -974,10 +973,10 @@ function build() {
     ln.onpointerdown = e => lpDrag(e, k);
     lr.append(ln);
     let t = 0;
-    const gap = (a, b) => { for (let x = a; x < b; x++) { const g = el('cell gap'); g.dataset.l = k; g.dataset.t = x; g.style.width = CW + 'px'; lr.append(g); } };
+    const gap = (a, b) => { if (b <= a) return; const fr = document.createDocumentFragment(); for (let x = a; x < b; x++) { const g = gapP.cloneNode(); g.dataset.l = k; g.dataset.t = x; fr.append(g); } lr.append(fr); };
     L.cells.forEach((c, ci) => {
-      gap(t, c.s); const d = el('cell' + (c.d > 1 ? ' hold' : '') + ((c.cv && c.cv._has) || c.objs.length ? ' has' : ''));
-      d.dataset.l = k; d.dataset.ci = ci; d.dataset.t = c.s; d.style.width = c.d * CW + 'px'; d.innerHTML = '<i></i><b class="hd"></b>'; lr.append(d); t = c.s + c.d;
+      gap(t, c.s); const d = cellP.cloneNode(true); d.className = 'cell' + (c.d > 1 ? ' hold' : '') + ((c.cv && c.cv._has) || c.objs.length ? ' has' : '');
+      d.dataset.l = k; d.dataset.ci = ci; d.dataset.t = c.s; d.style.width = c.d * CW + 'px'; lr.append(d); t = c.s + c.d;
     });
     gap(t, n); tlbox.append(lr);
   }
@@ -1916,25 +1915,32 @@ $('undo').onclick = () => swap(undo, redo);
 $('redo').onclick = () => swap(redo, undo);
 
 // ---------- play + export ----------
-function setPlay(on) { viewPlay = on; view.width = on ? OW : VW; view.height = on ? OH : VH; fit(); }   // playing shows only what the camera sees
+function setPlay(on) { viewPlay = on; ov.style.visibility = on ? 'hidden' : ''; view.width = on ? OW : VW; view.height = on ? OH : VH; fit(); }   // playing shows only what the camera sees
 let playFrom = 0;
 function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAnimationFrame(timer); clearInterval(timer); playing = false; setPlay(false); $('play').innerHTML = '<b>▶</b>Play'; render(); hl(); fpsTxt = ''; $('fbadge').style.color = ''; }
-let pcache = null;                                 // play = every frame drawn ONCE up front, then just shown: smooth even on a slow phone
+let pcache = null;                                 // playback keeps a moving window of ready-made pictures: starts fast, uses little memory, works for thousands of frames
 async function prepare() {
-  const n = len, f = Math.min(1, Math.sqrt(140e6 / (n * 4 * OW * OH))), w = Math.round(OW * f), h = Math.round(OH * f), map = new Map(), arr = [];
+  const n = len, w = Math.min(OW, 1024), h = Math.round(w * OH / OW), maxC = Math.max(24, Math.floor(150e6 / (4 * w * h))), arr = new Array(n).fill(null), karr = new Array(n), map = new Map();
   const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl + ',' + c.gl)(camFx(t));   // frames that look identical share one picture
-  let t0 = performance.now();
-  for (let t = 0; t < n; t++) {
-    const k = keyOf(t); let cv = map.get(k);
-    if (!cv) {
-      cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-      if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t);
-      drawCam(cv.getContext('2d'), t, w, h); map.set(k, cv);
-    }
-    arr.push(cv);
-    if (performance.now() - t0 > 40) { t0 = performance.now(); toast('Getting ready… ' + Math.round(t / n * 100) + '%'); await new Promise(r => setTimeout(r)); if (!playing) return null; }
+  const P = { arr, n, w, h, maxC, pos: 0,
+    ensure(t) {
+      if (arr[t]) return arr[t]; const k = keyOf(t); let cv = map.get(k);
+      if (!cv) { cv = document.createElement('canvas'); cv.width = w; cv.height = h; if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t); drawCam(cv.getContext('2d'), t, w, h); map.set(k, cv); }
+      arr[t] = cv; karr[t] = k; return cv;
+    },
+    trim() { while (map.size > maxC) { let bt = -1, bd = -1; for (let u = 0; u < n; u++) if (arr[u]) { const d = (u - P.pos + n) % n; if (d > bd) { bd = d; bt = u; } } if (bt < 0) break; const k = karr[bt]; map.delete(k); for (let u = 0; u < n; u++) if (arr[u] && karr[u] === k) arr[u] = null; } }
+  };
+  const warm = Math.min(n, Math.max(8, Math.round(fps * 1.2))); let t0 = performance.now();
+  for (let t = 0; t < warm; t++) { P.ensure((ct + t) % n); if (performance.now() - t0 > 40) { t0 = performance.now(); toast('Getting ready… ' + Math.round(t / warm * 100) + '%'); await new Promise(r => setTimeout(r)); if (!playing) return null; } }
+  P.trim(); return P;
+}
+function pcPump(P, step) {                         // between two frames the phone has spare time: use it to make the NEXT pictures ahead of the playhead
+  if (!playing || pcache !== P) return; const t0 = performance.now(); let more = false;
+  while (performance.now() - t0 < 6) {
+    let f = P.pos, u = -1; for (let d = 1; d < Math.min(P.n, P.maxC - 6); d++) { f = step(f); if (!P.arr[f]) { u = f; break; } }
+    if (u < 0) break; P.ensure(u); P.trim(); more = true;
   }
-  return arr;
+  setTimeout(() => pcPump(P, step), more ? 0 : 80);
 }
 $('play').onclick = async () => {
   if (playing) { stop(); ct = playFrom; render(); hl(); return; }   // Stop puts you back on the frame you pressed Play on
@@ -1943,6 +1949,7 @@ $('play').onclick = async () => {
   commit(); playing = true; setPlay(true); $('play').innerHTML = '<b>⏹</b>Stop';
   try { pcache = (refV || rfOn()) ? null : await prepare(); } catch (e) { pcache = null; } if (!playing) return;
   $('toast').classList.remove('on');
+  if (pcache) { const R0 = RG(); pcPump(pcache, f => { f++; return R0 ? (f > R0.b ? R0.a : f) : (f >= pcache.n ? 0 : f); }); }
   const R = RG(), rn = R ? R.b - R.a + 1 : plen, lp = x => R ? R.a + (((x - R.a) % rn) + rn) % rn : x % plen;   // loop inside the range
   let t = R ? ((ct < R.a || ct > R.b) ? R.a : ct) : (ct >= plen ? 0 : ct);
   if (audio) { aEl.currentTime = t / fps; aEl.play().catch(() => {}); }
@@ -1950,7 +1957,7 @@ $('play').onclick = async () => {
   let prev = performance.now(), acc = 0, shown = 0, since = prev; fpsTxt = ''; const fd = () => 1000 / fps;
   const tick = now => {                            // steady frame pacing: skips frames if the phone falls behind instead of slowing down
     if (!playing) return; acc += Math.min(now - prev, 250); prev = now;
-    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = lp(t + k); if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame(lp(t + j)); t = nt; ct = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
+    if (acc >= fd()) { const k = Math.floor(acc / fd()); acc -= k * fd(); const nt = lp(t + k); if (nt < t && audio) { aEl.currentTime = 0; aEl.play().catch(() => {}); } for (let j = 1; j <= k; j++) sfxFrame(lp(t + j)); t = nt; ct = t; if (pcache) pcache.pos = t; render(); shown++; if (now - since > 600) { const a = Math.round(shown * 1000 / (now - since)); fpsTxt = ' · playing at ' + a + '/' + fps + ' fps'; $('fbadge').style.color = a < fps * .9 ? '#ff6b6b' : '#7dff9b'; shown = 0; since = now; } phOnly(); }
     timer = requestAnimationFrame(tick);
   };
   timer = requestAnimationFrame(tick);
@@ -2075,7 +2082,8 @@ async function saveNow() {
   if (clipRet || bmOn) return;
   try { if (!pid) pid = 'p' + Date.now(); await putP({ id: pid, name: pname, t: Date.now(), thumb: thumbURL(), data: dataNow() }); localStorage.setItem('easylast', pid); localStorage.removeItem('easyanim'); } catch (e) {}
 }
-function save() { try { tlCap(); } catch (e) {} dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500); }   // never saves in the middle of a stroke or playback
+function save() { try { tlCap(); } catch (e) {} dirtyOnion(); clearTimeout(st); st = setTimeout(function w() { if (drag || playing) return void (st = setTimeout(w, 1500)); saveNow(); }, 1500 + Math.min(8000, len * 2)); }   // big projects save a little less often so drawing stays smooth · never saves in the middle of a stroke or playback
+document.addEventListener('visibilitychange', () => { if (document.hidden && !drag && !playing) { clearTimeout(st); saveNow(); } });   // leaving the app saves right away
 function migrate(d) {                                            // projects saved before layers owned their keyframes
   const L = d.layers.map(l => ({ name: l.name, vis: l.vis !== false, lock: false, cells: [] })), cm = []; let t = 0;
   d.frames.forEach(f => {
@@ -2261,7 +2269,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 64, NEWS = [
+const APPV = 65, NEWS = [
+  { v: 65, t: 'Speed upgrade', i: ['▶ Play starts in about a second and no longer pre-draws every frame: smooth on long animations (built for thousands of frames) and sharper picture', 'Drawing area uses much less memory (smaller dark border around the canvas)', 'Big projects save less often while you draw and save as soon as you leave the app', 'Faster undo snapshots'] },
   { v: 64, t: 'Onion skin styles + onion in timelapse', i: ['Onion skin looks (layer panel): Tint, Plain, Outline only, Soft glow, Grey ghost, Warm / cool', '⏱ Timelapse now records the onion skin too. Switch it with 🧅 Onion skin in video (new pictures only)'] },
   { v: 63, t: 'Animate look + Background layer', i: ['🅰 New Animate look (🎨 button): charcoal panels, blue highlights, dark timeline like Adobe Animate. It turns on once; switch back any time in 🎨', '🖼 BG layer (layer panel): a locked background layer at the very bottom that covers the whole timeline', 'Every layer has a small colour tag, like Animate'] },
   { v: 62, t: 'Bucket fix + opacity', i: ['🪣 Bucket now works with any brush, even with a video, picture or filled background on other layers (it uses your own layer if those block it)', 'Opacity slider: 🪣 Bucket (fill opacity), ➰ Lasso / 🪄 Lasso Fill, and V-Select (opacity of the selected strokes)', '🪄 Lasso Fill: the loop closes itself, is smoothed and fills right when you lift your finger'] },
@@ -2469,7 +2478,7 @@ let tlOnion = true; try { tlOnion = localStorage.getItem('yinnyTLO') !== '0'; } 
 let tlOn = true; try { tlOn = localStorage.getItem('yinnyTL') !== '0'; } catch (e) {}
 const tlDot = () => { const b = $('tlB'); if (b) b.style.boxShadow = tlOn ? 'inset 0 -3px 0 #e8231c' : ''; }; tlDot();
 async function tlCap() {
-  if (!tlOn) return; const now = performance.now(); if (tlBusy || playing || drag || now - tlLast < 800) return; tlLast = now; tlBusy = true;
+  if (!tlOn) return; const now = performance.now(); if (tlBusy || playing || drag || now - tlLast < (len > 600 ? 3000 : 800)) return; tlLast = now; tlBusy = true;
   try { await tlEnsure(); const c = document.createElement('canvas'); c.width = TLW; c.height = Math.round(TLW * H / W); const x = c.getContext('2d');
     cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H);
     if (tlOnion) { onionTO = cx; onionPass = true; } try { flat(cx, ct); } finally { onionTO = null; onionPass = false; }   // the timelapse shows the onion skin too
