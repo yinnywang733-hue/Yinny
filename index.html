@@ -1919,12 +1919,12 @@ function setPlay(on) { viewPlay = on; ov.style.visibility = on ? 'hidden' : ''; 
 let playFrom = 0;
 function stop() { pcache = null; if (refV) refV.v.pause(); aEl.pause(); cancelAnimationFrame(timer); clearInterval(timer); playing = false; setPlay(false); $('play').innerHTML = '<b>▶</b>Play'; render(); hl(); fpsTxt = ''; $('fbadge').style.color = ''; }
 let pcache = null;                                 // playback keeps a moving window of ready-made pictures: starts fast, uses little memory, works for thousands of frames
+const frameKey = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl + ',' + c.gl)(camFx(t));   // frames that look identical share one picture
 async function prepare() {
   const n = len, w = Math.min(OW, 1024), h = Math.round(w * OH / OW), maxC = Math.max(24, Math.floor(150e6 / (4 * w * h))), arr = new Array(n).fill(null), karr = new Array(n), map = new Map();
-  const keyOf = t => layers.map(L => { const i = cellIdx(L, t); return i < 0 ? '-' : i + (L.cells[i].objs.length ? '@' + t : ''); }).join(',') + '|' + (c => c.x + ',' + c.y + ',' + c.z + ',' + c.r + ',' + c.fl + ',' + c.bl + ',' + c.gl)(camFx(t));   // frames that look identical share one picture
   const P = { arr, n, w, h, maxC, pos: 0,
     ensure(t) {
-      if (arr[t]) return arr[t]; const k = keyOf(t); let cv = map.get(k);
+      if (arr[t]) return arr[t]; const k = frameKey(t); let cv = map.get(k);
       if (!cv) { cv = document.createElement('canvas'); cv.width = w; cv.height = h; if (xAlpha) cx.clearRect(0, 0, W, H); else { cx.fillStyle = bgCol; cx.fillRect(0, 0, W, H); } flat(cx, t); drawCam(cv.getContext('2d'), t, w, h); map.set(k, cv); }
       arr[t] = cv; karr[t] = k; return cv;
     },
@@ -2034,19 +2034,35 @@ function exportVideo(mp4) {
     const types = mp4 ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm'];
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { xStatus(mp4 ? 'This browser cannot make MP4. Try WebM or GIF.' : 'Video export is not supported here. Try GIF.'); return res(false); }
-    const back = ct, chunks = [], [ra, rb] = xRange(); setPlay(true); playing = true;
-    const [xw, xh] = $('xRes').value.split('x').map(Number), vsrc = (xw === OW && xh === OH) ? view : Object.assign(document.createElement('canvas'), { width: xw, height: xh }), vg = vsrc === view ? null : vsrc.getContext('2d'), paintOut = () => { if (vg) { vg.clearRect(0, 0, xw, xh); drawCam(vg, ct, xw, xh); } };
-    const stream = vsrc.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
-    try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
-    const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-    rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
-    let last = -1; const t0 = performance.now(), total = (rb - ra + 1) * 1000 / fps; rec.start(500); if (audio) { aEl.currentTime = ra / fps; aEl.play().catch(() => {}); }
-    const iv = setInterval(() => {
-      const el = performance.now() - t0;
-      if (el >= total + 1000) { clearInterval(iv); try { rec.requestData(); } catch (e) {} rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }   // hold the last frame so the end is never cut
-      const f = ra + Math.min(rb - ra, Math.floor(el * fps / 1000));
-      if (f !== last) { last = f; ct = f; sfxFrame(ct); render(); paintOut(); push(); hl(); xStatus('Recording frame ' + (f + 1) + ' / ' + len); } else if (el > total) { render(); paintOut(); push(); }   // keep drawing so the recorder gets the final frame
-    }, 1000 / Math.max(fps, 24) / 2);
+    const back = ct, chunks = [], [ra, rb] = xRange(), N = rb - ra + 1; setPlay(true); playing = true;
+    const [xw, xh] = $('xRes').value.split('x').map(Number), rc = Object.assign(document.createElement('canvas'), { width: xw, height: xh }), rg = rc.getContext('2d'), tmp = Object.assign(document.createElement('canvas'), { width: xw, height: xh }), tg = tmp.getContext('2d');
+    (async () => {
+      // step 1: draw every frame ONCE as a picture (no hurry, so a slow phone cannot make the video skip or lag)
+      const pics = new Array(N), seen = new Map(); let t0 = performance.now();
+      for (let i = 0; i < N; i++) {
+        const t = ra + i, k = frameKey(t);
+        if (seen.has(k)) pics[i] = seen.get(k);
+        else { ct = t; render(); tg.clearRect(0, 0, xw, xh); if (xw === OW && xh === OH) tg.drawImage(view, 0, 0); else drawCam(tg, t, xw, xh); pics[i] = await new Promise(r => tmp.toBlob(r, 'image/jpeg', .95)); seen.set(k, pics[i]); }
+        if (performance.now() - t0 > 250) { t0 = performance.now(); xStatus('Preparing frame ' + (i + 1) + ' / ' + N); await new Promise(r => setTimeout(r)); }
+      }
+      // step 2: record the pictures at exactly the right speed (only a cheap picture copy per frame now)
+      const bm = new Map(), use = new Map(), dec = async (i) => { const bl = pics[i]; if (!bl || bm.has(bl)) { if (bl) use.set(bl, i); return; } bm.set(bl, null); use.set(bl, i); try { bm.set(bl, await createImageBitmap(bl)); } catch (e) { bm.delete(bl); } };
+      const show = i => { const b = bm.get(pics[i]); if (!b) return false; rg.drawImage(b, 0, 0, xw, xh); return true; };
+      await Promise.all([0, 1, 2, 3, 4, 5, 6, 7].map(i => dec(Math.min(i, N - 1)))); show(0);
+      const stream = rc.captureStream(fps); let rd = null; const vt = stream.getVideoTracks()[0], push = () => { try { if (vt && vt.requestFrame) vt.requestFrame(); } catch (e) {} };
+      try { ac(); rd = AC.createMediaStreamDestination(); sfxBus.connect(rd); if (audio && !aSrc) { aSrc = AC.createMediaElementSource(aEl); aSrc.connect(AC.destination); } if (aSrc) aSrc.connect(rd); rd.stream.getAudioTracks().forEach(t => stream.addTrack(t)); } catch (e) { rd = null; }   // sound effects + your imported sound go into the video
+      const rec = new MediaRecorder(stream, { mimeType: mt }); rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      rec.onstop = () => { try { if (rd) { sfxBus.disconnect(rd); if (aSrc) aSrc.disconnect(rd); } aEl.pause(); } catch (e) {} bm.forEach(b => b && b.close && b.close()); download(new Blob(chunks, { type: mt.split(';')[0] }), pfile('.' + (mp4 ? 'mp4' : 'webm'))); res(true); };
+      let last = -1; const s0 = performance.now(), total = N * 1000 / fps; rec.start(500); if (audio) { aEl.currentTime = ra / fps; aEl.play().catch(() => {}); }
+      const iv = setInterval(() => {
+        const el = performance.now() - s0;
+        if (el >= total + 1000) { clearInterval(iv); try { rec.requestData(); } catch (e) {} rec.stop(); playing = false; setPlay(false); ct = back; render(); hl(); return; }   // hold the last frame so the end is never cut
+        const i = Math.min(N - 1, Math.floor(el * fps / 1000));
+        for (let k = 0; k < 8; k++) dec(Math.min(N - 1, i + k));
+        use.forEach((u, bl) => { if (u < i - 3) { const b = bm.get(bl); if (b && b.close) b.close(); bm.delete(bl); use.delete(bl); } });
+        if (i !== last && show(i)) { last = i; ct = ra + i; sfxFrame(ct); push(); hl(); xStatus('Recording frame ' + (i + 1) + ' / ' + N); } else if (el > total) { push(); }
+      }, 1000 / Math.max(fps, 24) / 2);
+    })().catch(e => { playing = false; setPlay(false); ct = back; render(); xStatus('Export failed: ' + e.message); res(false); });
   });
 }
 async function runExport(kind) {
@@ -2269,7 +2285,8 @@ document.querySelectorAll('input[type=range]').forEach(el => { el.style.touchAct
   const go = e => { const r = el.getBoundingClientRect(), rot = document.documentElement.classList.contains('rot'), w = rot ? r.height : r.width, x = LX(e) - S(r.left, r.top).x, mn = +el.min || 0, mxv = +el.max || 100, st = +el.step || 1;
     let v = mn + Math.max(0, Math.min(1, (x - 8) / Math.max(1, w - 16))) * (mxv - mn); v = Math.round(v / st) * st; if (+el.value !== v) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } };
   el.addEventListener('pointerdown', e => { e.preventDefault(); on = true; el.setPointerCapture(e.pointerId); go(e); }); el.addEventListener('pointermove', e => { if (on) go(e); }); el.addEventListener('pointerup', () => { on = false; }); el.addEventListener('pointercancel', () => { on = false; }); });   // swipe through the frames
-const APPV = 65, NEWS = [
+const APPV = 66, NEWS = [
+  { v: 66, t: 'Exported video no longer lags', i: ['MP4 / WebM export now draws every frame first, then records at the exact speed, so slow phones and long animations give a smooth video (the export takes a bit longer, with a Preparing step)'] },
   { v: 65, t: 'Speed upgrade', i: ['▶ Play starts in about a second and no longer pre-draws every frame: smooth on long animations (built for thousands of frames) and sharper picture', 'Drawing area uses much less memory (smaller dark border around the canvas)', 'Big projects save less often while you draw and save as soon as you leave the app', 'Faster undo snapshots'] },
   { v: 64, t: 'Onion skin styles + onion in timelapse', i: ['Onion skin looks (layer panel): Tint, Plain, Outline only, Soft glow, Grey ghost, Warm / cool', '⏱ Timelapse now records the onion skin too. Switch it with 🧅 Onion skin in video (new pictures only)'] },
   { v: 63, t: 'Animate look + Background layer', i: ['🅰 New Animate look (🎨 button): charcoal panels, blue highlights, dark timeline like Adobe Animate. It turns on once; switch back any time in 🎨', '🖼 BG layer (layer panel): a locked background layer at the very bottom that covers the whole timeline', 'Every layer has a small colour tag, like Animate'] },
